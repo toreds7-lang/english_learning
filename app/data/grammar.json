@@ -1,0 +1,871 @@
+{
+  "units": [
+    {"id": "now", "title": "Me and my world", "description": "Talk about yourself, your day and the things around you."},
+    {"id": "past", "title": "Stories and experiences", "description": "Tell what happened, what you have done, and how things used to be."},
+    {"id": "future", "title": "Plans and possibilities", "description": "Talk about plans, promises, predictions and what will happen if…"},
+    {"id": "people", "title": "Ask, advise and guess", "description": "Ask politely, give advice, explain rules and make good guesses."},
+    {"id": "describe", "title": "Describe and compare", "description": "Compare things, say exactly which one you mean, and join verbs together."},
+    {"id": "connect", "title": "Imagine, report and connect", "description": "Imagine, pass on messages, focus on results and link your ideas."}
+  ],
+  "points": [
+    {
+      "id": "be",
+      "unit": "now",
+      "order": 1,
+      "title": "Say who you are and what things are like",
+      "grammar": "be: am, is, are",
+      "band": "A1",
+      "use": "Use am, is and are to say who or what something is, what it is like, where it is, and how old someone is.",
+      "form": [
+        "I am (I'm) · you / we / they are (you're) · he / she / it is (she's)",
+        "Not: I'm not · he isn't · they aren't",
+        "Questions: Are you OK? · Where is the bus stop?",
+        "There is one… · There are two…"
+      ],
+      "examples": [
+        "Hi, I*'m* Leo. I*'m* eleven and I*'m* from Brazil.",
+        "This soup *is* too hot.",
+        "*Are* you ready? We*'re* late!",
+        "*There are* two cafés near the station."
+      ],
+      "mistakes": [
+        {"wrong": "I have twelve years old.", "right": "I *am* twelve years old.", "why": "For age, English uses be, not have."},
+        {"wrong": "He very tired.", "right": "He *is* very tired.", "why": "Every sentence needs a verb. With words like tired, happy or late, use be."}
+      ],
+      "mission": "Introduce yourself in three sentences: your name, your age or job, and where you are from. Then describe one person you like.",
+      "questions": [
+        {"type": "situation", "context": "You meet a new classmate. How do you tell them your age?", "options": ["I'm fourteen.", "I have fourteen years.", "I'm having fourteen years."], "answer": 0, "why": "Age uses be: I'm fourteen, or I'm fourteen years old."},
+        {"type": "gap", "sentence": "My keys *are* on the table.", "options": ["is", "are", "am"], "why": "Keys means more than one, so use are."},
+        {"type": "gap", "sentence": "*Is* there a bank near here?", "options": ["Is", "Are", "Am"], "why": "A bank is one thing: Is there…? For two or more, use Are there…?"},
+        {"type": "fix", "sentence": "My brother *have* hungry.", "right": "is", "why": "Hungry describes how someone is, so use be: My brother is hungry."},
+        {"type": "situation", "context": "You want to know where your friend is right now. What do you text?", "options": ["Where are you?", "Where you are?", "Where do you are?"], "answer": 0, "why": "In questions, be comes before the person: Where are you?"},
+        {"type": "order", "answer": "Are your parents at home?", "why": "Questions with be start with Are or Is: Are + your parents + at home?"}
+      ]
+    },
+    {
+      "id": "present-simple",
+      "unit": "now",
+      "order": 2,
+      "title": "Talk about habits, routines and facts",
+      "grammar": "Present simple",
+      "band": "A1",
+      "use": "Use it for things that are usually or always true: habits, routines, likes and dislikes, and facts about the world.",
+      "form": [
+        "I / you / we / they work · he / she / it works (add -s!)",
+        "Not: I don't work · she doesn't work",
+        "Questions: Do you work? · Does he work?",
+        "Often with: always, usually, often, sometimes, never, every day"
+      ],
+      "examples": [
+        "I *get up* at seven and *walk* to school.",
+        "My dad *works* in a hospital.",
+        "She *doesn't eat* meat.",
+        "*Do* you *play* any sports?",
+        "Water *boils* at 100 degrees."
+      ],
+      "mistakes": [
+        {"wrong": "She like chocolate.", "right": "She *likes* chocolate.", "why": "With he, she and it, add -s to the verb."},
+        {"wrong": "He don't live here.", "right": "He *doesn't live* here.", "why": "With he, she and it, use doesn't — and the verb after it has no -s."}
+      ],
+      "mission": "Describe your normal weekday in four sentences. Use always, usually or never at least once.",
+      "questions": [
+        {"type": "situation", "context": "A new friend asks: \"What do you do on Saturdays?\" You answer about your habit.", "options": ["I usually play football.", "I'm playing football.", "I played football."], "answer": 0, "why": "A habit — something you usually do — uses the present simple."},
+        {"type": "gap", "sentence": "My sister *watches* TV every evening.", "options": ["watch", "watches", "watching"], "why": "She + verb + -s. Watch ends in -ch, so add -es."},
+        {"type": "gap", "sentence": "*Does* your brother speak English?", "options": ["Do", "Does", "Is"], "why": "Questions about he, she or it use Does + verb (no -s)."},
+        {"type": "fix", "sentence": "My mum *don't* drink coffee.", "right": "doesn't", "why": "With he, she or it (my mum = she), use doesn't."},
+        {"type": "situation", "context": "You are explaining a fact about nature.", "options": ["The sun rises in the east.", "The sun is rising in the east.", "The sun rise in the east."], "answer": 0, "why": "Facts that are always true use the present simple, with -s for it."},
+        {"type": "order", "answer": "We never eat lunch at school.", "why": "Words like never, always and usually go before the main verb."}
+      ]
+    },
+    {
+      "id": "present-continuous",
+      "unit": "now",
+      "order": 3,
+      "title": "Say what is happening now",
+      "grammar": "Present continuous",
+      "band": "A1",
+      "use": "Use it for actions happening at this moment or around now, and for things that are changing.",
+      "form": [
+        "am / is / are + verb-ing: I'm reading · She's sleeping · They're playing",
+        "Not: I'm not listening · He isn't working",
+        "Questions: Are you coming? · What are you doing?",
+        "Not with know, like, want, need, believe: say I know, not I'm knowing"
+      ],
+      "examples": [
+        "Shh! The baby *is sleeping*.",
+        "What *are* you *doing*? I*'m looking* for my phone.",
+        "It*'s raining*, so take an umbrella.",
+        "My English *is getting* better."
+      ],
+      "mistakes": [
+        {"wrong": "I am understand now.", "right": "I *understand* now.", "why": "Understand, know, like and want are not usually used with -ing."},
+        {"wrong": "Look! The bus come.", "right": "Look! The bus *is coming*.", "why": "For something happening right now, use am / is / are + -ing."}
+      ],
+      "mission": "Look around you right now. Write four sentences about what people (or animals) are doing.",
+      "questions": [
+        {"type": "situation", "context": "Your friend calls and asks why you can't talk.", "options": ["I'm cooking dinner.", "I cook dinner.", "I cooked dinner."], "answer": 0, "why": "It is happening right now, so use am / is / are + -ing."},
+        {"type": "situation", "context": "Which sentence is about a habit, not about right now?", "options": ["I walk to school every day.", "I'm walking to school.", "Look, I'm walking to school now!"], "answer": 0, "why": "Every day shows a habit, so use the present simple. Now uses am / is / are + -ing."},
+        {"type": "gap", "sentence": "Look! Those children *are swimming* in the lake.", "options": ["swim", "are swimming", "is swimming"], "why": "Look! shows it is happening now. Children is plural, so use are swimming."},
+        {"type": "gap", "sentence": "I *know* the answer!", "options": ["know", "am knowing", "knowing"], "why": "Know is not used with -ing. Say I know."},
+        {"type": "fix", "sentence": "She *talking* on the phone right now.", "right": "is talking", "why": "You need am / is / are before the -ing verb."},
+        {"type": "order", "answer": "What are you reading now?", "why": "Question word + are + you + verb-ing."}
+      ]
+    },
+    {
+      "id": "questions",
+      "unit": "now",
+      "order": 4,
+      "title": "Ask questions",
+      "grammar": "Questions with do, does, did and question words",
+      "band": "A1–A2",
+      "use": "Questions start conversations. Put a helper verb (do, does, did, is, are, can…) before the person or thing.",
+      "form": [
+        "Yes / no: Do you like it? · Is she here? · Can you swim?",
+        "Question word + helper + person + verb: Where do you live?",
+        "Past: What did you eat? (did + base verb)",
+        "Who as the doer: Who called you? (no do / did)"
+      ],
+      "examples": [
+        "*Where do* you *live*?",
+        "*What did* you *do* at the weekend?",
+        "*How often do* you *go* to the gym?",
+        "*Can* you *help* me with this?",
+        "*Who told* you that?"
+      ],
+      "mistakes": [
+        {"wrong": "Where you live?", "right": "Where *do* you live?", "why": "Most questions need a helper verb before the person: do, does, did, is, can…"},
+        {"wrong": "What did you ate?", "right": "What did you *eat*?", "why": "After did, use the base verb: eat, not ate."}
+      ],
+      "mission": "Write five questions you would ask a new friend to get to know them. Use five different question words.",
+      "questions": [
+        {"type": "situation", "context": "You want to know when the shop opens.", "options": ["What time does the shop open?", "What time the shop opens?", "What time does the shop opens?"], "answer": 0, "why": "Question word + does + the shop + base verb (open, not opens)."},
+        {"type": "gap", "sentence": "*Did* you see the match last night?", "options": ["Do", "Did", "Were"], "why": "Last night is in the past, so use Did + base verb."},
+        {"type": "gap", "sentence": "How *does* your sister get to work?", "options": ["do", "does", "is"], "why": "Your sister = she, so use does."},
+        {"type": "fix", "sentence": "Why *you are* late?", "right": "are you", "why": "In questions, the helper verb comes before the person: Why are you late?"},
+        {"type": "situation", "context": "You didn't hear your new classmate's name. What do you ask?", "options": ["Sorry, what's your name again?", "Sorry, what your name is?", "Sorry, what is name your?"], "answer": 0, "why": "Question word + is + your name: What's your name?"},
+        {"type": "order", "answer": "Where did you buy that jacket?", "why": "Question word + did + you + base verb."}
+      ]
+    },
+    {
+      "id": "articles",
+      "unit": "now",
+      "order": 5,
+      "title": "Use a, an, the — or nothing",
+      "grammar": "Articles",
+      "band": "A1–B1",
+      "use": "A / an means one of many, new to the listener. The means you both know which one. Use no article for things in general.",
+      "form": [
+        "a + consonant sound (a cat, a university) · an + vowel sound (an apple, an hour)",
+        "First time: I saw a dog. After that: The dog was huge.",
+        "Only one: the sun, the sea, the internet",
+        "In general, no article: I love dogs. · Music helps me relax."
+      ],
+      "examples": [
+        "I saw *a* dog in the park. *The* dog was huge!",
+        "Can you close *the* door, please?",
+        "My aunt is *an* engineer.",
+        "*Dogs* are friendly, but *the* dog next door isn't!"
+      ],
+      "mistakes": [
+        {"wrong": "My father is engineer.", "right": "My father is *an* engineer.", "why": "Jobs need a or an: She's a nurse. He's an engineer."},
+        {"wrong": "The life is beautiful.", "right": "*Life* is beautiful.", "why": "For things in general, don't use the."}
+      ],
+      "mission": "Describe your room: say what is in it (There's a… / an…), then say one thing about each (The… is…).",
+      "questions": [
+        {"type": "situation", "context": "You tell a friend about a cat they have never heard of.", "options": ["I saw a cat in the garden.", "I saw the cat in the garden.", "I saw cat in the garden."], "answer": 0, "why": "It's new to the listener, so use a."},
+        {"type": "gap", "sentence": "She's *an* honest person.", "options": ["a", "an", "the"], "why": "Honest starts with a vowel sound (the h is silent), so use an."},
+        {"type": "gap", "sentence": "Can you turn off *the* light, please?", "options": ["a", "the", "an"], "why": "You both know which light, so use the."},
+        {"type": "fix", "sentence": "My sister wants to be *doctor*.", "right": "a doctor", "why": "Jobs need a or an: a doctor."},
+        {"type": "situation", "context": "You are talking about elephants in general.", "options": ["Elephants are very clever.", "The elephants are very clever.", "An elephants are very clever."], "answer": 0, "why": "For all elephants in general, use no article with the plural."},
+        {"type": "order", "answer": "There is a bank on the corner.", "why": "A bank = one of many, new to the listener. The corner = we know which one."}
+      ]
+    },
+    {
+      "id": "quantity",
+      "unit": "now",
+      "order": 6,
+      "title": "Talk about amounts",
+      "grammar": "some, any, much, many, a few, a little, a lot of",
+      "band": "A1–A2",
+      "use": "Use these words to say how much or how many — when you shop, cook, plan or complain.",
+      "form": [
+        "Things you can count (apples, friends): many, a few, How many…?",
+        "Things you can't count (water, money, time): much, a little, How much…?",
+        "Both: a lot of · some in + sentences · any in – sentences and questions",
+        "Offers and requests use some: Would you like some tea?"
+      ],
+      "examples": [
+        "We need *some* eggs, but we don't need *any* milk.",
+        "*How much* money do you have?",
+        "I have *a few* friends in London.",
+        "There isn't *much* time — hurry up!",
+        "She drinks *a lot of* water."
+      ],
+      "mistakes": [
+        {"wrong": "How many money do you need?", "right": "*How much* money do you need?", "why": "You can't count money (you count euros or dollars), so use much."},
+        {"wrong": "I don't have some time.", "right": "I don't have *any* time.", "why": "In not-sentences, use any."}
+      ],
+      "mission": "Plan a small party. Write three sentences: We need some…, We don't need any…, and How many / How much…?",
+      "questions": [
+        {"type": "gap", "sentence": "How *many* people are coming to the party?", "options": ["much", "many", "a little"], "why": "You can count people, so use many."},
+        {"type": "gap", "sentence": "Is there *any* milk in the fridge?", "options": ["some", "any", "many"], "why": "Questions usually use any."},
+        {"type": "situation", "context": "You are offering a drink to a guest.", "options": ["Would you like some coffee?", "Would you like any coffee?", "Would you like many coffee?"], "answer": 0, "why": "Offers use some, even though they are questions."},
+        {"type": "situation", "context": "You don't have much free time — but it's enough to help a friend.", "options": ["I have a little time, so I can help.", "I have little time, so I can help.", "I have a few time, so I can help."], "answer": 0, "why": "A little = some, enough. Little (without a) = almost none. Time can't be counted, so not a few."},
+        {"type": "fix", "sentence": "There are too *much* cars in the city.", "right": "many", "why": "You can count cars, so use many."},
+        {"type": "order", "answer": "We don't have any bread.", "why": "Not-sentences use any: don't have any + thing."}
+      ]
+    },
+    {
+      "id": "prepositions",
+      "unit": "now",
+      "order": 7,
+      "title": "Say when and where",
+      "grammar": "in, on, at for time and place",
+      "band": "A1–A2",
+      "use": "At is for an exact point, on is for days and surfaces, in is for longer times and inside spaces.",
+      "form": [
+        "Time: at 7 o'clock, at night · on Monday, on 5 May · in June, in 2025, in the morning",
+        "Place: at the bus stop, at home · on the table, on the wall · in the box, in London",
+        "Small to big: at (a point) → on (a day, a surface) → in (a month, a year, an area)"
+      ],
+      "examples": [
+        "The film starts *at* 8 o'clock.",
+        "Let's meet *on* Saturday *at* the café.",
+        "I was born *in* 2010, *in* a small town.",
+        "Your phone is *on* the kitchen table."
+      ],
+      "mistakes": [
+        {"wrong": "See you in Monday!", "right": "See you *on* Monday!", "why": "Days use on."},
+        {"wrong": "We have a meeting at the afternoon.", "right": "We have a meeting *in* the afternoon.", "why": "Parts of the day use in: in the morning, in the evening (but at night)."}
+      ],
+      "mission": "Write your plan for next week: three things, each with a day, a time and a place.",
+      "questions": [
+        {"type": "gap", "sentence": "My birthday is *in* July.", "options": ["in", "on", "at"], "why": "Months use in."},
+        {"type": "gap", "sentence": "The shop closes *at* 6 p.m.", "options": ["in", "on", "at"], "why": "Clock times use at."},
+        {"type": "situation", "context": "You tell a friend where you will wait for them.", "options": ["I'll wait for you at the bus stop.", "I'll wait for you on the bus stop.", "I'll wait for you in the bus stop."], "answer": 0, "why": "A meeting point uses at."},
+        {"type": "gap", "sentence": "There's a picture *on* the wall.", "options": ["in", "on", "at"], "why": "Surfaces — walls, tables, floors — use on."},
+        {"type": "fix", "sentence": "We usually go skiing *on* winter.", "right": "in", "why": "Seasons use in."},
+        {"type": "order", "answer": "I'll see you on Friday at noon.", "accept": ["I'll see you at noon on Friday."], "why": "On + a day, at + a clock time."}
+      ]
+    },
+    {
+      "id": "past-simple",
+      "unit": "past",
+      "order": 8,
+      "title": "Tell what happened",
+      "grammar": "Past simple",
+      "band": "A1–A2",
+      "use": "Use it for finished actions at a finished time: yesterday, last week, in 2019, when I was a child. It is the main tense of stories.",
+      "form": [
+        "Regular verbs + -ed: walked, played, stopped",
+        "Irregular verbs: go → went, see → saw, eat → ate, have → had",
+        "Not and questions: didn't + base verb · Did you + base verb?",
+        "be: I / he / she was · you / we / they were"
+      ],
+      "examples": [
+        "Yesterday I *went* to the beach and *swam* in the sea.",
+        "We *watched* a great film last night.",
+        "I *didn't sleep* well.",
+        "*Did* you *enjoy* the party?",
+        "When I *was* a child, I *lived* on a farm."
+      ],
+      "mistakes": [
+        {"wrong": "I didn't went to school.", "right": "I didn't *go* to school.", "why": "After didn't, use the base verb."},
+        {"wrong": "Yesterday I buy a new bag.", "right": "Yesterday I *bought* a new bag.", "why": "Yesterday is finished time, so use the past. Buy is irregular: bought."}
+      ],
+      "mission": "Tell the story of your yesterday in five sentences, in order: First…, Then…, After that…, Finally…",
+      "questions": [
+        {"type": "gap", "sentence": "Last summer we *went* to Italy.", "options": ["go", "went", "have gone"], "why": "Last summer is finished time. Go → went."},
+        {"type": "gap", "sentence": "I *didn't see* you at the party.", "options": ["didn't see", "didn't saw", "not saw"], "why": "didn't + base verb."},
+        {"type": "situation", "context": "Your friend asks about your weekend.", "options": ["I visited my grandparents.", "I visit my grandparents.", "I have visited my grandparents last weekend."], "answer": 0, "why": "The weekend is finished, so use the past simple. Don't use have + -ed with finished times."},
+        {"type": "fix", "sentence": "She *catched* the ball.", "right": "caught", "why": "Catch is irregular: catch → caught."},
+        {"type": "situation", "context": "You want to know if your friend liked the film yesterday.", "options": ["Did you like the film?", "Do you like the film?", "Did you liked the film?"], "answer": 0, "why": "Did + base verb: like, not liked."},
+        {"type": "order", "answer": "We missed the bus this morning.", "why": "Person + past verb + the rest."}
+      ]
+    },
+    {
+      "id": "past-continuous",
+      "unit": "past",
+      "order": 11,
+      "title": "Set the scene in a story",
+      "grammar": "Past continuous",
+      "band": "A2",
+      "use": "Use it for an action in progress at a moment in the past — the background of a story. Use the past simple for the short action that happened in the middle of it.",
+      "form": [
+        "was / were + verb-ing: I was walking · They were talking",
+        "Background + event: I was cooking when the phone rang.",
+        "while + background: While we were waiting, it started to rain."
+      ],
+      "examples": [
+        "I *was having* a shower when the lights went out.",
+        "At 9 p.m. we *were watching* a film.",
+        "While she *was walking* home, she found a wallet.",
+        "The sun *was shining* and the birds *were singing*."
+      ],
+      "mistakes": [
+        {"wrong": "When I arrived, they was eating.", "right": "When I arrived, they *were eating*.", "why": "They, we and you use were."},
+        {"wrong": "I was knowing the answer.", "right": "I *knew* the answer.", "why": "Know, want and like are not used with -ing."}
+      ],
+      "mission": "Start a story about a real memory: what was happening (the weather, the people around you)? Then say what suddenly happened.",
+      "questions": [
+        {"type": "situation", "context": "Which sentence means the phone rang in the middle of your dinner?", "options": ["I was eating dinner when the phone rang.", "I ate dinner when the phone rang.", "I ate dinner, and then the phone rang."], "answer": 0, "why": "Was eating = in progress. The phone rang in the middle of it."},
+        {"type": "gap", "sentence": "What *were* you doing at 10 last night?", "options": ["were", "did", "was"], "why": "To ask about an action in progress at a past time: What were you doing?"},
+        {"type": "gap", "sentence": "While I *was waiting* for the bus, I met an old friend.", "options": ["was waiting", "waited", "am waiting"], "why": "While + the longer background action: was / were + -ing."},
+        {"type": "fix", "sentence": "We *was playing* football when it started to snow.", "right": "were playing", "why": "We uses were."},
+        {"type": "situation", "context": "You are setting the scene at the start of a story.", "options": ["It was a cold night, and the wind was blowing.", "It is a cold night, and the wind blew.", "It was a cold night, and the wind blows."], "answer": 0, "why": "The background of a past story uses was / were + -ing."},
+        {"type": "order", "answer": "She was reading when I came in.", "why": "Background (was reading) + short event (came in)."}
+      ]
+    },
+    {
+      "id": "present-perfect",
+      "unit": "past",
+      "order": 13,
+      "title": "Talk about experiences and news",
+      "grammar": "Present perfect",
+      "band": "A2–B1",
+      "use": "Use it when the exact time is not important: life experiences (ever, never), fresh news (just), and results you can see now (already, yet).",
+      "form": [
+        "have / has + past participle: I've seen · She's finished · They haven't arrived",
+        "Experience: Have you ever been to Japan? No, I've never been there.",
+        "News and results: I've just eaten. · Have you finished yet? · I've already done it.",
+        "With a finished time (yesterday, in 2020), use the past simple instead."
+      ],
+      "examples": [
+        "*Have* you ever *tried* Korean food?",
+        "I*'ve* never *seen* snow!",
+        "Oh no, I*'ve lost* my keys.",
+        "She*'s* just *called* — she's on her way.",
+        "We *haven't finished* our homework yet."
+      ],
+      "mistakes": [
+        {"wrong": "I have seen him yesterday.", "right": "I *saw* him yesterday.", "why": "With a finished time like yesterday, use the past simple."},
+        {"wrong": "He has went home.", "right": "He has *gone* home.", "why": "After have / has, use the past participle: gone, not went."}
+      ],
+      "mission": "Write three things you have done in your life and two things you have never done. Then ask someone: Have you ever…?",
+      "questions": [
+        {"type": "situation", "context": "You want to know if your friend has ever flown.", "options": ["Have you ever been on a plane?", "Are you ever on a plane?", "Had you ever been on a plane?"], "answer": 0, "why": "Life experience: Have you ever + past participle?"},
+        {"type": "situation", "context": "Which sentence is correct?", "options": ["I lost my keys yesterday.", "I have lost my keys yesterday.", "I have lose my keys yesterday."], "answer": 0, "why": "Yesterday is a finished time, so use the past simple."},
+        {"type": "gap", "sentence": "I'm not hungry — I've just *eaten*.", "options": ["ate", "eaten", "eat"], "why": "have + past participle: eat → eaten."},
+        {"type": "gap", "sentence": "*Have* you finished your homework yet?", "options": ["Have", "Has", "Do"], "why": "Yet asks about a result now: Have you finished…?"},
+        {"type": "fix", "sentence": "She has *wrote* three books.", "right": "written", "why": "The past participle of write is written."},
+        {"type": "order", "answer": "I have never seen a whale.", "why": "have + never + past participle."}
+      ]
+    },
+    {
+      "id": "for-since",
+      "unit": "past",
+      "order": 19,
+      "title": "Say how long",
+      "grammar": "Present perfect with for and since",
+      "band": "B1",
+      "use": "Use it for something that started in the past and is still true now. For + a length of time; since + the starting point.",
+      "form": [
+        "have / has + past participle + for / since: I've lived here for three years.",
+        "Actions: have / has been + -ing: She's been waiting since 9 o'clock.",
+        "for two hours, for ten years · since Monday, since 2019, since I was a child",
+        "Question: How long have you known her?"
+      ],
+      "examples": [
+        "I*'ve lived* in this city *for* five years.",
+        "We*'ve known* each other *since* primary school.",
+        "She*'s been learning* the piano *for* six months.",
+        "*How long have* you *had* that dog?"
+      ],
+      "mistakes": [
+        {"wrong": "I live here since 2020.", "right": "I *have lived* here since 2020.", "why": "It started in the past and is still true, so use have lived, not live."},
+        {"wrong": "I've worked here since three years.", "right": "I've worked here *for* three years.", "why": "For + a length of time; since + a starting point."}
+      ],
+      "mission": "Answer for yourself: How long have you lived in your home? How long have you known your best friend? How long have you been learning English?",
+      "questions": [
+        {"type": "gap", "sentence": "I've had this phone *since* last Christmas.", "options": ["for", "since", "from"], "why": "Last Christmas is the starting point, so use since."},
+        {"type": "gap", "sentence": "They've been married *for* twenty years.", "options": ["for", "since", "during"], "why": "Twenty years is a length of time, so use for."},
+        {"type": "situation", "context": "You started working here in 2021 and you still work here.", "options": ["I've worked here since 2021.", "I work here since 2021.", "I worked here since 2021."], "answer": 0, "why": "Still true now + since: use have / has + past participle."},
+        {"type": "situation", "context": "You want to ask how many years your teacher has lived in your town.", "options": ["How long have you lived here?", "How long do you live here?", "How long are you living here?"], "answer": 0, "why": "How long + have you + past participle — from the past until now."},
+        {"type": "fix", "sentence": "I *am waiting* for you for an hour!", "right": "have been waiting", "why": "It started an hour ago and is still going on: have been waiting."},
+        {"type": "order", "answer": "How long have you been learning English?", "why": "How long + have + you + been + verb-ing."}
+      ]
+    },
+    {
+      "id": "used-to",
+      "unit": "past",
+      "order": 16,
+      "title": "Talk about how things used to be",
+      "grammar": "used to",
+      "band": "A2–B1",
+      "use": "Use used to for past habits and situations that are not true any more. It is perfect for comparing then and now.",
+      "form": [
+        "used to + base verb: I used to play the violin.",
+        "Not: didn't use to (no d): I didn't use to like fish.",
+        "Question: Did you use to…?",
+        "Only for the past. For now, use usually: I usually walk."
+      ],
+      "examples": [
+        "I *used to be* afraid of the dark.",
+        "There *used to be* a cinema here.",
+        "We *didn't use to have* a car.",
+        "*Did* you *use to wear* glasses?"
+      ],
+      "mistakes": [
+        {"wrong": "I am used to play tennis when I was young.", "right": "I *used to play* tennis when I was young.", "why": "For past habits, say used to + verb, with no am."},
+        {"wrong": "Did you used to live here?", "right": "Did you *use to* live here?", "why": "After did or didn't, write use to (no d)."}
+      ],
+      "mission": "Compare your life five years ago and now: write three sentences with used to and three with these days.",
+      "questions": [
+        {"type": "situation", "context": "You had long hair as a child, but now it's short.", "options": ["I used to have long hair.", "I use to have long hair.", "I was having long hair."], "answer": 0, "why": "A past situation that is not true now: used to + verb."},
+        {"type": "gap", "sentence": "There *used to* be a park here, but now it's a car park.", "options": ["used to", "uses to", "was used to"], "why": "Something that was true before but not now: used to."},
+        {"type": "gap", "sentence": "I didn't *use* to like vegetables.", "options": ["use", "used", "using"], "why": "didn't + use to (no d)."},
+        {"type": "situation", "context": "Which sentence is about now, not the past?", "options": ["I usually cycle to work.", "I used to cycle to work.", "I didn't use to cycle to work."], "answer": 0, "why": "Used to is only for the past. For present habits, use usually + present simple."},
+        {"type": "fix", "sentence": "My grandfather *use to* tell us stories.", "right": "used to", "why": "In normal (+) sentences, write used to."},
+        {"type": "order", "answer": "Did you use to live in the country?", "why": "Did + you + use to + verb."}
+      ]
+    },
+    {
+      "id": "past-perfect",
+      "unit": "past",
+      "order": 24,
+      "title": "Say what had happened before",
+      "grammar": "Past perfect",
+      "band": "B1",
+      "use": "In a past story, use had + past participle for something that happened before another past moment. It makes the order of events clear.",
+      "form": [
+        "had + past participle: I had left · She hadn't eaten",
+        "Earlier event: had done · later event: did",
+        "When I arrived, the film had started. (It started first.)",
+        "Often with: already, before, never, by the time"
+      ],
+      "examples": [
+        "When we got to the station, the train *had* already *left*.",
+        "I *had* never *seen* the sea before that trip.",
+        "She was hungry because she *hadn't eaten* all day.",
+        "By the time the police arrived, the thief *had escaped*."
+      ],
+      "mistakes": [
+        {"wrong": "When I arrived, the party already finished.", "right": "When I arrived, the party *had* already *finished*.", "why": "The party finished before you arrived, so use had finished."},
+        {"wrong": "I had went there before.", "right": "I had *gone* there before.", "why": "had + past participle: gone, not went."}
+      ],
+      "mission": "Tell about a time you arrived late (or too early) somewhere. What had already happened when you got there?",
+      "questions": [
+        {"type": "situation", "context": "Which sentence means the film started before you arrived?", "options": ["When I arrived, the film had started.", "When I arrived, the film started.", "When I arrived, the film was starting."], "answer": 0, "why": "Had started = it started first, before you arrived."},
+        {"type": "gap", "sentence": "I couldn't get in because I *had lost* my key.", "options": ["had lost", "have lost", "was losing"], "why": "You lost the key before you tried to get in: had lost."},
+        {"type": "gap", "sentence": "She *hadn't* finished her homework, so she couldn't go out.", "options": ["hasn't", "hadn't", "didn't"], "why": "Before another past event: hadn't + past participle."},
+        {"type": "situation", "context": "In a story about last year, you say it was your first flight.", "options": ["I had never flown before.", "I never fly before.", "I have never flown before then."], "answer": 0, "why": "Before a moment in the past: had never + past participle."},
+        {"type": "fix", "sentence": "When we got home, we saw that someone *broke* the window.", "right": "had broken", "why": "The window was broken before you got home: had broken."},
+        {"type": "order", "answer": "By the time I woke up, everyone had left.", "accept": ["Everyone had left by the time I woke up."], "why": "By the time + past simple, then had + past participle for the earlier event."}
+      ]
+    },
+    {
+      "id": "future",
+      "unit": "future",
+      "order": 12,
+      "title": "Talk about plans, promises and predictions",
+      "grammar": "will, going to, present continuous",
+      "band": "A2–B1",
+      "use": "Going to for plans you have already made and things you can see coming. Will for quick decisions, offers, promises and opinions about the future. The present continuous for fixed arrangements.",
+      "form": [
+        "Plan: I'm going to study medicine.",
+        "You can see it coming: Look at those clouds — it's going to rain.",
+        "Decision now, offer, promise: I'll help you! · I'll call you later.",
+        "Arrangement with a time and place: I'm meeting Sam at six."
+      ],
+      "examples": [
+        "I*'m going to visit* my aunt next weekend.",
+        "It's cold — I*'ll close* the window.",
+        "Don't worry, I *won't tell* anyone.",
+        "We*'re having* a party on Saturday. Can you come?",
+        "I think robots *will do* most jobs one day."
+      ],
+      "mistakes": [
+        {"wrong": "I will to call you tomorrow.", "right": "I *will call* you tomorrow.", "why": "will + base verb, without to."},
+        {"wrong": "I think it rains tomorrow.", "right": "I think it *will rain* tomorrow.", "why": "For a prediction, use will (or going to), not the present simple."}
+      ],
+      "mission": "Write your plans for next weekend (I'm going to…), one arrangement with a time (I'm meeting…), and one promise to someone (I'll…).",
+      "questions": [
+        {"type": "situation", "context": "The doorbell rings. You decide right now to open the door.", "options": ["I'll get it!", "I'm going to get it!", "I get it!"], "answer": 0, "why": "A decision made at this moment uses will."},
+        {"type": "situation", "context": "You booked a table for dinner with your friend on Friday at 8.", "options": ["We're having dinner together on Friday.", "We have dinner together on Friday sometimes.", "We had dinner together on Friday."], "answer": 0, "why": "A fixed arrangement uses the present continuous."},
+        {"type": "gap", "sentence": "Look at that dark sky! It's *going to* rain.", "options": ["going to", "will to", "goes to"], "why": "You can see it coming now, so use going to."},
+        {"type": "gap", "sentence": "I promise I *won't be* late.", "options": ["won't be", "don't be", "am not being"], "why": "Promises use will / won't."},
+        {"type": "fix", "sentence": "She *will to start* a new job next month.", "right": "will start", "why": "will + base verb, without to."},
+        {"type": "order", "answer": "What are you going to do this summer?", "why": "Question word + are + you + going to + verb."}
+      ]
+    },
+    {
+      "id": "if-real",
+      "unit": "future",
+      "order": 17,
+      "title": "Talk about real possibilities",
+      "grammar": "if + present, will (first conditional)",
+      "band": "A2–B1",
+      "use": "Use it for things that can really happen and their results: warnings, deals, and plan B. If + present, present is for things that are always true.",
+      "form": [
+        "If + present, will + verb: If it rains, we'll stay home.",
+        "The if part can come second: We'll stay home if it rains.",
+        "No will after if: If you come (not if you will come)…",
+        "Always true: If you heat ice, it melts."
+      ],
+      "examples": [
+        "*If* it *rains* tomorrow, we*'ll watch* a film at home.",
+        "*If* you *don't hurry*, you*'ll miss* the bus.",
+        "I*'ll lend* you my bike *if* you *bring* it back by six.",
+        "*If* you *mix* blue and yellow, you *get* green."
+      ],
+      "mistakes": [
+        {"wrong": "If it will rain, we will stay home.", "right": "If it *rains*, we will stay home.", "why": "Don't use will after if. Use the present."},
+        {"wrong": "If you study, you pass the exam next week.", "right": "If you study, you *will pass* the exam next week.", "why": "The result in the future needs will."}
+      ],
+      "mission": "Write three warnings or deals you could really say this week: If you…, I'll… / If we don't…, we'll…",
+      "questions": [
+        {"type": "gap", "sentence": "If you *touch* that, it will break.", "options": ["touch", "will touch", "touched"], "why": "After if (about the future), use the present: if you touch."},
+        {"type": "gap", "sentence": "If we leave now, we *will catch* the train.", "options": ["will catch", "would catch", "caught"], "why": "A real possibility: if + present, will + verb."},
+        {"type": "situation", "context": "You warn a child near a hot stove.", "options": ["If you touch it, you'll burn yourself.", "If you will touch it, you burn yourself.", "If you touched it, you burn yourself."], "answer": 0, "why": "A real danger: if + present, will + verb."},
+        {"type": "situation", "context": "Which sentence is about something that is always true?", "options": ["If you heat water to 100°C, it boils.", "If it's sunny tomorrow, we'll go out.", "If I see her, I'll tell her."], "answer": 0, "why": "If + present, present is for facts that are always true."},
+        {"type": "fix", "sentence": "I'll call you if I *will have* time.", "right": "have", "why": "No will after if: if I have time."},
+        {"type": "order", "answer": "If you need help, I'll be in the kitchen.", "accept": ["I'll be in the kitchen if you need help."], "why": "If + present, will + verb. The if part can go first or second."}
+      ]
+    },
+    {
+      "id": "can-could",
+      "unit": "people",
+      "order": 9,
+      "title": "Say what you can do, and ask politely",
+      "grammar": "can, could, be able to · Could you…?",
+      "band": "A1–B1",
+      "use": "Use can for what you are able or allowed to do now, and could for the past. Could you…? and Would you mind…? make requests polite.",
+      "form": [
+        "can / can't + base verb: I can swim. · She can't come.",
+        "Past: could / couldn't · was able to",
+        "Requests, from casual to polite: Can you…? → Could you…? → Would you mind + -ing?",
+        "Asking for permission: Can I…? · Could I…? · May I…?"
+      ],
+      "examples": [
+        "I *can speak* three languages.",
+        "When I was five, I *couldn't ride* a bike.",
+        "*Could* you *open* the window, please?",
+        "*Would* you *mind closing* the door?",
+        "*Can* I *use* your phone for a minute?"
+      ],
+      "mistakes": [
+        {"wrong": "I can to swim.", "right": "I *can swim*.", "why": "can + base verb, without to."},
+        {"wrong": "Would you mind to help me?", "right": "Would you mind *helping* me?", "why": "Would you mind + -ing."}
+      ],
+      "mission": "Write three polite requests you might really need this week — at school, at work or in a shop — from casual to very polite.",
+      "questions": [
+        {"type": "situation", "context": "You need directions from a stranger in the street.", "options": ["Excuse me, could you tell me the way to the station?", "Tell me the way to the station.", "You can tell me the way to the station?"], "answer": 0, "why": "Could you…? is polite. An order sounds rude to a stranger."},
+        {"type": "gap", "sentence": "Last year I *couldn't* swim, but now I can.", "options": ["can't", "couldn't", "don't"], "why": "Past ability: could / couldn't."},
+        {"type": "gap", "sentence": "Would you mind *waiting* a moment?", "options": ["waiting", "to wait", "wait"], "why": "Would you mind + -ing."},
+        {"type": "situation", "context": "You want permission to leave work early.", "options": ["Could I leave a bit early today?", "Could you leave a bit early today?", "I could leave early today?"], "answer": 0, "why": "To ask for permission: Could I…? / Can I…?"},
+        {"type": "fix", "sentence": "She *cans* play the guitar.", "right": "can", "why": "Can never takes -s."},
+        {"type": "order", "answer": "Could you help me with my bag?", "why": "Could + you + base verb + the rest."}
+      ]
+    },
+    {
+      "id": "advice-rules",
+      "unit": "people",
+      "order": 14,
+      "title": "Give advice and explain rules",
+      "grammar": "should, must, have to, don't have to",
+      "band": "A2–B1",
+      "use": "Should = a good idea (advice). Must / have to = necessary (rules). Mustn't = don't do it! Don't have to = not necessary, you can choose.",
+      "form": [
+        "Advice: You should see a doctor. · You shouldn't stay up so late.",
+        "Necessary: You have to wear a seat belt. · Visitors must sign in.",
+        "Not allowed: You mustn't smoke here.",
+        "Not necessary: You don't have to come (but you can)."
+      ],
+      "examples": [
+        "You look tired. You *should go* to bed early.",
+        "I *have to wear* a uniform at work.",
+        "You *mustn't touch* the paintings in the museum.",
+        "It's Saturday — I *don't have to get up* early!",
+        "*Should* I *bring* anything to the party?"
+      ],
+      "mistakes": [
+        {"wrong": "You don't have to smoke here. (It's not allowed.)", "right": "You *mustn't* smoke here.", "why": "Mustn't = not allowed. Don't have to = not necessary."},
+        {"wrong": "You should to try it.", "right": "You *should try* it.", "why": "should + base verb, without to."}
+      ],
+      "mission": "A friend is starting at your school or job. Write two rules (have to / mustn't), one thing they don't have to do, and two pieces of advice (should).",
+      "questions": [
+        {"type": "situation", "context": "Your friend has a bad toothache.", "options": ["You should see a dentist.", "You mustn't see a dentist.", "You don't have to see a dentist."], "answer": 0, "why": "Advice — a good idea — uses should."},
+        {"type": "situation", "context": "In this library, food is not allowed.", "options": ["You mustn't eat in here.", "You don't have to eat in here.", "You shouldn't to eat in here."], "answer": 0, "why": "Not allowed: mustn't."},
+        {"type": "gap", "sentence": "Tomorrow is a holiday, so we *don't have to* go to school.", "options": ["mustn't", "don't have to", "shouldn't"], "why": "Not necessary: don't have to."},
+        {"type": "gap", "sentence": "My brother *has to* wear glasses for reading.", "options": ["have to", "has to", "must to"], "why": "He / she / it: has to."},
+        {"type": "fix", "sentence": "You *should to* drink more water.", "right": "should", "why": "No to after should."},
+        {"type": "order", "answer": "What time do you have to be at work?", "why": "Question word + do + you + have to + verb."}
+      ]
+    },
+    {
+      "id": "guessing",
+      "unit": "people",
+      "order": 21,
+      "title": "Guess and say how sure you are",
+      "grammar": "must, might, may, could, can't for guessing",
+      "band": "B1",
+      "use": "Use these to guess about now or the future. Must = I'm almost sure it's true. Might / may / could = maybe. Can't = I'm almost sure it's not true.",
+      "form": [
+        "Almost sure (yes): She must be at home — her car is outside.",
+        "Maybe: He might be busy. · It may rain later. · That could be Tom.",
+        "Almost sure (no): That can't be right!",
+        "About the past: must have / might have / can't have + past participle"
+      ],
+      "examples": [
+        "You've worked all day — you *must be* exhausted.",
+        "Take an umbrella. It *might rain* later.",
+        "That *can't be* Lisa — she's in Spain this week.",
+        "I can't find my wallet. I *may have left* it at the café."
+      ],
+      "mistakes": [
+        {"wrong": "He mustn't be at home — the lights are off.", "right": "He *can't be* at home — the lights are off.", "why": "For a sure no-guess, use can't, not mustn't."},
+        {"wrong": "She might comes later.", "right": "She might *come* later.", "why": "might + base verb, with no -s."}
+      ],
+      "mission": "Look at a photo of people you don't know, or out of the window. Write three guesses: They must be…, She might…, He can't be…",
+      "questions": [
+        {"type": "situation", "context": "Your friend hasn't eaten all day. You are almost sure:", "options": ["You must be hungry!", "You might be hungry, I don't know.", "You can't be hungry!"], "answer": 0, "why": "Strong evidence: must."},
+        {"type": "situation", "context": "You are not sure if you will go to the party.", "options": ["I might go to the party.", "I must go to the party.", "I can't go to the party."], "answer": 0, "why": "Not sure: might / may."},
+        {"type": "gap", "sentence": "That *can't* be true! I saw him five minutes ago.", "options": ["mustn't", "can't", "might"], "why": "Almost sure it's not true: can't."},
+        {"type": "gap", "sentence": "Where's Ana? She *might* be in the garden. I'm not sure.", "options": ["must", "might", "can't"], "why": "Not sure: might."},
+        {"type": "fix", "sentence": "The door's locked — they *mustn't* be home.", "right": "can't", "why": "A sure no-guess uses can't. Mustn't means not allowed."},
+        {"type": "order", "answer": "It might snow this weekend.", "why": "might + base verb."}
+      ]
+    },
+    {
+      "id": "comparisons",
+      "unit": "describe",
+      "order": 10,
+      "title": "Compare things",
+      "grammar": "Comparatives, superlatives, as … as",
+      "band": "A2",
+      "use": "Use these to compare two things (cheaper, more expensive), pick the top one in a group (the cheapest), or say two things are the same (as cheap as).",
+      "form": [
+        "Short words: cheap → cheaper → the cheapest · big → bigger → the biggest · easy → easier",
+        "Long words: more / the most: more comfortable, the most beautiful",
+        "Irregular: good → better → the best · bad → worse → the worst",
+        "The same: as fast as · not the same: not as fast as"
+      ],
+      "examples": [
+        "This phone is *cheaper than* that one.",
+        "Summer is *the best* season of the year.",
+        "Walking is *healthier than* driving, but it's *slower*.",
+        "The film was *more interesting than* the book.",
+        "My brother is *as tall as* my dad now."
+      ],
+      "mistakes": [
+        {"wrong": "She is more taller than me.", "right": "She is *taller than* me.", "why": "Use -er or more, not both."},
+        {"wrong": "This is the most cheap hotel.", "right": "This is *the cheapest* hotel.", "why": "Short words take -est."}
+      ],
+      "mission": "Compare two places, phones or foods you know: three sentences with -er / more, one with the …-est, and one with as … as.",
+      "questions": [
+        {"type": "gap", "sentence": "My new school is *bigger* than my old one.", "options": ["bigger", "more big", "biggest"], "why": "Big → bigger (double the g)."},
+        {"type": "gap", "sentence": "This is *the most* expensive restaurant in town.", "options": ["the most", "the more", "most"], "why": "A long word, the top one in a group: the most expensive."},
+        {"type": "situation", "context": "You and your friend are both 165 cm tall.", "options": ["I'm as tall as you.", "I'm taller than you.", "I'm the tallest as you."], "answer": 0, "why": "The same: as … as."},
+        {"type": "situation", "context": "Gift A costs €20 and gift B costs €35.", "options": ["A is cheaper than B.", "A is more cheap than B.", "A is cheapest than B."], "answer": 0, "why": "Cheap is short: cheaper than."},
+        {"type": "fix", "sentence": "Today is *more hot* than yesterday.", "right": "hotter", "why": "Short words take -er: hot → hotter."},
+        {"type": "order", "answer": "It was the worst day of my life.", "why": "bad → worse → the worst."}
+      ]
+    },
+    {
+      "id": "relative-clauses",
+      "unit": "describe",
+      "order": 20,
+      "title": "Say which person or thing you mean",
+      "grammar": "who, which, that, where",
+      "band": "B1",
+      "use": "Use who, which, that and where to show exactly which person, thing or place you mean. It also helps when you forget a word: the thing that opens bottles.",
+      "form": [
+        "People: who (or that) — the woman who lives next door",
+        "Things: which (or that) — the bus that goes to the airport",
+        "Places: where — the café where we met",
+        "Often you can leave out that: the film (that) we saw"
+      ],
+      "examples": [
+        "That's the man *who* fixed my bike.",
+        "I lost the book *that* you gave me.",
+        "This is the café *where* we first met.",
+        "I need the thing *that* opens bottles. What's it called?"
+      ],
+      "mistakes": [
+        {"wrong": "The man which lives next door is a doctor.", "right": "The man *who* lives next door is a doctor.", "why": "For people, use who (or that), not which."},
+        {"wrong": "This is the book that I bought it yesterday.", "right": "This is the book *that I bought* yesterday.", "why": "Don't add it — that already means the book."}
+      ],
+      "mission": "Play a word game: explain three words without saying them — It's a person who… / It's a thing that… / It's a place where… Ask someone to guess!",
+      "questions": [
+        {"type": "gap", "sentence": "The girl *who* won the race is my cousin.", "options": ["who", "which", "where"], "why": "For people, use who."},
+        {"type": "gap", "sentence": "Do you remember the hotel *where* we stayed last year?", "options": ["where", "who", "which"], "why": "For places, use where."},
+        {"type": "situation", "context": "You forgot the word charger. How can you ask for it?", "options": ["Do you have the thing that charges my phone?", "Do you have the thing who charges my phone?", "Do you have the thing where charges my phone?"], "answer": 0, "why": "For things, use that or which."},
+        {"type": "situation", "context": "You tell a visitor which bus to take.", "options": ["Take the bus that goes to the city centre.", "Take the bus who goes to the city centre.", "Take the bus goes to the city centre."], "answer": 0, "why": "For things, use that or which."},
+        {"type": "fix", "sentence": "I have a friend *which* speaks five languages.", "right": "who", "why": "A friend is a person, so use who."},
+        {"type": "order", "answer": "This is the photo that I took in Paris.", "why": "the thing + that + person + verb."}
+      ]
+    },
+    {
+      "id": "verb-patterns",
+      "unit": "describe",
+      "order": 15,
+      "title": "Use two verbs together",
+      "grammar": "Verb + to-infinitive or -ing",
+      "band": "A2–B1",
+      "use": "When two verbs meet, the first one decides the form of the second: want to go, but enjoy going. Learn them in groups.",
+      "form": [
+        "+ to: want, need, decide, hope, plan, promise, learn, would like → I want to leave.",
+        "+ -ing: enjoy, finish, mind, avoid, keep, stop, suggest → I enjoy cooking.",
+        "Both are fine: like, love, hate, start, begin → I like swimming / to swim.",
+        "After words like at, in, for, about: always -ing → I'm good at drawing."
+      ],
+      "examples": [
+        "I *want to learn* how to cook.",
+        "She *enjoys playing* the guitar.",
+        "We *decided to stay* at home.",
+        "Have you *finished eating*?",
+        "I'm interested *in learning* Japanese."
+      ],
+      "mistakes": [
+        {"wrong": "I enjoy to read.", "right": "I enjoy *reading*.", "why": "enjoy + -ing."},
+        {"wrong": "I want going home.", "right": "I want *to go* home.", "why": "want + to + verb."}
+      ],
+      "mission": "Write about yourself: two things you enjoy doing, one thing you want to do this year, one thing you have decided to stop doing, and one thing you are good at.",
+      "questions": [
+        {"type": "gap", "sentence": "I'm hoping *to see* you soon.", "options": ["to see", "seeing", "see"], "why": "hope + to + verb."},
+        {"type": "gap", "sentence": "He kept *talking* during the film.", "options": ["talking", "to talk", "talk"], "why": "keep + -ing."},
+        {"type": "situation", "context": "You tell a friend about your plan for this year.", "options": ["I've decided to learn the guitar.", "I've decided learning the guitar.", "I've decided learn the guitar."], "answer": 0, "why": "decide + to + verb."},
+        {"type": "gap", "sentence": "Thanks for *helping* me yesterday.", "options": ["helping", "to help", "help"], "why": "After for (and at, in, about…), use -ing."},
+        {"type": "fix", "sentence": "She suggested *to go* to the beach.", "right": "going", "why": "suggest + -ing."},
+        {"type": "order", "answer": "I really enjoy walking in the rain.", "why": "enjoy + -ing."}
+      ]
+    },
+    {
+      "id": "if-imagine",
+      "unit": "connect",
+      "order": 22,
+      "title": "Imagine, wish and dream",
+      "grammar": "if + past, would (second conditional) · I wish",
+      "band": "B1",
+      "use": "Use if + past + would for situations that are imaginary or unlikely now: dreams, advice and what-if questions. Use I wish + past for things you want to be different now.",
+      "form": [
+        "If + past, would + verb: If I had more time, I'd learn to dance.",
+        "Advice: If I were you, I'd call her.",
+        "I wish + past: I wish I lived near the sea.",
+        "Real or imaginary? If I have time (possible) · If I had time (I don't)"
+      ],
+      "examples": [
+        "*If* I *won* the lottery, I*'d travel* around the world.",
+        "*If* I *were* you, I*'d take* the job.",
+        "What *would* you *do if* you *saw* a ghost?",
+        "I *wish* I *spoke* Chinese."
+      ],
+      "mistakes": [
+        {"wrong": "If I would have a car, I would drive to work.", "right": "If I *had* a car, I would drive to work.", "why": "Don't use would after if. Use the past."},
+        {"wrong": "I wish I can fly.", "right": "I wish I *could* fly.", "why": "After wish (about now), go one step back: can → could."}
+      ],
+      "mission": "Answer for yourself: What would you do if you had a free day tomorrow? If you could live anywhere, where would you live? Then write one I wish… sentence.",
+      "questions": [
+        {"type": "situation", "context": "You don't have a dog, but you imagine having one.", "options": ["If I had a dog, I'd walk it every day.", "If I have a dog, I walk it every day.", "If I would have a dog, I'd walk it every day."], "answer": 0, "why": "Imaginary now: if + past, would + verb."},
+        {"type": "situation", "context": "Which sentence is about something that will probably happen?", "options": ["If I finish early, I'll call you.", "If I finished early, I'd call you.", "If I were early, I'd call you."], "answer": 0, "why": "If + present, will = real and likely. If + past, would = imaginary or unlikely."},
+        {"type": "gap", "sentence": "If I *were* you, I'd say sorry.", "options": ["were", "am", "will be"], "why": "If I were you… is the usual way to give advice."},
+        {"type": "gap", "sentence": "I wish I *had* more free time.", "options": ["had", "have", "will have"], "why": "I wish + past, for something you want to be different now."},
+        {"type": "fix", "sentence": "If she *would know* the answer, she would tell us.", "right": "knew", "why": "No would after if: if she knew."},
+        {"type": "order", "answer": "What would you do if you were invisible?", "why": "What + would + you + do + if + past."}
+      ]
+    },
+    {
+      "id": "passive",
+      "unit": "connect",
+      "order": 23,
+      "title": "Focus on what happens, not who does it",
+      "grammar": "The passive",
+      "band": "B1",
+      "use": "Use the passive when the action or the result is more important than the person who did it, or when you don't know who did it. It is very common in news, signs and instructions.",
+      "form": [
+        "be + past participle: is made · was built · will be sent · has been stolen",
+        "Who did it (only if it matters): by + person: The song was written by a teenager.",
+        "Active: Someone stole my bike. → Passive: My bike was stolen."
+      ],
+      "examples": [
+        "My bike *was stolen* last night.",
+        "English *is spoken* all over the world.",
+        "The museum *was built* in 1890.",
+        "Your order *will be delivered* tomorrow.",
+        "The song *was written* by a sixteen-year-old."
+      ],
+      "mistakes": [
+        {"wrong": "The window broken yesterday.", "right": "The window *was broken* yesterday.", "why": "The passive needs be: was broken."},
+        {"wrong": "This house was build in 1950.", "right": "This house was *built* in 1950.", "why": "be + past participle: built, not build."}
+      ],
+      "mission": "Describe how a food, a drink or a festival from your country is made or done: It is made from… It is cooked… It is eaten…",
+      "questions": [
+        {"type": "situation", "context": "You are telling the news. Nobody knows who did it.", "options": ["A famous painting was stolen from the museum.", "Somebody was stolen a famous painting.", "A famous painting stole from the museum."], "answer": 0, "why": "The thing is more important than the thief: was stolen."},
+        {"type": "gap", "sentence": "These shoes *were made* in Italy.", "options": ["were made", "made", "are making"], "why": "The shoes didn't make anything — someone made them: were made."},
+        {"type": "gap", "sentence": "The results *will be* announced next week.", "options": ["will be", "will", "have"], "why": "Future passive: will be + past participle."},
+        {"type": "situation", "context": "A sign in a shop window says:", "options": ["English spoken here.", "English speaks here.", "English speaking here."], "answer": 0, "why": "Signs often leave out is: English (is) spoken here."},
+        {"type": "fix", "sentence": "The letters *was sent* yesterday.", "right": "were sent", "why": "Letters is plural, so use were."},
+        {"type": "order", "answer": "When was this bridge built?", "why": "Question word + was + thing + past participle."}
+      ]
+    },
+    {
+      "id": "reported-speech",
+      "unit": "connect",
+      "order": 25,
+      "title": "Tell someone what another person said",
+      "grammar": "Reported speech",
+      "band": "B1–B2",
+      "use": "Use it to pass on messages and tell stories about conversations. The verb usually goes one step back into the past, and words like I and you change.",
+      "form": [
+        "say (that): \"I'm tired.\" → She said (that) she was tired.",
+        "tell + person: He told me (that) he would call.",
+        "One step back: am / is → was · will → would · can → could",
+        "Questions: She asked if I was OK. · Requests: He told me to wait."
+      ],
+      "examples": [
+        "Tom *said* he *was* tired.",
+        "She *told* me she *would* call later.",
+        "My boss *asked* if I *could* work on Saturday.",
+        "The doctor *told* me *to rest* for a few days."
+      ],
+      "mistakes": [
+        {"wrong": "She said me she was busy.", "right": "She *told* me she was busy.", "why": "Say something; tell someone something."},
+        {"wrong": "He asked me where did I live.", "right": "He asked me where *I lived*.", "why": "In reported questions, use normal word order, with no did."}
+      ],
+      "mission": "Think of a real conversation from today. Report two things someone said, one question they asked, and one thing they told you to do.",
+      "questions": [
+        {"type": "situation", "context": "Your sister said: \"I'll be home at 8.\" You tell your mum:", "options": ["She said she would be home at 8.", "She told she would be home at 8.", "She said me she will be home at 8."], "answer": 0, "why": "said (no person after it) + will → would."},
+        {"type": "gap", "sentence": "He *told* me to wait outside.", "options": ["told", "said", "spoke"], "why": "tell + person + to + verb."},
+        {"type": "gap", "sentence": "She asked me where I *lived*.", "options": ["lived", "did I live", "do I live"], "why": "Reported questions use normal word order: where I lived."},
+        {"type": "situation", "context": "Your teacher said: \"Don't be late.\" You report it:", "options": ["She told us not to be late.", "She told us don't be late.", "She said us not to be late."], "answer": 0, "why": "tell + person + not to + verb."},
+        {"type": "fix", "sentence": "He *said me* that he was sorry.", "right": "told me", "why": "Say something; tell someone something."},
+        {"type": "order", "answer": "She asked me if I was hungry.", "why": "asked + person + if + normal word order."}
+      ]
+    },
+    {
+      "id": "linking",
+      "unit": "connect",
+      "order": 18,
+      "title": "Connect your ideas",
+      "grammar": "because, so, but, although, however",
+      "band": "A2–B2",
+      "use": "Linking words show how ideas connect: a reason (because), a result (so), a contrast (but, although, however). They make your speaking and writing clear.",
+      "form": [
+        "Reason: because + sentence · because of + thing: because of the rain",
+        "Result: It was cold, so I stayed in.",
+        "Contrast: but · Although it was cold, we went out. · However, … (new sentence)",
+        "Purpose: to / so that: I'm saving money to buy a bike."
+      ],
+      "examples": [
+        "I was tired, *so* I went to bed early.",
+        "I love summer *because* I can swim every day.",
+        "*Although* it was raining, we played football.",
+        "The hotel was nice. *However*, the food was terrible.",
+        "She works at night *so that* she can study in the day."
+      ],
+      "mistakes": [
+        {"wrong": "Although it was late, but we kept talking.", "right": "*Although* it was late, we kept talking.", "why": "Use although or but — not both."},
+        {"wrong": "I stayed home because of I was sick.", "right": "I stayed home *because* I was sick.", "why": "because + sentence; because of + thing (because of the rain)."}
+      ],
+      "mission": "Write a short opinion (four or five sentences) about your town or school, using because, so, but, although and however.",
+      "questions": [
+        {"type": "gap", "sentence": "It was raining, *so* we took a taxi.", "options": ["so", "because", "although"], "why": "The taxi was the result of the rain: so."},
+        {"type": "gap", "sentence": "*Although* she was nervous, she gave a great speech.", "options": ["Although", "Because", "So"], "why": "A surprising contrast: although."},
+        {"type": "situation", "context": "You explain why you were late.", "options": ["I was late because the bus didn't come.", "I was late so the bus didn't come.", "I was late although the bus didn't come."], "answer": 0, "why": "The reason: because."},
+        {"type": "gap", "sentence": "We cancelled the match *because of* the rain.", "options": ["because of", "because", "so"], "why": "because of + thing (the rain)."},
+        {"type": "fix", "sentence": "Although he is rich, *but* he isn't happy.", "right": "", "why": "Use although or but, not both. Remove but."},
+        {"type": "order", "answer": "I'm learning English because I want to travel.", "accept": ["Because I want to travel I'm learning English."], "why": "Result + because + reason."}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,844 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>English Verb Mindmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#ECF0F3; --surface:#FFFFFF; --raised:#F3F6F9; --ink:#18212C; --muted:#526071;
+  --line:#C8D1DB; --line-strong:#95A3B3; --dot:#CBD4DD;
+  --h1:#0F7C7A; --h2:#3656C9; --h3:#B8325A; --h4:#8F5F00; --on-hue:#FFFFFF; --focus:#2F5BD3;
+  --shadow:0 1px 2px rgba(24,33,44,.07), 0 4px 14px rgba(24,33,44,.07);
+  --f-display:"Alegreya", Georgia, "Times New Roman", serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --f-mono:"Atkinson Hyperlegible Mono", ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F141A; --surface:#18202A; --raised:#1F2833; --ink:#E4E9EF; --muted:#9BA7B5;
+    --line:#2C3744; --line-strong:#556476; --dot:#222B36;
+    --h1:#3CC2BD; --h2:#8CA2F5; --h3:#F07A9C; --h4:#E2A93F; --on-hue:#0E131A; --focus:#8CA2F5;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 16px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F141A; --surface:#18202A; --raised:#1F2833; --ink:#E4E9EF; --muted:#9BA7B5;
+  --line:#2C3744; --line-strong:#556476; --dot:#222B36;
+  --h1:#3CC2BD; --h2:#8CA2F5; --h3:#F07A9C; --h4:#E2A93F; --on-hue:#0E131A; --focus:#8CA2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 16px rgba(0,0,0,.25);
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0; display:flex; flex-direction:column; overflow:hidden; background:var(--bg); color:var(--ink); font:15px/1.4 var(--f-body); -webkit-font-smoothing:antialiased}
+
+/* ---------- header ---------- */
+.bar{flex:none; display:flex; flex-wrap:wrap; align-items:center; gap:10px 20px; padding:10px 16px; background:var(--surface); border-bottom:1px solid var(--line); position:relative; z-index:3}
+.brand{flex:1 1 220px; display:flex; flex-direction:column; gap:2px; min-width:0}
+.brand h1{margin:0; font:800 24px/1.1 var(--f-display); letter-spacing:-.005em; text-wrap:balance}
+.brand p{margin:0; font-size:13px; color:var(--muted)}
+.controls{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+.grp{display:inline-flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; background:var(--surface)}
+.grp button,.solo{appearance:none; border:0; margin:0; background:transparent; color:var(--ink); font:700 13px/1 var(--f-body); padding:0 12px; min-height:34px; cursor:pointer; display:inline-flex; align-items:center; gap:7px; white-space:nowrap}
+.grp button + button{border-left:1px solid var(--line)}
+.grp button:hover,.solo:hover{background:var(--raised)}
+.grp button[aria-pressed="true"]{background:var(--ink); color:var(--surface)}
+.solo{border:1px solid var(--line); border-radius:9px; background:var(--surface)}
+.grp .pips{--hue:currentColor}
+.zoom-btn{font-size:17px!important; min-width:36px; justify-content:center}
+button:focus-visible,summary:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+
+/* ---------- canvas ---------- */
+.stage{position:relative; flex:1 1 auto; min-height:0; overflow:hidden; touch-action:none; cursor:grab; user-select:none; -webkit-user-select:none;
+  background-color:var(--bg); background-image:radial-gradient(circle, var(--dot) 1.1px, transparent 1.7px); background-size:26px 26px}
+.stage.dragging{cursor:grabbing}
+.world{position:absolute; left:0; top:0; transform-origin:0 0}
+.links{position:absolute; left:0; top:0; width:1px; height:1px; overflow:visible; pointer-events:none}
+.nodes{position:absolute; left:0; top:0}
+
+.b0{--hue:var(--h1)} .b1{--hue:var(--h2)} .b2{--hue:var(--h3)} .b3{--hue:var(--h4)}
+.link{fill:none; stroke:var(--hue); stroke-linecap:round}
+.link.d1{stroke-width:4}
+.link.d2{stroke-width:2.6}
+.link.dx{stroke-width:1.7; stroke-opacity:.75}
+
+.node{position:absolute; left:0; top:0; width:max-content}
+button.node{appearance:none; background:none; border:0; padding:0; margin:0; font:inherit; color:inherit; text-align:left; cursor:pointer}
+button.node:focus-visible{outline:none}
+button.node:focus-visible .nb{outline:3px solid var(--focus); outline-offset:3px}
+
+/* root */
+.root .nb{display:flex; flex-direction:column; align-items:center; gap:5px; padding:18px 32px 16px; background:var(--ink); color:var(--bg); border-radius:999px; box-shadow:var(--shadow); white-space:nowrap}
+.rt{font:800 34px/1 var(--f-display); letter-spacing:-.01em}
+.rs{font-size:12px; letter-spacing:.14em; text-transform:uppercase; opacity:.78}
+
+/* branches & sub-branches */
+.fork .nb{display:inline-flex; align-items:center; gap:10px; white-space:nowrap; transition:background-color .15s, box-shadow .15s}
+.lbl{display:flex; flex-direction:column; gap:1px}
+.ls{font:400 12px/1.2 var(--f-body); letter-spacing:.04em; opacity:.85}
+.fork.d1 .nb{padding:11px 12px 11px 18px; background:var(--hue); color:var(--on-hue); border-radius:14px; font:700 22px/1.1 var(--f-display); box-shadow:var(--shadow)}
+.fork.d1:hover .nb{box-shadow:0 0 0 4px color-mix(in srgb, var(--hue) 28%, transparent), var(--shadow)}
+.fork.d2 .nb{padding:6px 8px 6px 14px; background:var(--surface); color:var(--hue); border:2px solid var(--hue); border-radius:999px; font:700 15.5px/1.2 var(--f-body)}
+.fork.d2.open .nb,.fork.d2:hover .nb{background:color-mix(in srgb, var(--hue) 12%, var(--surface))}
+.tog{display:inline-grid; place-items:center; min-width:28px; height:22px; padding:0 7px; border-radius:999px; font:600 12px/1 var(--f-mono); font-variant-numeric:tabular-nums}
+.fork.d1 .tog{background:color-mix(in srgb, var(--on-hue) 22%, transparent); color:var(--on-hue)}
+.fork.d2 .tog{background:color-mix(in srgb, var(--hue) 16%, var(--surface)); color:var(--hue)}
+
+/* leaf cards */
+.card{width:272px; display:flex; flex-direction:column; align-items:flex-start; gap:6px; padding:10px 12px 11px; background:var(--surface); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow)}
+.ch{align-self:stretch; display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+.ct{font:700 15.5px/1.25 var(--f-body); color:var(--ink)}
+.cf{max-width:100%; padding:4px 7px; border-radius:6px; background:color-mix(in srgb, var(--hue) 13%, var(--surface)); color:var(--ink); font:600 13px/1.4 var(--f-mono)}
+.cu{font-size:13px; line-height:1.35; color:var(--muted)}
+.ce{font-style:italic; font-size:14.5px; line-height:1.35; color:var(--ink)}
+.tl{display:block; width:100px; height:22px}
+.tl .ax{fill:none; stroke:var(--line-strong); stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round}
+.tl .now{stroke:var(--muted); stroke-width:1.4; stroke-dasharray:2.2 2.2}
+.tl .ref{stroke:var(--hue); stroke-width:2}
+.tl circle{fill:var(--hue)}
+.tl .w{fill:none; stroke:var(--hue); stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+
+/* quiz mode: masked text keeps its size, so the layout never shifts */
+.card{--mask:color-mix(in srgb, var(--hue) 20%, var(--surface))}
+.quiz-rules .card:not(.revealed) :is(.cf,.cu,.ce),
+.quiz-names .card:not(.revealed) .ct{color:transparent; background:var(--mask); border-radius:5px}
+.quiz .card{cursor:pointer}
+.quiz .card:hover{border-color:var(--hue)}
+.quiz .card.revealed{border-color:var(--hue); box-shadow:0 0 0 2px color-mix(in srgb, var(--hue) 30%, transparent), var(--shadow)}
+.card:focus-visible{outline:3px solid var(--focus); outline-offset:3px}
+
+/* floating map controls */
+.mapctl{position:absolute; right:16px; bottom:16px; z-index:2; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px}
+.mapctl .grp,.mapctl .solo{box-shadow:var(--shadow)}
+
+/* level pips */
+.pips{display:inline-flex; gap:3px; flex:none; margin-top:4px}
+.pips i{display:block; width:8px; height:8px; border-radius:50%; border:1.5px solid var(--hue)}
+.pips i.on{background:var(--hue)}
+.grp .pips{margin-top:0}
+
+/* legend */
+.legend{position:absolute; left:16px; bottom:16px; z-index:2; max-width:min(330px, calc(100% - 32px)); padding:9px 13px; background:var(--surface); border:1px solid var(--line); border-radius:10px; box-shadow:var(--shadow); font-size:12.5px; color:var(--muted); cursor:auto; --hue:var(--muted)}
+.legend summary{cursor:pointer; font-weight:700; color:var(--ink); font-size:13px}
+.legend[open] summary{margin-bottom:8px}
+.lg{display:flex; flex-direction:column; gap:7px}
+.lg-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.lg-row .pips{margin-top:0}
+.lg-levels{display:flex; flex-wrap:wrap; gap:4px 14px}
+.lg-levels span{display:inline-flex; align-items:center; gap:6px}
+.lg b{color:var(--ink); font-family:var(--f-mono); font-weight:600}
+.lg .tl{--hue:var(--ink); flex:none}
+kbd{display:inline-block; min-width:18px; text-align:center; padding:1px 5px; font:600 11px/1.5 var(--f-mono); color:var(--ink); background:var(--raised); border:1px solid var(--line); border-bottom-width:2px; border-radius:4px}
+
+@media (max-width:640px){
+  .mapctl{flex-direction:column; align-items:flex-end}
+  .brand h1{font-size:20px}
+  .grp button,.solo{padding:0 10px}
+}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="brand">
+    <h1>English Verb Mindmap</h1>
+    <p>Tap a bubble to open it · drag to move · scroll or pinch to zoom</p>
+  </div>
+  <div class="controls">
+    <div class="grp" role="group" aria-label="Show levels">
+      <button type="button" data-level="1" aria-pressed="false"><span class="pips" aria-hidden="true"><i class="on"></i><i></i><i></i></span>Beginner</button>
+      <button type="button" data-level="2" aria-pressed="false"><span class="pips" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></span>+ Intermediate</button>
+      <button type="button" data-level="3" aria-pressed="true"><span class="pips" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></span>All levels</button>
+    </div>
+    <div class="grp">
+      <button type="button" id="expandAll">Expand all</button>
+      <button type="button" id="collapseAll">Collapse all</button>
+    </div>
+    <div class="grp" role="group" aria-label="Quiz mode">
+      <button type="button" data-quiz="off" aria-pressed="true">Study</button>
+      <button type="button" data-quiz="rules" aria-pressed="false">Quiz: hide rules</button>
+      <button type="button" data-quiz="names" aria-pressed="false">Quiz: hide names</button>
+    </div>
+  </div>
+</header>
+
+<main class="stage" id="stage" aria-label="Mindmap of English verbs">
+  <div class="world" id="world">
+    <svg class="links" id="links" aria-hidden="true"></svg>
+    <div class="nodes" id="nodes"></div>
+  </div>
+  <details class="legend" id="legend">
+    <summary>Legend &amp; keys</summary>
+    <div class="lg">
+      <div class="lg-levels">
+        <span><span class="pips"><i class="on"></i><i></i><i></i></span>Beginner</span>
+        <span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span>Intermediate</span>
+        <span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span>Advanced</span>
+      </div>
+      <div class="lg-row"><span><b>V1</b> base · <b>V2</b> past · <b>V3</b> past participle</span></div>
+      <div class="lg-row"><span id="lgTimeline"></span><span>Tense timelines: dashed line = now, dot = one complete action, wave = in progress, arrow = up to a point</span></div>
+      <div class="lg-row"><span>Quiz: hidden parts of a card show when you tap it.</span></div>
+      <div class="lg-row"><span><kbd>E</kbd> expand all · <kbd>C</kbd> collapse · <kbd>F</kbd> fit · <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> level · <kbd>Q</kbd> quiz mode · <kbd>+</kbd><kbd>−</kbd> zoom · arrow keys move</span></div>
+    </div>
+  </details>
+  <div class="mapctl">
+    <div class="grp">
+      <button type="button" id="zoomOut" class="zoom-btn" aria-label="Zoom out">−</button>
+      <button type="button" id="fit">Fit</button>
+      <button type="button" id="zoomIn" class="zoom-btn" aria-label="Zoom in">+</button>
+    </div>
+    <button type="button" id="fs" class="solo">Full screen</button>
+  </div>
+</main>
+
+<script>
+(() => {
+/* =====================================================================
+   CONTENT — edit here.
+   Branch/sub-branch: { title, kids: [...] }
+   Card:  { title, level: "B" | "I" | "A", form, use, ex, tl }
+          form = formula chip · use = when to use it · ex = example (string or list)
+          tl   = [time, aspect] draws a mini timeline (tense cards only)
+   ===================================================================== */
+const MAP = {
+  title: "The English Verb", sub: "action · state · event",
+  kids: [
+    { title: "Verb Types & Forms", kids: [
+      { title: "Verb forms", kids: [
+        { title: "Base form (V1)", level: "B", form: "work · go · be", use: "after to and modals; in commands", ex: "I can swim." },
+        { title: "-s form", level: "B", form: "V1 + -s / -es", use: "present simple with he / she / it", ex: "She works on Sundays." },
+        { title: "Past (V2)", level: "B", form: "worked · went · was / were", use: "past simple", ex: "We went home early." },
+        { title: "-ing form", level: "B", form: "V1 + -ing", use: "continuous tenses and gerunds", ex: "He is working now." },
+        { title: "Past participle (V3)", level: "B", form: "worked · gone · written", use: "perfect tenses and the passive", ex: "I have written three emails." },
+        { title: "Subject–verb agreement", level: "B", form: "he / she / it → V-s", use: "singular subject, singular verb", ex: ["My brother lives in Leeds.", "My brothers live in Leeds."] },
+      ]},
+      { title: "Regular & irregular", kids: [
+        { title: "Regular verbs", level: "B", form: "V1 + -ed → V2 = V3", ex: "play → played → played" },
+        { title: "Irregular verbs", level: "B", form: "learn V2 and V3 by heart", ex: "go → went → gone" },
+        { title: "Irregular patterns", level: "I", form: "A-A-A · A-B-B · A-B-C · A-B-A", ex: ["cut – cut – cut · buy – bought – bought", "sing – sang – sung · come – came – come"] },
+        { title: "-ed spelling & sounds", level: "I", form: "/t/ · /d/ · /ɪd/", use: "stop → stopped · study → studied", ex: "walked /t/ · played /d/ · wanted /ɪd/" },
+      ]},
+      { title: "Main & helping verbs", kids: [
+        { title: "Main verbs", level: "B", form: "eat · think · play …", use: "carry the meaning of the sentence", ex: "She plays the piano." },
+        { title: "Primary auxiliaries", level: "B", form: "be · do · have", use: "build tenses, questions, negatives and the passive", ex: "Do you like it? She has left." },
+      ]},
+      { title: "Modal verbs", kids: [
+        { title: "How modals work", level: "B", form: "modal + V1", use: "no -s, no to; questions and negatives without do", ex: "She can swim. Can she swim?" },
+        { title: "Ability", level: "B", form: "can · could · be able to", ex: "She can speak three languages." },
+        { title: "Permission & requests", level: "B", form: "can · could · may", ex: "Could you open the window?" },
+        { title: "Obligation", level: "I", form: "must · have to · mustn’t · don’t have to", ex: ["You mustn’t park here. (not allowed)", "You don’t have to pay. (not necessary)"] },
+        { title: "Advice", level: "I", form: "should · ought to · had better", ex: "You should see a doctor." },
+        { title: "Possibility & deduction", level: "I", form: "may · might · could · must · can’t", ex: "He must be tired. That can’t be true." },
+        { title: "Past modals", level: "A", form: "modal + have + V3", use: "regret, criticism, guesses about the past", ex: ["You should have told me.", "She might have missed the bus."] },
+      ]},
+      { title: "Objects & complements", kids: [
+        { title: "Transitive", level: "I", form: "verb + object", ex: "She opened the door." },
+        { title: "Intransitive", level: "I", form: "verb (no object)", ex: "The baby is sleeping." },
+        { title: "Two objects", level: "I", form: "verb + person + thing", use: "give, send, show, tell, buy", ex: "She gave me a book." },
+        { title: "Linking verbs", level: "I", form: "be · seem · become · look · feel · sound + adjective", use: "describe the subject, not an action", ex: "The soup smells delicious." },
+      ]},
+      { title: "Action & state verbs", kids: [
+        { title: "Action (dynamic)", level: "I", form: "can be continuous", use: "things we do", ex: "I’m eating lunch." },
+        { title: "State (stative)", level: "I", form: "know · like · want · own · believe · seem", use: "usually not continuous", ex: "I know the answer. (not I’m knowing)" },
+        { title: "Both meanings", level: "A", form: "think · have · see · taste", ex: ["I think it’s good. (opinion)", "I’m thinking about it. (process)"] },
+      ]},
+      { title: "Phrasal verbs", kids: [
+        { title: "Separable", level: "I", form: "verb + object + particle", use: "a pronoun must go in the middle", ex: "Turn the TV off. Turn it off." },
+        { title: "Inseparable", level: "I", form: "verb + particle + object", ex: "I’m looking after my sister." },
+        { title: "No object", level: "I", form: "verb + particle", ex: "The plane took off." },
+        { title: "Three-part", level: "A", form: "verb + particle + preposition", ex: "I can’t put up with this noise." },
+      ]},
+    ]},
+
+    { title: "Tenses & Aspects", kids: [
+      { title: "Choosing a tense", kids: [
+        { title: "How tenses are built", level: "B", form: "time × aspect = 12 tenses", use: "past · present · future  ×  simple · continuous · perfect · perfect continuous", ex: "has been working = present perfect continuous" },
+        { title: "Time signal words", level: "B", form: "now · ago · yet · since · for · by", use: "now → continuous · ago → past simple · since / for → perfect", ex: ["I saw her two days ago.", "I’ve known her since 2020."] },
+        { title: "Reported speech", level: "I", form: "is → was · has done → had done · will → would", use: "move the tense one step back", ex: "“I’m tired.” → She said she was tired." },
+      ]},
+      { title: "Present", kids: [
+        { title: "Present simple", level: "B", tl: ["present", "simple"], form: "V1 / V-s", use: "habits, facts, timetables", ex: "Water boils at 100 °C." },
+        { title: "Present continuous", level: "B", tl: ["present", "continuous"], form: "am / is / are + V-ing", use: "happening now; temporary situations", ex: "I’m studying for a test this week." },
+        { title: "Present perfect", level: "I", tl: ["present", "perfect"], form: "have / has + V3", use: "past action linked to now: experience, result", ex: ["I’ve lost my keys.", "Have you ever been to Peru?"] },
+        { title: "Present perfect continuous", level: "I", tl: ["present", "perfcont"], form: "have / has been + V-ing", use: "activity from the past up to now", ex: "She’s been waiting for an hour." },
+      ]},
+      { title: "Past", kids: [
+        { title: "Past simple", level: "B", tl: ["past", "simple"], form: "V2 · did + V1 in questions & negatives", use: "finished action at a past time", ex: "We met in 2019. Did you see it?" },
+        { title: "Past continuous", level: "I", tl: ["past", "continuous"], form: "was / were + V-ing", use: "in progress at a past moment; background", ex: "I was cooking when you called." },
+        { title: "Past perfect", level: "I", tl: ["past", "perfect"], form: "had + V3", use: "the earlier of two past events", ex: "The film had started when we arrived." },
+        { title: "Past perfect continuous", level: "A", tl: ["past", "perfcont"], form: "had been + V-ing", use: "activity up to a past moment", ex: "He was tired because he’d been running." },
+        { title: "used to", level: "I", form: "used to + V1", use: "past habits or states that are no longer true", ex: "I used to play the violin." },
+      ]},
+      { title: "Future", kids: [
+        { title: "Future simple", level: "B", tl: ["future", "simple"], form: "will + V1", use: "decisions made now, predictions, promises", ex: "It’s cold. I’ll close the window." },
+        { title: "Future continuous", level: "I", tl: ["future", "continuous"], form: "will be + V-ing", use: "in progress at a future moment", ex: "This time tomorrow I’ll be flying to Rome." },
+        { title: "Future perfect", level: "A", tl: ["future", "perfect"], form: "will have + V3", use: "finished before a future moment", ex: "By June, she’ll have finished the course." },
+        { title: "Future perfect continuous", level: "A", tl: ["future", "perfcont"], form: "will have been + V-ing", use: "activity up to a future moment", ex: "By 5 pm, I’ll have been working for ten hours." },
+      ]},
+      { title: "Other future forms", kids: [
+        { title: "be going to", level: "B", form: "am / is / are going to + V1", use: "plans; predictions from what we can see", ex: "Look at those clouds! It’s going to rain." },
+        { title: "Present continuous", level: "I", form: "am / is / are + V-ing", use: "fixed arrangements", ex: "I’m meeting Sam at six." },
+        { title: "Present simple", level: "I", form: "V1 / V-s", use: "timetables and schedules", ex: "The train leaves at 7:15." },
+      ]},
+    ]},
+
+    { title: "Voice & Mood", kids: [
+      { title: "Voice", kids: [
+        { title: "Active", level: "B", form: "subject + verb + object", use: "the subject does the action", ex: "The chef cooked the meal." },
+        { title: "Passive", level: "I", form: "be + V3 (+ by …)", use: "focus on the receiver; the doer is unknown or unimportant", ex: ["The meal was cooked by the chef.", "My bike was stolen."] },
+        { title: "Passive in other tenses", level: "I", form: "is being made · has been made · will be made · must be made", use: "change be; V3 stays the same", ex: "The bridge is being repaired." },
+        { title: "Causative", level: "A", form: "have / get + object + V3", use: "someone else does it for you", ex: "I had my hair cut yesterday." },
+        { title: "Reporting passive", level: "A", form: "It is said that … · He is said to + V1", use: "formal reports and news", ex: "She is believed to be in London." },
+      ]},
+      { title: "Mood", kids: [
+        { title: "Indicative", level: "B", form: "statements and questions", use: "facts and real situations", ex: "She lives in Paris. Does she like it?" },
+        { title: "Imperative", level: "B", form: "V1 … · Don’t + V1 … · Let’s + V1 …", use: "orders, instructions, advice, invitations", ex: "Close the window, please. Don’t be late." },
+        { title: "Subjunctive & unreal past", kids: [
+          { title: "were for unreal situations", level: "I", form: "if I / he / she were …", ex: "If I were you, I’d call her." },
+          { title: "wish / if only", level: "I", form: "wish + past · wish + had + V3", use: "regret about now · regret about the past", ex: ["I wish I had more time.", "I wish I hadn’t said that."] },
+          { title: "It’s time …", level: "A", form: "it’s (high) time + subject + past", ex: "It’s time we left." },
+          { title: "Mandative subjunctive", level: "A", form: "suggest / insist / demand that + subject + V1", use: "base form for every person", ex: "The doctor insisted that he rest." },
+        ]},
+      ]},
+      { title: "Conditionals", kids: [
+        { title: "Zero conditional", level: "B", form: "if + present, present", use: "general truths", ex: "If you heat ice, it melts." },
+        { title: "First conditional", level: "B", form: "if + present, will + V1", use: "real future possibility", ex: "If it rains, we’ll stay home." },
+        { title: "Second conditional", level: "I", form: "if + past, would + V1", use: "unreal present or future", ex: "If I had a car, I’d drive to work." },
+        { title: "Third conditional", level: "I", form: "if + had + V3, would have + V3", use: "unreal past", ex: "If we’d left earlier, we wouldn’t have missed the train." },
+        { title: "Mixed conditional", level: "A", form: "if + had + V3, would + V1", use: "past condition → present result", ex: "If I’d studied medicine, I’d be a doctor now." },
+      ]},
+    ]},
+
+    { title: "Verbals", sub: "non-finite forms", kids: [
+      { title: "Infinitives", kids: [
+        { title: "to-infinitive", level: "B", form: "to + V1", use: "after many verbs and adjectives", ex: "I want to learn French. It’s easy to use." },
+        { title: "Infinitive of purpose", level: "B", form: "to + V1 (= in order to)", use: "answers “why?”", ex: "She went out to buy milk." },
+        { title: "Bare infinitive", level: "I", form: "modal + V1 · make / let + object + V1", use: "no to", ex: "They made me wait. Let him go." },
+        { title: "Perfect & passive infinitive", level: "A", form: "to have + V3 · to be + V3", ex: ["She seems to have forgotten.", "The work needs to be done."] },
+      ]},
+      { title: "Gerunds", kids: [
+        { title: "go + -ing", level: "B", form: "go + V-ing", use: "activities and sports", ex: "Let’s go swimming." },
+        { title: "Gerund as subject", level: "I", form: "V-ing + verb", use: "the -ing form works as a noun", ex: "Swimming is good exercise." },
+        { title: "After prepositions", level: "I", form: "preposition + V-ing", ex: "She’s good at drawing. Thanks for coming." },
+      ]},
+      { title: "Participles", kids: [
+        { title: "-ing vs -ed adjectives", level: "B", form: "-ing = causes the feeling · -ed = has the feeling", ex: "The lesson was boring, so I was bored." },
+        { title: "Present participle", level: "I", form: "V-ing", use: "active, in progress; builds continuous tenses", ex: "a crying baby · The kids are playing." },
+        { title: "Past participle", level: "I", form: "V3", use: "passive or finished; builds perfect and passive forms", ex: "a broken window · It was broken." },
+        { title: "Participle clauses", level: "A", form: "V-ing … , · V3 … , · Having + V3 … ,", use: "shorter sentences in writing", ex: "Having finished dinner, we went for a walk." },
+      ]},
+      { title: "Gerund or infinitive?", kids: [
+        { title: "verb + -ing", level: "I", form: "enjoy · avoid · finish · mind · keep", ex: "I enjoy reading." },
+        { title: "verb + to-infinitive", level: "I", form: "want · decide · hope · plan · refuse", ex: "We decided to leave." },
+        { title: "verb + object + to-infinitive", level: "I", form: "ask · tell · want · advise + object + to V1", ex: "I asked him to call me." },
+        { title: "Both, same meaning", level: "I", form: "begin · start · like · love · prefer", ex: "It started to rain. It started raining." },
+        { title: "Both, new meaning", level: "A", form: "stop · remember · forget · try · regret", ex: ["I remember locking the door. (a memory)", "Remember to lock the door! (a task)"] },
+      ]},
+    ]},
+  ],
+};
+
+/* ===================================================================== */
+const LEVEL = { B: 1, I: 2, A: 3 };
+const LEVEL_NAME = ["", "Beginner", "Intermediate", "Advanced"];
+const SVGNS = "http://www.w3.org/2000/svg";
+const stage = document.getElementById("stage");
+const world = document.getElementById("world");
+const linksLayer = document.getElementById("links");
+const nodesLayer = document.getElementById("nodes");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---- tree prep ---- */
+const all = [];
+function prep(n, parent, depth, branch, dir) {
+  Object.assign(n, { parent, depth, branch, dir, x: 0, y: 0, o: 1, w: 0, h: 0 });
+  all.push(n);
+  if (n.kids) {
+    n.kids.forEach((k, i) => prep(k, n, depth + 1,
+      depth === 0 ? i : branch,
+      depth === 0 ? (i < 2 ? 1 : -1) : dir));
+    n.lv = Math.min(...n.kids.map(k => k.lv));
+  } else {
+    n.lv = LEVEL[n.level] || 1;
+  }
+}
+prep(MAP, null, 0, -1, 0);
+const ROOT = MAP;
+const forks = all.filter(n => n.kids && n !== ROOT);
+
+const expanded = new Set([ROOT, ...ROOT.kids]);
+let maxLevel = 3;
+const shown = new Set();
+const view = { x: 0, y: 0, s: 1 };
+const avail = n => n.kids ? n.kids.filter(k => k.lv <= maxLevel) : [];
+const kidsOf = n => expanded.has(n) ? avail(n) : [];
+const clampS = s => Math.max(0.2, Math.min(2.5, s));
+
+/* ---- mini tense timelines ---- */
+const TL_R = { past: 26, present: 50, future: 74 };
+function wave(a, b, y) {
+  const n = Math.max(2, Math.round((b - a) / 5)), st = (b - a) / n;
+  let d = `M${a} ${y}`;
+  for (let i = 0; i < n; i++) d += ` q${(st / 2).toFixed(2)} ${i % 2 ? 4 : -4} ${st.toFixed(2)} 0`;
+  return d;
+}
+function timeline(time, aspect) {
+  const R = TL_R[time], S = R - 22, y = 9;
+  const head = `<path class="w" d="M${R - 5} ${y - 4}L${R} ${y}L${R - 5} ${y + 4}"/>`;
+  let m;
+  if (aspect === "simple") {
+    m = time === "present"
+      ? [30, 50, 70].map(x => `<circle cx="${x}" cy="${y}" r="3.2"/>`).join("")
+      : `<circle cx="${R}" cy="${y}" r="3.6"/>`;
+  } else if (aspect === "continuous") {
+    m = `<path class="w" d="${wave(R - 13, R + 13, y)}"/>`;
+  } else if (aspect === "perfect") {
+    m = `<circle cx="${S}" cy="${y}" r="2.8"/><path class="w" d="M${S} ${y}H${R - 1}"/>${head}`;
+  } else {
+    m = `<path class="w" d="${wave(S, R - 1, y)}"/>${head}`;
+  }
+  return `<svg class="tl" viewBox="0 0 100 22" width="100" height="22" aria-hidden="true">` +
+    `<path class="ax" d="M3 18H95M91 15.5L95 18L91 20.5"/><path class="now" d="M50 3V21"/>` +
+    `<path class="ref" d="M${R} 15V21"/>${m}</svg>`;
+}
+document.getElementById("lgTimeline").innerHTML = timeline("present", "perfect");
+
+/* ---- DOM ---- */
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+function pips(lv) {
+  const s = el("span", "pips");
+  s.title = LEVEL_NAME[lv];
+  s.setAttribute("role", "img");
+  s.setAttribute("aria-label", LEVEL_NAME[lv]);
+  for (let i = 1; i <= 3; i++) s.append(el("i", i <= lv ? "on" : ""));
+  return s;
+}
+function build(n) {
+  const b = n.branch >= 0 ? " b" + n.branch : "";
+  let node;
+  if (n === ROOT) {
+    node = el("div", "node root");
+    const nb = el("div", "nb");
+    nb.append(el("span", "rt", n.title), el("span", "rs", n.sub));
+    node.append(nb);
+  } else if (n.kids) {
+    node = el("button", "node fork " + (n.depth === 1 ? "d1" : "d2") + b);
+    node.type = "button";
+    const nb = el("span", "nb"), lbl = el("span", "lbl");
+    lbl.append(el("span", "lt", n.title));
+    if (n.sub) lbl.append(el("span", "ls", n.sub));
+    n.tog = el("span", "tog");
+    n.tog.setAttribute("aria-hidden", "true");
+    nb.append(lbl, n.tog);
+    node.append(nb);
+    node.addEventListener("click", () => toggle(n));
+  } else {
+    node = el("div", "node leaf" + b);
+    const card = el("div", "nb card");
+    const head = el("div", "ch");
+    head.append(el("span", "ct", n.title), pips(n.lv));
+    card.append(head);
+    if (n.tl) { const t = el("span", "tlw"); t.innerHTML = timeline(...n.tl); card.append(t); }
+    if (n.form) card.append(el("span", "cf", n.form));
+    if (n.use) card.append(el("span", "cu", n.use));
+    [].concat(n.ex || []).forEach(x => card.append(el("span", "ce", x)));
+    node.append(card);
+    n.card = card;
+    setCardQuiz(n);
+    card.addEventListener("click", () => { if (quizMode !== "off") card.classList.toggle("revealed"); });
+    card.addEventListener("keydown", e => {
+      if (quizMode !== "off" && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); card.classList.toggle("revealed"); }
+    });
+  }
+  node.hidden = true;
+  nodesLayer.append(node);
+  n.el = node;
+  if (n !== ROOT) {
+    n.link = document.createElementNS(SVGNS, "path");
+    n.link.setAttribute("class", "link" + b + " " + (n.depth === 1 ? "d1" : n.depth === 2 ? "d2" : "dx"));
+    n.link.style.display = "none";
+    linksLayer.append(n.link);
+  }
+}
+/* ---- quiz mode ---- */
+let quizMode = "off";
+const QUIZ_ORDER = ["off", "rules", "names"];
+const quizBtns = [...document.querySelectorAll("[data-quiz]")];
+function setCardQuiz(n) {
+  const on = quizMode !== "off";
+  n.card.classList.remove("revealed");
+  if (on) { n.card.tabIndex = 0; n.card.setAttribute("role", "button"); n.card.setAttribute("aria-label", "Show answer: " + (quizMode === "names" ? "card name" : n.title)); }
+  else { n.card.removeAttribute("tabindex"); n.card.removeAttribute("role"); n.card.removeAttribute("aria-label"); }
+}
+function setQuiz(mode) {
+  quizMode = mode;
+  stage.classList.toggle("quiz", mode !== "off");
+  stage.classList.toggle("quiz-rules", mode === "rules");
+  stage.classList.toggle("quiz-names", mode === "names");
+  quizBtns.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.quiz === mode)));
+  all.forEach(n => { if (n.card) setCardQuiz(n); });
+}
+quizBtns.forEach(b => b.addEventListener("click", () => setQuiz(b.dataset.quiz)));
+
+function syncToggle(n) {
+  const open = expanded.has(n);
+  n.el.setAttribute("aria-expanded", String(open));
+  n.el.classList.toggle("open", open);
+  n.tog.textContent = open ? "−" : "+" + avail(n).length;
+}
+
+/* ---- layout: root in the middle, two branches per side ---- */
+const GX = [60, 46, 40, 36];
+const gapBefore = k => k.depth === 1 ? 30 : (k.kids ? 10 : 12);
+function measure(n) {
+  const ks = kidsOf(n);
+  if (!ks.length) { n.sh = n.h; n.ksh = 0; return n.sh; }
+  let s = 0;
+  ks.forEach((k, i) => { s += measure(k) + (i ? gapBefore(k) : 0); });
+  n.ksh = s;
+  n.sh = Math.max(n.h, s);
+  return n.sh;
+}
+function place(n, edge, top) {
+  const d = n.dir;
+  n.tx = Math.round(d > 0 ? edge : edge - n.w);
+  n.ty = Math.round(top + (n.sh - n.h) / 2);
+  const ks = kidsOf(n);
+  if (!ks.length) return;
+  const gx = GX[Math.min(n.depth, 3)];
+  const ce = d > 0 ? edge + n.w + gx : edge - n.w - gx;
+  let y = top + (n.sh - n.ksh) / 2;
+  ks.forEach((k, i) => { if (i) y += gapBefore(k); place(k, ce, y); y += k.sh; });
+}
+function layout() {
+  ROOT.tx = Math.round(-ROOT.w / 2);
+  ROOT.ty = Math.round(-ROOT.h / 2);
+  const ks = kidsOf(ROOT);
+  const sides = [[ks.filter(k => k.dir > 0), 1], [ks.filter(k => k.dir < 0).reverse(), -1]];
+  for (const [side, d] of sides) {
+    let total = 0;
+    side.forEach((k, i) => { total += measure(k) + (i ? gapBefore(k) : 0); });
+    let y = -total / 2;
+    const edge = d > 0 ? ROOT.tx + ROOT.w + GX[0] : ROOT.tx - GX[0];
+    side.forEach((k, i) => { if (i) y += gapBefore(k); place(k, edge, y); y += k.sh; });
+  }
+}
+
+/* ---- view helpers ---- */
+function bounds(list) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const n of list) {
+    x0 = Math.min(x0, n.tx); y0 = Math.min(y0, n.ty);
+    x1 = Math.max(x1, n.tx + n.w); y1 = Math.max(y1, n.ty + n.h);
+  }
+  return { x0, y0, x1, y1, w: x1 - x0, h: y1 - y0 };
+}
+function fitView(list) {
+  const W = stage.clientWidth, H = stage.clientHeight;
+  const pad = Math.max(16, Math.min(48, W * 0.04));
+  const b = bounds(list);
+  const s = clampS(Math.min((W - 2 * pad) / b.w, (H - 2 * pad) / b.h, 1.25));
+  return { s, x: W / 2 - (b.x0 + b.w / 2) * s, y: H / 2 - (b.y0 + b.h / 2) * s };
+}
+// After opening a node: keep it where it was, then nudge (or zoom out a little) so its new children are on screen.
+function reveal(v, a) {
+  const sub = [];
+  (function walk(n) { sub.push(n); kidsOf(n).forEach(walk); })(a);
+  const b = bounds(sub);
+  const W = stage.clientWidth, H = stage.clientHeight, m = 24;
+  let s = v.s;
+  const fs = Math.min((W - 2 * m) / b.w, (H - 2 * m) / b.h);
+  if (fs < s) s = clampS(Math.max(fs, Math.min(s, 0.6)));
+  const px = v.x + a.tx * v.s, py = v.y + a.ty * v.s;
+  let x = px - a.tx * s, y = py - a.ty * s;
+  if (x + b.x1 * s > W - m) x = W - m - b.x1 * s;
+  if (x + b.x0 * s < m) x = m - b.x0 * s;
+  if (y + b.y1 * s > H - m) y = H - m - b.y1 * s;
+  if (y + b.y0 * s < m) y = m - b.y0 * s;
+  return { s, x, y };
+}
+function applyView() {
+  world.style.transform = `translate(${view.x}px,${view.y}px) scale(${view.s})`;
+  let g = 26 * view.s;
+  while (g < 13) g *= 2;
+  stage.style.backgroundSize = `${g}px ${g}px`;
+  stage.style.backgroundPosition = `${view.x}px ${view.y}px`;
+}
+
+/* ---- animation ---- */
+let nodeAnim = null, viewAnim = null, raf = 0;
+const ease = t => 1 - Math.pow(1 - t, 3);
+function linkPath(p, k) {
+  const d = k.dir;
+  const x0 = d > 0 ? p.x + p.w : p.x, y0 = p.y + p.h / 2;
+  const x1 = d > 0 ? k.x : k.x + k.w, y1 = k.y + k.h / 2;
+  const mx = (x1 - x0) / 2;
+  return `M${x0.toFixed(1)} ${y0.toFixed(1)}C${(x0 + mx).toFixed(1)} ${y0.toFixed(1)} ${(x1 - mx).toFixed(1)} ${y1.toFixed(1)} ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+}
+function drawLinks() {
+  for (const n of shown) {
+    if (n === ROOT) continue;
+    n.link.setAttribute("d", linkPath(n.parent, n));
+    n.link.style.opacity = n.o >= 1 ? "" : n.o;
+  }
+}
+function frame(now) {
+  raf = 0;
+  let more = false;
+  if (nodeAnim) {
+    const a = nodeAnim;
+    const p = a.dur ? Math.max(0, Math.min(1, (now - a.t0) / a.dur)) : 1, e = ease(p);
+    for (const it of a.items) {
+      const n = it.n;
+      n.x = it.fx + (it.tx - it.fx) * e;
+      n.y = it.fy + (it.ty - it.fy) * e;
+      n.o = it.fo + (it.to - it.fo) * e;
+      n.el.style.transform = `translate(${n.x}px,${n.y}px)`;
+      n.el.style.opacity = n.o >= 1 ? "" : n.o;
+    }
+    drawLinks();
+    if (p < 1) more = true;
+    else {
+      for (const it of a.items) if (it.exit) {
+        it.n.el.hidden = true;
+        it.n.link.style.display = "none";
+        shown.delete(it.n);
+      }
+      nodeAnim = null;
+    }
+  }
+  if (viewAnim) {
+    const v = viewAnim;
+    const p = v.dur ? Math.max(0, Math.min(1, (now - v.t0) / v.dur)) : 1, e = ease(p);
+    view.x = v.fx + (v.x - v.fx) * e;
+    view.y = v.fy + (v.y - v.fy) * e;
+    view.s = v.fs + (v.s - v.fs) * e;
+    applyView();
+    if (p < 1) more = true; else viewAnim = null;
+  }
+  if (more) raf = requestAnimationFrame(frame);
+}
+function kick(dur) {
+  if (dur === 0) {
+    if (raf) cancelAnimationFrame(raf);
+    frame(performance.now());
+  } else if (!raf) raf = requestAnimationFrame(frame);
+}
+function animateView(v, dur) {
+  viewAnim = { t0: performance.now(), dur, fx: view.x, fy: view.y, fs: view.s, x: v.x, y: v.y, s: v.s };
+  kick(dur);
+}
+
+/* ---- render ---- */
+function render(opt = {}) {
+  const dur = opt.instant || reduceMotion ? 0 : 340;
+  const vis = [];
+  (function walk(n) { vis.push(n); kidsOf(n).forEach(walk); })(ROOT);
+  const visSet = new Set(vis);
+
+  for (const n of vis) {
+    if (!n.el) build(n);
+    if (!shown.has(n)) { n.el.hidden = false; if (n.link) n.link.style.display = ""; }
+    if (n.tog) syncToggle(n);
+  }
+  for (const n of vis) { n.w = n.el.offsetWidth; n.h = n.el.offsetHeight; }
+
+  // new nodes grow out of their parent
+  for (const n of vis) {
+    if (shown.has(n)) continue;
+    if (n === ROOT) { n.x = -n.w / 2; n.y = -n.h / 2; n.o = 1; }
+    else { const p = n.parent; n.x = p.x + p.w / 2 - n.w / 2; n.y = p.y + p.h / 2 - n.h / 2; n.o = 0; }
+    shown.add(n);
+  }
+  const exiting = [...shown].filter(n => !visSet.has(n));
+
+  layout();
+
+  const items = vis.map(n => ({ n, fx: n.x, fy: n.y, fo: n.o, tx: n.tx, ty: n.ty, to: 1 }));
+  for (const n of exiting) {
+    let a = n.parent;
+    while (!visSet.has(a)) a = a.parent;
+    items.push({ n, fx: n.x, fy: n.y, fo: n.o, tx: a.tx + a.w / 2 - n.w / 2, ty: a.ty + a.h / 2 - n.h / 2, to: 0, exit: true });
+  }
+  nodeAnim = { t0: performance.now(), dur, items };
+
+  let v = null;
+  if (opt.fit) v = fitView(vis);
+  else if (opt.anchor) {
+    const a = opt.anchor;
+    v = { s: view.s, x: view.x - (a.tx - a.x) * view.s, y: view.y - (a.ty - a.y) * view.s };
+    if (opt.reveal) v = reveal(v, a);
+  }
+  if (v) viewAnim = { t0: performance.now(), dur, fx: view.x, fy: view.y, fs: view.s, x: v.x, y: v.y, s: v.s };
+  kick(dur);
+}
+
+/* ---- actions ---- */
+function toggle(n) {
+  const open = !expanded.has(n);
+  if (open) expanded.add(n); else expanded.delete(n);
+  render({ anchor: n, reveal: open });
+}
+function expandAll() { forks.forEach(f => expanded.add(f)); render({ fit: true }); }
+function collapseAll() { expanded.clear(); expanded.add(ROOT); render({ fit: true }); }
+const levelBtns = [...document.querySelectorAll("[data-level]")];
+function setLevel(l) {
+  maxLevel = l;
+  levelBtns.forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.level === l)));
+  render({ fit: true });
+}
+function zoomBy(f) {
+  const W = stage.clientWidth, H = stage.clientHeight;
+  const ns = clampS(view.s * f), k = ns / view.s;
+  animateView({ s: ns, x: W / 2 - (W / 2 - view.x) * k, y: H / 2 - (H / 2 - view.y) * k }, reduceMotion ? 0 : 200);
+}
+function fitNow() {
+  const vis = [];
+  (function walk(n) { vis.push(n); kidsOf(n).forEach(walk); })(ROOT);
+  animateView(fitView(vis), reduceMotion ? 0 : 300);
+}
+
+levelBtns.forEach(b => b.addEventListener("click", () => setLevel(+b.dataset.level)));
+document.getElementById("expandAll").addEventListener("click", expandAll);
+document.getElementById("collapseAll").addEventListener("click", collapseAll);
+document.getElementById("zoomIn").addEventListener("click", () => zoomBy(1.25));
+document.getElementById("zoomOut").addEventListener("click", () => zoomBy(0.8));
+document.getElementById("fit").addEventListener("click", fitNow);
+
+const fsBtn = document.getElementById("fs");
+if (!document.documentElement.requestFullscreen) fsBtn.hidden = true;
+fsBtn.addEventListener("click", () => {
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  else document.documentElement.requestFullscreen().catch(() => { fsBtn.hidden = true; });
+});
+document.addEventListener("fullscreenchange", () => {
+  fsBtn.textContent = document.fullscreenElement ? "Exit full screen" : "Full screen";
+});
+
+/* ---- pan, pinch, wheel ---- */
+const pointers = new Map();
+let drag = null, pinch = null, suppressClick = false;
+function pinchState() {
+  const [a, b] = [...pointers.values()];
+  return { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2 };
+}
+stage.addEventListener("pointerdown", e => {
+  if (e.target.closest(".legend, .mapctl")) return;
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+  suppressClick = false;
+  viewAnim = null;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pointers.size === 1) {
+    drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, vx: view.x, vy: view.y, moved: false };
+  } else if (pointers.size === 2) {
+    pinch = { ...pinchState(), s: view.s, vx: view.x, vy: view.y };
+    if (drag) drag.moved = true;
+    try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+  }
+});
+stage.addEventListener("pointermove", e => {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && pointers.size >= 2) {
+    const p = pinchState(), r = stage.getBoundingClientRect();
+    const wx = (pinch.cx - r.left - pinch.vx) / pinch.s, wy = (pinch.cy - r.top - pinch.vy) / pinch.s;
+    view.s = clampS(pinch.s * p.d / pinch.d);
+    view.x = p.cx - r.left - wx * view.s;
+    view.y = p.cy - r.top - wy * view.s;
+    applyView();
+    return;
+  }
+  if (drag && e.pointerId === drag.id) {
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (!drag.moved && Math.hypot(dx, dy) > 5) {
+      drag.moved = true;
+      stage.classList.add("dragging");
+      try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    if (drag.moved) { view.x = drag.vx + dx; view.y = drag.vy + dy; applyView(); }
+  }
+});
+function endPointer(e) {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch = null;
+  if (pointers.size === 1) {
+    const [id, p] = [...pointers.entries()][0];
+    drag = { id, sx: p.x, sy: p.y, vx: view.x, vy: view.y, moved: true };
+  } else if (pointers.size === 0) {
+    stage.classList.remove("dragging");
+    if (drag && drag.moved) suppressClick = true;
+    drag = null;
+  }
+}
+stage.addEventListener("pointerup", endPointer);
+stage.addEventListener("pointercancel", endPointer);
+stage.addEventListener("click", e => {
+  if (suppressClick) { e.stopPropagation(); e.preventDefault(); suppressClick = false; }
+}, true);
+stage.addEventListener("wheel", e => {
+  if (e.target.closest(".legend")) return;
+  e.preventDefault();
+  viewAnim = null;
+  const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1);
+  const r = stage.getBoundingClientRect();
+  const px = e.clientX - r.left, py = e.clientY - r.top;
+  const ns = clampS(view.s * Math.exp(-dy * 0.0015)), k = ns / view.s;
+  view.x = px - (px - view.x) * k;
+  view.y = py - (py - view.y) * k;
+  view.s = ns;
+  applyView();
+}, { passive: false });
+
+/* ---- keyboard ---- */
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  const k = e.key;
+  const step = 90;
+  if (k === "e" || k === "E") expandAll();
+  else if (k === "c" || k === "C") collapseAll();
+  else if (k === "f" || k === "F") fitNow();
+  else if (k === "+" || k === "=") zoomBy(1.25);
+  else if (k === "-" || k === "_") zoomBy(0.8);
+  else if (k === "1" || k === "2" || k === "3") setLevel(+k);
+  else if (k === "q" || k === "Q") setQuiz(QUIZ_ORDER[(QUIZ_ORDER.indexOf(quizMode) + 1) % 3]);
+  else if (k === "ArrowLeft") { view.x += step; applyView(); }
+  else if (k === "ArrowRight") { view.x -= step; applyView(); }
+  else if (k === "ArrowUp") { view.y += step; applyView(); }
+  else if (k === "ArrowDown") { view.y -= step; applyView(); }
+  else return;
+  e.preventDefault();
+});
+
+/* ---- start ---- */
+if (window.innerWidth >= 1100 && window.innerHeight >= 700) document.getElementById("legend").open = true;
+render({ fit: true, instant: true });
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(() => render({ fit: true, instant: true }));
+}
+// Re-fit when the canvas changes size (window resize, full screen, header rewrapping after fonts load).
+let resizeTimer = 0, lastW = stage.clientWidth, lastH = stage.clientHeight;
+const onResize = () => {
+  if (stage.clientWidth === lastW && stage.clientHeight === lastH) return;
+  lastW = stage.clientWidth; lastH = stage.clientHeight;
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => render({ fit: true, instant: true }), 120);
+};
+if (window.ResizeObserver) new ResizeObserver(onResize).observe(stage);
+else window.addEventListener("resize", onResize);
+})();
+</script>
+</body>
+</html>

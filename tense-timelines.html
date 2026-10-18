@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tense Timelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#ECF0F3; --surface:#FFFFFF; --raised:#F3F6F9; --ink:#18212C; --muted:#526071;
+  --line:#C8D1DB; --line-strong:#95A3B3;
+  --acc:#3656C9; --on-acc:#FFFFFF; --focus:#2F5BD3;
+  --acc-soft:color-mix(in srgb, var(--acc) 10%, var(--surface));
+  --shadow:0 1px 2px rgba(24,33,44,.06), 0 6px 18px rgba(24,33,44,.06);
+  --f-display:"Alegreya", Georgia, "Times New Roman", serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --f-mono:"Atkinson Hyperlegible Mono", ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0F141A; --surface:#18202A; --raised:#1F2833; --ink:#E4E9EF; --muted:#9BA7B5;
+    --line:#2C3744; --line-strong:#556476;
+    --acc:#8CA2F5; --on-acc:#0E131A; --focus:#8CA2F5;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0F141A; --surface:#18202A; --raised:#1F2833; --ink:#E4E9EF; --muted:#9BA7B5;
+  --line:#2C3744; --line-strong:#556476;
+  --acc:#8CA2F5; --on-acc:#0E131A; --focus:#8CA2F5;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 6px 18px rgba(0,0,0,.25);
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0; background:var(--bg); color:var(--ink); font:16px/1.45 var(--f-body); -webkit-font-smoothing:antialiased}
+button:focus-visible{outline:3px solid var(--focus); outline-offset:2px}
+.wrap{max-width:1240px; margin:0 auto; padding-inline:clamp(16px, 3vw, 32px); padding-block:28px 64px}
+
+/* ---------- header ---------- */
+.top{display:grid; gap:10px; margin-bottom:26px}
+.eyebrow{margin:0; font:700 12px/1.2 var(--f-body); letter-spacing:.14em; text-transform:uppercase; color:var(--acc)}
+h1{margin:0; font:800 clamp(36px, 5vw, 54px)/1 var(--f-display); letter-spacing:-.01em; text-wrap:balance}
+.lede{margin:0; max-width:66ch; font-size:17px; line-height:1.5; color:var(--muted)}
+.lede b{color:var(--ink)}
+.key{list-style:none; margin:8px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:8px 20px; font-size:13.5px; color:var(--muted)}
+.key li{display:flex; align-items:center; gap:7px}
+.key svg{width:38px; height:22px; flex:none; overflow:visible}
+
+/* ---------- diagrams (shared) ---------- */
+.dia{display:block; width:100%; height:auto; overflow:visible}
+.dia line,.dia path{vector-effect:non-scaling-stroke}
+.dia .ax{stroke:var(--line-strong); stroke-width:1.6px; fill:none; stroke-linecap:round; stroke-linejoin:round}
+.dia .now{stroke:var(--muted); stroke-width:1.5px; stroke-dasharray:4 4}
+.dia .ref{stroke:var(--ink); stroke-width:2.4px; stroke-linecap:round}
+.dia .mk{fill:var(--acc)}
+.dia .ln{stroke:var(--acc); fill:none; stroke-width:2.8px; stroke-linecap:round; stroke-linejoin:round}
+.dia .br{stroke:var(--muted); fill:none; stroke-width:1.4px}
+.dia .ev{fill:var(--ink)}
+.dia text{font:600 18px var(--f-body); fill:var(--ink); paint-order:stroke; stroke:var(--surface); stroke-width:5px; stroke-linejoin:round}
+.dia text.mk-t{fill:var(--acc); font-weight:700}
+.dia text.ref-t{font-weight:700}
+.dia text.br-t{fill:var(--muted); font-style:italic}
+.dia text.end{font:700 12px var(--f-body); letter-spacing:.14em; fill:var(--muted)}
+.dia text.now-t{font:700 13px var(--f-body); letter-spacing:.12em; fill:var(--muted)}
+.dia.mini .ln{stroke-width:2px}
+.dia.mini .ref{stroke-width:1.8px}
+
+/* ---------- bench: grid + spotlight ---------- */
+.bench{display:grid; grid-template-columns:minmax(0, 1.3fr) minmax(0, 1fr); gap:24px; align-items:start}
+.tgrid{display:grid; grid-template-columns:140px repeat(3, minmax(0, 1fr)); gap:8px}
+.corner{grid-column:1}
+.colhead{padding:0 4px 4px; font:700 21px/1.1 var(--f-display)}
+.colhead small{display:block; margin-top:2px; font:400 12.5px/1.2 var(--f-body); color:var(--muted)}
+.rowhead{display:flex; flex-direction:column; justify-content:center; gap:4px; padding:8px 8px 8px 0; border-top:2px solid var(--line)}
+.rowhead b{font:700 17px/1.1 var(--f-display)}
+.rowhead code{font:600 12px/1.3 var(--f-mono); color:var(--acc)}
+.rowhead span{font-size:12.5px; line-height:1.3; color:var(--muted)}
+.cell{appearance:none; margin:0; min-width:0; text-align:left; font:inherit; color:inherit; cursor:pointer;
+  display:flex; flex-direction:column; gap:6px; padding:10px 10px 8px; background:var(--surface); border:1px solid var(--line); border-radius:10px; transition:border-color .15s, background-color .15s}
+.cell:hover{border-color:var(--acc)}
+.cell[aria-pressed="true"]{border-color:var(--acc); background:var(--acc-soft); box-shadow:inset 0 0 0 1px var(--acc)}
+.cell-top{display:flex; justify-content:space-between; align-items:flex-start; gap:6px}
+.cn{font:700 14.5px/1.2 var(--f-body)}
+.cf{font:600 12px/1.3 var(--f-mono); color:var(--muted)}
+.nw{white-space:nowrap}
+
+.pips{display:inline-flex; gap:3px; flex:none; margin-top:3px}
+.pips i{display:block; width:8px; height:8px; border-radius:50%; border:1.5px solid var(--acc)}
+.pips i.on{background:var(--acc)}
+
+.spot{position:sticky; top:calc(env(safe-area-inset-top, 0px) + 16px); display:flex; flex-direction:column; gap:14px; padding:20px 22px 18px; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow)}
+.spot-head{display:flex; justify-content:space-between; align-items:center; gap:10px}
+.spot h2{margin:-6px 0 0; font:800 34px/1.05 var(--f-display); text-wrap:balance}
+.formula{align-self:flex-start; padding:5px 9px; border-radius:7px; background:var(--acc-soft); font:600 15px/1.35 var(--f-mono)}
+.forms{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; margin:0; font-size:15.5px}
+.forms dt{font:700 11.5px/1.9 var(--f-body); letter-spacing:.1em; text-transform:uppercase; color:var(--muted)}
+.forms dd{margin:0}
+.spot h3{margin:0 0 6px; font:700 12px/1.2 var(--f-body); letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.spot-cols{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+.spot ul{margin:0; padding-left:18px; font-size:15px; line-height:1.4}
+.spot li + li{margin-top:3px}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chips span{padding:3px 9px; border-radius:999px; border:1px solid var(--line); background:var(--raised); font-size:13.5px}
+.exs{display:grid; gap:4px}
+.exs p{margin:0; font-style:italic; font-size:16.5px}
+.stepper{display:flex; align-items:center; justify-content:space-between; gap:10px; padding-top:12px; border-top:1px solid var(--line)}
+.stepper button{appearance:none; margin:0; padding:0 14px; min-height:36px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink); font:700 14px/1 var(--f-body); cursor:pointer}
+.stepper button:hover{background:var(--raised)}
+.stepper span{font:600 13px var(--f-mono); color:var(--muted); font-variant-numeric:tabular-nums}
+
+/* ---------- mix-ups ---------- */
+.mix{margin-top:52px; display:grid; gap:16px}
+.mix-list{display:grid; gap:16px}
+.mix-head{display:grid; gap:6px}
+.mix-head h2{margin:0; font:800 32px/1.1 var(--f-display)}
+.mix-head p{margin:0; color:var(--muted); max-width:66ch}
+.mixcard{display:grid; gap:12px; padding:18px 22px; background:var(--surface); border:1px solid var(--line); border-radius:14px}
+.mixcard h3{margin:0; font:700 22px/1.2 var(--f-display)}
+.pair{display:grid; grid-template-columns:1fr 1fr; gap:22px}
+.pair figure{margin:0; display:grid; gap:6px; align-content:start}
+.pair figcaption{font:700 12px/1.2 var(--f-body); letter-spacing:.12em; text-transform:uppercase; color:var(--acc)}
+.sent{margin:0; font-style:italic; font-size:16.5px}
+.diff{margin:0; padding-top:12px; border-top:1px solid var(--line); color:var(--muted); font-size:15.5px; max-width:84ch}
+.diff b{color:var(--ink)}
+
+@media (max-width:900px){
+  .bench{grid-template-columns:1fr}
+  .spot{position:static; order:-1}
+}
+@media (max-width:640px){
+  .tgrid{grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px}
+  .corner{display:none}
+  .rowhead{grid-column:1 / -1; flex-direction:row; flex-wrap:wrap; align-items:baseline; gap:4px 10px; padding:10px 0 2px}
+  .colhead{font-size:17px}
+  .cell{padding:8px 7px 6px}
+  .cn{font-size:13px}
+  .spot{padding:16px}
+  .spot h2{font-size:28px}
+  .spot-cols{grid-template-columns:1fr}
+  .pair{grid-template-columns:1fr}
+  .mixcard{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">Tenses &amp; Aspects</p>
+    <h1>Tense Timelines</h1>
+    <p class="lede">Every English tense is a <b>time</b> (past, present or future) plus an <b>aspect</b> (simple, continuous, perfect or perfect continuous). Pick a tense to see its timeline, its forms and when to use it.</p>
+    <ul class="key" id="key"></ul>
+  </header>
+
+  <section class="bench">
+    <div class="tgrid" id="tgrid" aria-label="The twelve tenses"></div>
+    <aside class="spot" id="spot">
+      <div class="spot-head"><p class="eyebrow" id="spTag"></p><span id="spPips"></span></div>
+      <h2 id="spName"></h2>
+      <div id="spDia"></div>
+      <span class="formula" id="spForm"></span>
+      <dl class="forms">
+        <dt>Positive</dt><dd id="spPos"></dd>
+        <dt>Negative</dt><dd id="spNeg"></dd>
+        <dt>Question</dt><dd id="spQ"></dd>
+      </dl>
+      <div class="spot-cols">
+        <div><h3>Use it for</h3><ul id="spUse"></ul></div>
+        <div><h3>Signal words</h3><div class="chips" id="spSig"></div></div>
+      </div>
+      <div><h3>Examples</h3><div class="exs" id="spEx"></div></div>
+      <nav class="stepper" aria-label="Step through the tenses">
+        <button type="button" id="prev">← Previous</button>
+        <span id="pos"></span>
+        <button type="button" id="next">Next →</button>
+      </nav>
+    </aside>
+  </section>
+
+  <section class="mix" aria-labelledby="mixTitle">
+    <div class="mix-head">
+      <h2 id="mixTitle">Common mix-ups</h2>
+      <p>Four pairs that learners confuse most often, drawn on the same timeline so the difference is easy to see.</p>
+    </div>
+    <div id="mixList" class="mix-list"></div>
+  </section>
+</div>
+
+<script>
+(() => {
+/* Timeline coordinates: 600 wide. now = 300, "then" in the past = 160, "then" in the future = 440. */
+const TIMES = { past: ["Past", "before now"], present: ["Present", "around now"], future: ["Future", "after now"] };
+const ASPECTS = {
+  simple:     ["Simple", "V1 · V2 · will + V1", "the whole action, as a fact"],
+  continuous: ["Continuous", "be + V-ing", "in progress around a time"],
+  perfect:    ["Perfect", "have + V3", "before a time, and linked to it"],
+  perfcont:   ["Perfect continuous", "have been + V-ing", "an activity lasting up to a time"],
+};
+const LEVEL_NAME = ["", "Beginner", "Intermediate", "Advanced"];
+
+const TENSES = [
+  { id: "past-simple", time: "past", aspect: "simple", name: "Past simple", lv: 1, form: "V2 · did + V1",
+    pos: "We met in 2019.", neg: "We didn’t meet in 2019.", q: "Did you meet in 2019?",
+    use: ["finished actions at a finished time", "a series of past actions"],
+    sig: ["yesterday", "… ago", "last week", "in 2019", "when I was a child"],
+    ex: ["We met in 2019.", "I got up, had a shower and left."],
+    marks: [{ t: "dot", x: 160, label: "met" }, { t: "ref", x: 160, label: "in 2019" }] },
+  { id: "present-simple", time: "present", aspect: "simple", name: "Present simple", lv: 1, form: "V1 / V-s · do / does + V1",
+    pos: "She works here.", neg: "She doesn’t work here.", q: "Does she work here?",
+    use: ["habits and routines", "facts and general truths", "timetables"],
+    sig: ["always", "usually", "often", "never", "every day", "on Mondays"],
+    ex: ["She walks to school every day.", "Water boils at 100 °C."],
+    marks: [{ t: "dots", x0: 50, x1: 550, step: 50, label: "every day", lx: 125 }] },
+  { id: "future-simple", time: "future", aspect: "simple", name: "Future simple", lv: 1, form: "will + V1 · won’t + V1",
+    pos: "It will rain.", neg: "It won’t rain.", q: "Will it rain?",
+    use: ["decisions made while speaking", "predictions and opinions", "promises and offers"],
+    sig: ["tomorrow", "next week", "soon", "I think", "probably"],
+    ex: ["I think it will rain tomorrow.", "It’s cold. I’ll close the window."],
+    marks: [{ t: "dot", x: 440, label: "rain" }, { t: "ref", x: 440, label: "tomorrow" }] },
+
+  { id: "past-continuous", time: "past", aspect: "continuous", name: "Past continuous", lv: 2, form: "was / were + V-ing",
+    pos: "I was cooking.", neg: "I wasn’t cooking.", q: "Were you cooking?",
+    use: ["an action in progress at a past moment", "the background to a shorter event"],
+    sig: ["while", "when", "at 8 pm yesterday", "all evening"],
+    ex: ["I was cooking when you called.", "At 8 pm we were watching a film."],
+    marks: [{ t: "wave", x0: 80, x1: 240, label: "cooking" }, { t: "event", x: 160 }, { t: "ref", x: 160, label: "you called" }] },
+  { id: "present-continuous", time: "present", aspect: "continuous", name: "Present continuous", lv: 1, form: "am / is / are + V-ing",
+    pos: "I’m studying.", neg: "I’m not studying.", q: "Are you studying?",
+    use: ["happening now", "temporary situations", "fixed future arrangements"],
+    sig: ["now", "at the moment", "today", "this week", "Look!"],
+    ex: ["I’m studying for a test this week.", "Look! It’s snowing."],
+    marks: [{ t: "wave", x0: 215, x1: 385, label: "studying this week" }] },
+  { id: "future-continuous", time: "future", aspect: "continuous", name: "Future continuous", lv: 2, form: "will be + V-ing",
+    pos: "I’ll be flying.", neg: "I won’t be working.", q: "Will you be using the car?",
+    use: ["an action in progress at a future moment", "polite questions about plans"],
+    sig: ["this time tomorrow", "at 10 am on Monday", "all evening"],
+    ex: ["This time tomorrow I’ll be flying to Rome.", "Don’t call at 8. We’ll be having dinner."],
+    marks: [{ t: "wave", x0: 365, x1: 515, label: "flying to Rome" }, { t: "event", x: 440 }, { t: "ref", x: 440, label: "this time tomorrow" }] },
+
+  { id: "past-perfect", time: "past", aspect: "perfect", name: "Past perfect", lv: 2, form: "had + V3",
+    pos: "The film had started.", neg: "The film hadn’t started.", q: "Had the film started?",
+    use: ["the earlier of two past events", "something finished before a past moment"],
+    sig: ["before", "after", "already", "by the time", "when"],
+    ex: ["The film had started when we arrived.", "By 2010 she had left the company."],
+    marks: [{ t: "dot", x: 70, label: "film started" }, { t: "arrow", x0: 70, x1: 160 }, { t: "ref", x: 160, label: "we arrived" }] },
+  { id: "present-perfect", time: "present", aspect: "perfect", name: "Present perfect", lv: 2, form: "have / has + V3",
+    pos: "I’ve lost my keys.", neg: "I haven’t lost my keys.", q: "Have you lost your keys?",
+    use: ["a past action with a result now", "life experience (time not stated)", "an unfinished time: today, this year"],
+    sig: ["ever", "never", "just", "already", "yet", "so far", "this year"],
+    ex: ["I’ve lost my keys. (I can’t get in now.)", "Have you ever been to Peru?"],
+    marks: [{ t: "dot", x: 175, label: "lost my keys" }, { t: "arrow", x0: 175, x1: 300, label: "result now" }] },
+  { id: "future-perfect", time: "future", aspect: "perfect", name: "Future perfect", lv: 3, form: "will have + V3",
+    pos: "She’ll have finished.", neg: "She won’t have finished.", q: "Will she have finished?",
+    use: ["an action finished before a future moment"],
+    sig: ["by June", "by then", "by the time", "before"],
+    ex: ["By June, she’ll have finished the course.", "The film will have started by the time we get there."],
+    marks: [{ t: "dot", x: 370, label: "finish" }, { t: "arrow", x0: 370, x1: 440 }, { t: "ref", x: 440, label: "by June" }] },
+
+  { id: "past-perfect-continuous", time: "past", aspect: "perfcont", name: "Past perfect continuous", lv: 3, form: "had been + V-ing",
+    pos: "They had been waiting.", neg: "They hadn’t been waiting long.", q: "How long had they been waiting?",
+    use: ["an activity lasting up to a past moment", "the cause of a past situation"],
+    sig: ["for", "since", "how long", "before", "all day"],
+    ex: ["They had been waiting for two hours when the bus came.", "He was tired because he’d been running."],
+    marks: [{ t: "wave", x0: 50, x1: 160, arrow: true }, { t: "bracket", x0: 50, x1: 160, label: "for two hours" }, { t: "ref", x: 160, label: "the bus came" }] },
+  { id: "present-perfect-continuous", time: "present", aspect: "perfcont", name: "Present perfect continuous", lv: 2, form: "have / has been + V-ing",
+    pos: "She’s been waiting.", neg: "She hasn’t been waiting long.", q: "How long has she been waiting?",
+    use: ["an activity from the past up to now: how long?", "a recent activity with results you can see"],
+    sig: ["for", "since", "how long", "all day", "lately"],
+    ex: ["She’s been waiting for an hour.", "I’m tired because I’ve been working all day."],
+    marks: [{ t: "wave", x0: 175, x1: 300, arrow: true }, { t: "bracket", x0: 175, x1: 300, label: "for an hour" }] },
+  { id: "future-perfect-continuous", time: "future", aspect: "perfcont", name: "Future perfect continuous", lv: 3, form: "will have been + V-ing",
+    pos: "I’ll have been working for ten hours.", neg: "I won’t have been working long.", q: "How long will you have been working?",
+    use: ["how long an activity will have lasted at a future moment"],
+    sig: ["for … by …", "by the time"],
+    ex: ["By 5 pm, I’ll have been working for ten hours.", "In May, we’ll have been living here for a year."],
+    marks: [{ t: "wave", x0: 220, x1: 440, arrow: true }, { t: "bracket", x0: 220, x1: 440, label: "for ten hours" }, { t: "ref", x: 440, label: "5 pm" }] },
+];
+
+const MIXUPS = [
+  { title: "Past simple or present perfect?",
+    a: { name: "Past simple", sent: "I lost my keys yesterday.", marks: [{ t: "dot", x: 160, label: "lost" }, { t: "ref", x: 160, label: "yesterday" }] },
+    b: { name: "Present perfect", sent: "I’ve lost my keys.", marks: [{ t: "dot", x: 175, label: "lost" }, { t: "arrow", x0: 175, x1: 300, label: "still lost now" }] },
+    diff: "<b>A finished time</b> (yesterday, in 2019, two days ago) means past simple. <b>No time given</b>, and the result matters now, means present perfect." },
+  { title: "Past simple or past continuous?",
+    a: { name: "Past simple", sent: "When you called, I cooked dinner.", marks: [{ t: "event", x: 140 }, { t: "ref", x: 140, label: "you called" }, { t: "arrow", x0: 148, x1: 196 }, { t: "dot", x: 206, label: "cooked" }] },
+    b: { name: "Past continuous", sent: "I was cooking when you called.", marks: [{ t: "wave", x0: 80, x1: 240, label: "cooking" }, { t: "event", x: 160 }, { t: "ref", x: 160, label: "you called" }] },
+    diff: "<b>Past simple</b>: one action after the other (you called, then I started cooking). <b>Past continuous</b>: the cooking was already in progress when you called." },
+  { title: "Present perfect or present perfect continuous?",
+    a: { name: "Present perfect", sent: "I’ve painted the kitchen.", marks: [{ t: "dot", x: 190, label: "painted" }, { t: "arrow", x0: 190, x1: 300, label: "job done" }] },
+    b: { name: "Present perfect continuous", sent: "I’ve been painting the kitchen.", marks: [{ t: "wave", x0: 160, x1: 300, arrow: true }, { t: "bracket", x0: 160, x1: 300, label: "all morning" }] },
+    diff: "<b>Simple</b> talks about the result or how many (I’ve painted two rooms). <b>Continuous</b> talks about the activity or how long (for three hours), and it may not be finished." },
+  { title: "will or be going to?",
+    a: { name: "will", sent: "It’s cold. I’ll close the window.", marks: [{ t: "event", x: 300 }, { t: "ref", x: 300, label: "decide now" }, { t: "arrow", x0: 308, x1: 362 }, { t: "dot", x: 372, label: "close it" }] },
+    b: { name: "be going to", sent: "I’m going to paint my room this weekend.", marks: [{ t: "event", x: 180 }, { t: "ref", x: 180, label: "decided" }, { t: "arrow", x0: 188, x1: 430 }, { t: "dot", x: 440, label: "paint" }, { t: "ref", x: 440, label: "this weekend" }] },
+    diff: "<b>will</b>: you decide at the moment you speak. <b>be going to</b>: you decided before (a plan), or you can see it coming (Look at those clouds!)." },
+];
+
+/* ---------- drawing ---------- */
+const AX = 112, LN = 66, NOW = 300;
+const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const fm = s => esc(s).replace(/(V-[a-z]+)/g, `<span class="nw">$1</span>`);
+function diagram(marks, mini, label) {
+  const r = mini ? 12 : 8, amp = mini ? 12 : 8, hw = mini ? 20 : 12, ah = mini ? 14 : 9;
+  const head = x => `<path class="ln" d="M${x - ah} ${LN - ah * 0.75}L${x} ${LN}L${x - ah} ${LN + ah * 0.75}"/>`;
+  let s = `<line class="ax" x1="14" y1="${AX}" x2="584" y2="${AX}"/><path class="ax" d="M574 ${AX - 7}L586 ${AX}L574 ${AX + 7}"/>`;
+  s += `<line class="now" x1="${NOW}" y1="${mini ? 34 : 24}" x2="${NOW}" y2="${AX + 14}"/>`;
+  if (!mini) {
+    s += `<text class="now-t" x="${NOW}" y="16" text-anchor="middle">NOW</text>`;
+    s += `<text class="end" x="16" y="${AX + 40}">PAST</text><text class="end" x="584" y="${AX + 40}" text-anchor="end">FUTURE</text>`;
+  }
+  let text = "";
+  const t = (cls, x, y, str) => { if (!mini && str) text += `<text class="${cls}" x="${x}" y="${y}" text-anchor="middle">${esc(str)}</text>`; };
+  for (const m of marks) {
+    if (m.t === "dot") {
+      s += `<circle class="mk" cx="${m.x}" cy="${LN}" r="${r}"/>`;
+      t("mk-t", m.x, LN - r - 10, m.label);
+    } else if (m.t === "dots") {
+      for (let x = m.x0; x <= m.x1; x += m.step) s += `<circle class="mk" cx="${x}" cy="${LN}" r="${r * 0.7}"/>`;
+      t("mk-t", m.lx ?? (m.x0 + m.x1) / 2, LN - r - 10, m.label);
+    } else if (m.t === "wave") {
+      const end = m.arrow ? m.x1 - 3 : m.x1;
+      const n = Math.max(2, Math.round((end - m.x0) / hw)), st = (end - m.x0) / n;
+      let d = `M${m.x0} ${LN}`;
+      for (let i = 0; i < n; i++) d += ` q${(st / 2).toFixed(2)} ${i % 2 ? amp : -amp} ${st.toFixed(2)} 0`;
+      s += `<path class="ln" d="${d}"/>`;
+      if (m.arrow) s += head(m.x1);
+      t("mk-t", (m.x0 + m.x1) / 2, LN - amp - 12, m.label);
+    } else if (m.t === "arrow") {
+      s += `<line class="ln" x1="${m.x0}" y1="${LN}" x2="${m.x1 - 1}" y2="${LN}"/>` + head(m.x1);
+      t("mk-t", (m.x0 + m.x1) / 2, LN + 26, m.label);
+    } else if (m.t === "bracket") {
+      const y = LN - amp - 12;
+      s += `<path class="br" d="M${m.x0} ${y + 6}V${y}H${m.x1}V${y + 6}"/>`;
+      t("br-t", (m.x0 + m.x1) / 2, y - 8, m.label);
+    } else if (m.t === "event") {
+      const k = mini ? 11 : 7;
+      s += `<path class="ev" d="M${m.x} ${LN - k}L${m.x + k} ${LN}L${m.x} ${LN + k}L${m.x - k} ${LN}Z"/>`;
+    } else if (m.t === "ref") {
+      s += `<line class="ref" x1="${m.x}" y1="${AX - 11}" x2="${m.x}" y2="${AX + 11}"/>`;
+      t("ref-t", m.x, AX + 29, m.label);
+    }
+  }
+  const vb = mini ? "0 30 600 100" : "0 0 600 160";
+  const a11y = label ? `role="img" aria-label="${esc(label)}"` : `aria-hidden="true"`;
+  return `<svg class="dia${mini ? " mini" : ""}" viewBox="${vb}" ${a11y}>${s}${text}</svg>`;
+}
+function pips(lv) {
+  return `<span class="pips" role="img" aria-label="${LEVEL_NAME[lv]}" title="${LEVEL_NAME[lv]}">` +
+    [1, 2, 3].map(i => `<i class="${i <= lv ? "on" : ""}"></i>`).join("") + `</span>`;
+}
+
+/* ---------- symbol key ---------- */
+const KEY = [
+  [`<line class="now" x1="19" y1="2" x2="19" y2="20"/>`, "now"],
+  [`<circle class="mk" cx="19" cy="11" r="5"/>`, "one complete action"],
+  [`<path class="ln" d="M3 11 q4 -6 8 0 q4 6 8 0 q4 -6 8 0 q4 6 8 0"/>`, "in progress"],
+  [`<line class="ln" x1="3" y1="11" x2="33" y2="11"/><path class="ln" d="M27 6L33 11L27 16"/>`, "continues up to a point"],
+  [`<path class="br" d="M4 16V9H34V16"/>`, "how long"],
+  [`<path class="ev" d="M19 5L25 11L19 17L13 11Z"/>`, "a short event"],
+  [`<line class="ax" x1="2" y1="13" x2="36" y2="13"/><line class="ref" x1="19" y1="5" x2="19" y2="21"/>`, "the time we talk about"],
+];
+document.getElementById("key").innerHTML = KEY.map(([svg, txt]) =>
+  `<li><svg class="dia" viewBox="0 0 38 22" aria-hidden="true">${svg}</svg>${txt}</li>`).join("");
+
+/* ---------- grid ---------- */
+const grid = document.getElementById("tgrid");
+let html = `<div class="corner" aria-hidden="true"></div>`;
+for (const [k, [name, sub]] of Object.entries(TIMES)) html += `<div class="colhead">${name}<small>${sub}</small></div>`;
+for (const [ak, [aname, aform, ameaning]] of Object.entries(ASPECTS)) {
+  html += `<div class="rowhead"><b>${aname}</b><code>${fm(aform)}</code><span>${ameaning}</span></div>`;
+  for (const tk of Object.keys(TIMES)) {
+    const tn = TENSES.find(x => x.time === tk && x.aspect === ak);
+    html += `<button type="button" class="cell" data-id="${tn.id}" aria-pressed="false">` +
+      `<span class="cell-top"><span class="cn">${tn.name}</span>${pips(tn.lv)}</span>` +
+      diagram(tn.marks, true) +
+      `<span class="cf">${fm(tn.form)}</span></button>`;
+  }
+}
+grid.innerHTML = html;
+const cells = [...grid.querySelectorAll(".cell")];
+
+/* ---------- spotlight ---------- */
+const $ = id => document.getElementById(id);
+const spot = $("spot");
+let idx = TENSES.findIndex(x => x.id === "present-perfect");
+function show(i, scroll) {
+  idx = (i + TENSES.length) % TENSES.length;
+  const tn = TENSES[idx];
+  $("spTag").textContent = `${TIMES[tn.time][0]} · ${ASPECTS[tn.aspect][0]}`;
+  $("spPips").innerHTML = pips(tn.lv);
+  $("spName").textContent = tn.name;
+  $("spDia").innerHTML = diagram(tn.marks, false, `Timeline for the ${tn.name.toLowerCase()}`);
+  $("spForm").innerHTML = fm(tn.form);
+  $("spPos").textContent = tn.pos;
+  $("spNeg").textContent = tn.neg;
+  $("spQ").textContent = tn.q;
+  $("spUse").innerHTML = tn.use.map(u => `<li>${esc(u)}</li>`).join("");
+  $("spSig").innerHTML = tn.sig.map(s => `<span>${esc(s)}</span>`).join("");
+  $("spEx").innerHTML = tn.ex.map(e => `<p>${esc(e)}</p>`).join("");
+  $("pos").textContent = `${idx + 1} / ${TENSES.length}`;
+  cells.forEach(c => c.setAttribute("aria-pressed", String(c.dataset.id === tn.id)));
+  if (scroll && window.matchMedia("(max-width: 900px)").matches) {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    spot.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }
+}
+cells.forEach(c => c.addEventListener("click", () => show(TENSES.findIndex(x => x.id === c.dataset.id), true)));
+$("prev").addEventListener("click", () => show(idx - 1));
+$("next").addEventListener("click", () => show(idx + 1));
+document.addEventListener("keydown", e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === "ArrowRight") { show(idx + 1); e.preventDefault(); }
+  else if (e.key === "ArrowLeft") { show(idx - 1); e.preventDefault(); }
+});
+const hash = decodeURIComponent(location.hash.slice(1));
+const fromHash = TENSES.findIndex(x => x.id === hash);
+show(fromHash >= 0 ? fromHash : idx);
+
+/* ---------- mix-ups ---------- */
+$("mixList").innerHTML = MIXUPS.map(m => {
+  const fig = side => `<figure><figcaption>${esc(side.name)}</figcaption>` +
+    diagram(side.marks, false, `Timeline: ${side.sent}`) + `<p class="sent">${esc(side.sent)}</p></figure>`;
+  return `<article class="mixcard"><h3>${esc(m.title)}</h3><div class="pair">${fig(m.a)}${fig(m.b)}</div><p class="diff">${m.diff}</p></article>`;
+}).join("");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WordStep · English Dictionary</title>
+  <meta name="description" content="Step-by-step English vocabulary, grammar for real life and leveled reading with pronunciation, examples, review and quizzes.">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M7 23h6v-5h6v-5h6' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#/">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8"/><path d="M7 23h6v-5h6v-5h6"/></svg>
+        WordStep
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href="#/" data-nav="home">Home</a>
+        <a href="#/learn" data-nav="learn">Learn</a>
+        <a href="#/grammar" data-nav="grammar">Grammar</a>
+        <a href="#/library" data-nav="library">Library</a>
+        <a href="#/search" data-nav="search">Search</a>
+        <a href="#/mywords" data-nav="mywords">My Words</a>
+        <a href="#/quiz" data-nav="quiz">Quiz</a>
+        <a href="#/settings" data-nav="settings">Settings</a>
+      </nav>
+      <button class="student-chip" id="student-chip" type="button" title="Switch student">…</button>
+    </div>
+    <div class="statusbar" id="statusbar" aria-live="polite"></div>
+  </header>
+
+  <main id="view" class="container"></main>
+
+  <div class="modal" id="profile-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="profile-title">
+      <h2 id="profile-title">Who's studying?</h2>
+      <div id="profile-list" class="profile-list"></div>
+      <form id="new-profile" class="row">
+        <input id="new-name" maxlength="40" placeholder="New student name" autocomplete="off" required>
+        <button class="btn primary" type="submit">Start</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+  <script src="/static/reading.js"></script>
+  <script src="/static/grammar.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

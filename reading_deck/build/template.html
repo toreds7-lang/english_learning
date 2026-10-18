@@ -1,0 +1,1665 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Everything is inline. Only YouTube's privacy-mode player may load (at home, via start_deck.bat);
+     on a company PC opened as a file, the video chips show the transcript line instead. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; frame-src https://www.youtube-nocookie.com; media-src data: blob:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>BERT처럼 영어책 읽기</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f5f3ee; --surface: #ffffff; --surface-2: #eeebe4; --ink: #1c1b18; --ink-2: #55524a;
+  --muted: #85817a; --line: #e2ded4;
+  --p1: #4f46e5; --p1-bg: #eceefe;
+  --p2: #0f766e; --p2-bg: #e3f3f0;
+  --p3: #b45309; --p3-bg: #fbefe1;
+  --p4: #be185d; --p4-bg: #fbe8f0;
+  --p6: #15803d; --p6-bg: #e4f4e8;
+  --kr: #b91c1c; --kr-bg: #fde8e8;
+  --ok: #15803d; --ok-bg: #e4f4e8;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 10px 28px rgba(0,0,0,.07);
+  --accent: var(--p1); --accent-bg: var(--p1-bg);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #151514; --surface: #1f1f1d; --surface-2: #282826; --ink: #f0efec; --ink-2: #c3c2b7;
+    --muted: #8f8d84; --line: #36352f;
+    --p1: #a5b4fc; --p1-bg: #1f2142;
+    --p2: #2dd4bf; --p2-bg: #11302c;
+    --p3: #f5a524; --p3-bg: #33240f;
+    --p4: #f472b6; --p4-bg: #3a1a2b;
+    --p6: #4ade80; --p6-bg: #12301d;
+    --kr: #f87171; --kr-bg: #3b1414;
+    --ok: #4ade80; --ok-bg: #12301d;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #151514; --surface: #1f1f1d; --surface-2: #282826; --ink: #f0efec; --ink-2: #c3c2b7;
+  --muted: #8f8d84; --line: #36352f;
+  --p1: #a5b4fc; --p1-bg: #1f2142;
+  --p2: #2dd4bf; --p2-bg: #11302c;
+  --p3: #f5a524; --p3-bg: #33240f;
+  --p4: #f472b6; --p4-bg: #3a1a2b;
+  --p6: #4ade80; --p6-bg: #12301d;
+  --kr: #f87171; --kr-bg: #3b1414;
+  --ok: #4ade80; --ok-bg: #12301d;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+}
+
+* { box-sizing: border-box; }
+/* scale with whichever of width/height is tighter, so a slide fits like a projected page */
+html { font-size: clamp(13px, min(1.05vw, 1.85vh), 20px); }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg); color: var(--ink); overflow: hidden; word-break: keep-all; overflow-wrap: anywhere;
+  font-family: "Segoe UI Variable Text", "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+.en { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; }
+.mono { font-family: Consolas, ui-monospace, monospace; }
+
+/* ---------- stage ---------- */
+.deck { position: fixed; inset: 0; }
+.slide {
+  position: absolute; inset: 0; opacity: 0; visibility: hidden;
+  transition: opacity .25s ease, visibility 0s linear .25s;
+}
+.slide.active { opacity: 1; visibility: visible; transition: opacity .25s ease; }
+.p1 { --accent: var(--p1); --accent-bg: var(--p1-bg); }
+.p2 { --accent: var(--p2); --accent-bg: var(--p2-bg); }
+.p3 { --accent: var(--p3); --accent-bg: var(--p3-bg); }
+.p4 { --accent: var(--p4); --accent-bg: var(--p4-bg); }
+.p6 { --accent: var(--p6); --accent-bg: var(--p6-bg); }
+
+.split {
+  height: 100%; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(20px, 2.8vw, 56px);
+  padding: clamp(16px, 3vh, 40px) clamp(16px, 3.4vw, 68px) 66px;
+}
+.full { height: 100%; display: flex; flex-direction: column; justify-content: center; padding: clamp(16px, 3vh, 40px) clamp(16px, 3.4vw, 68px) 66px; overflow-y: auto; }
+.col-text { overflow-y: auto; min-height: 0; padding-right: 6px; scrollbar-width: thin; align-self: center; max-height: 100%; }
+.col-media { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; overflow-y: auto; scrollbar-width: thin; }
+
+/* ---------- text column ---------- */
+.kicker { margin: 0 0 .45rem; font-size: .8rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .35rem .7rem; align-items: center; }
+.tag { display: inline-block; padding: .15rem .6rem; border-radius: 999px; font-weight: 700; letter-spacing: .02em; background: var(--accent-bg); color: var(--accent); }
+h1, h2 { letter-spacing: -.015em; margin: 0; line-height: 1.2; }
+h1 { font-size: 3.2rem; font-weight: 800; }
+h2 { font-size: 1.8rem; font-weight: 800; }
+h3 { margin: 0 0 .3rem; font-size: .78rem; letter-spacing: .06em; color: var(--accent); }
+.sub { margin: .3rem 0 .8rem; color: var(--ink-2); font-size: .98rem; }
+.lead { font-size: 1rem; color: var(--ink-2); margin: 0 0 .7rem; }
+.rule { border-radius: 12px; padding: .55rem .9rem; margin: 0 0 .7rem; background: var(--accent-bg); font-size: 1rem; line-height: 1.45; }
+.rule b { color: var(--accent); }
+.rule .by { display: block; font-size: .76rem; color: var(--muted); margin-top: .15rem; }
+.points { margin: 0 0 .7rem; padding: 0; list-style: none; counter-reset: pt; display: grid; gap: .45rem; }
+.points > li { position: relative; padding-left: 1.9rem; counter-increment: pt; font-size: .93rem; }
+.points > li::before {
+  content: counter(pt); position: absolute; left: 0; top: .12rem; width: 1.35rem; height: 1.35rem; border-radius: 50%;
+  display: grid; place-items: center; font-size: .7rem; font-weight: 700; background: var(--accent); color: var(--surface);
+}
+.points b { color: var(--ink); }
+.gl { display: block; font-size: .8rem; color: var(--muted); margin-top: .05rem; }
+.box { border-radius: 12px; padding: .55rem .9rem; margin: 0 0 .7rem; }
+.box p { margin: 0; font-size: .88rem; }
+.box p + p { margin-top: .3rem; }
+.trap { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--kr); }
+.trap h3 { color: var(--kr); }
+.bridge { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--ok); }
+.bridge h3 { color: var(--ok); }
+.note { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); }
+.note h3 { color: var(--ink-2); }
+.small { font-size: .84rem; }
+.muted { color: var(--muted); }
+.hl { color: var(--accent); font-weight: 700; }
+.bul { margin: 0 0 .7rem; padding-left: 1.15rem; display: grid; gap: .3rem; font-size: .92rem; }
+.bul li::marker { color: var(--accent); }
+.bul .gl { font-size: .78rem; }
+.cite { font-size: .74rem; color: var(--muted); }
+
+.go, .at {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .02rem .5rem; font-size: .72rem;
+  font-weight: 700; cursor: pointer; color: var(--accent); white-space: nowrap; vertical-align: .05em; font-variant-numeric: tabular-nums;
+}
+.go:hover, .go:focus-visible, .at:hover, .at:focus-visible { background: var(--accent); color: var(--surface); border-color: var(--accent); outline: none; }
+
+/* ---------- media column: player ---------- */
+.player {
+  position: relative; background: #000; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); flex: none;
+  width: min(100%, calc(44vh * 16 / 9)); aspect-ratio: 16 / 9;
+}
+.player.small { width: min(100%, calc(30vh * 16 / 9)); }
+.player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.facade { position: absolute; inset: 0; border: 0; padding: 0; margin: 0; cursor: pointer; background: #000; }
+.facade img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .92; transition: opacity .2s; }
+.facade:hover img, .facade:focus-visible img { opacity: 1; }
+.facade .play {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: flex; align-items: center; gap: .55rem; padding: .65rem 1.1rem .65rem .9rem; border-radius: 999px;
+  background: rgba(15, 15, 15, .82); color: #fff; font-weight: 600; font-size: .92rem; white-space: nowrap;
+}
+.facade .play svg { width: 1.2rem; height: 1.2rem; }
+.facade:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.chapters { display: flex; flex-wrap: wrap; gap: .32rem; justify-content: center; max-width: 100%; }
+.chapters button {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .2rem .65rem;
+  font-size: .76rem; cursor: pointer; color: var(--ink-2);
+}
+.chapters button:hover, .chapters button:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.chapters button.on { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+.chapters b { color: var(--accent); font-weight: 700; margin-right: .3rem; font-variant-numeric: tabular-nums; }
+.src { margin: 0; font-size: .76rem; color: var(--muted); text-align: center; max-width: 100%; }
+.moment {
+  width: 100%; max-width: 36rem; margin: 0; font-size: .86rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: .45rem .75rem;
+}
+.moment[hidden] { display: none; }
+.moment b { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .35rem; }
+.moment q { font-style: italic; }
+.filewarn { display: none; }
+.is-file .filewarn {
+  display: block; max-width: 34rem; margin: 0; font-size: .76rem; text-align: center; color: var(--ink-2);
+  background: var(--surface); border: 1px dashed var(--muted); border-radius: 10px; padding: .35rem .8rem;
+}
+.filewarn code { font-family: Consolas, ui-monospace, monospace; font-size: .95em; }
+
+/* ---------- shared widgets ---------- */
+.panel { width: 100%; max-width: 40rem; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: .8rem 1rem; box-shadow: var(--shadow); }
+.panel h3 { margin-bottom: .45rem; }
+.panel .cap { margin: .45rem 0 0; font-size: .76rem; color: var(--muted); }
+.pbtn {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .25rem .75rem;
+  font-size: .8rem; font-weight: 600; cursor: pointer; color: var(--ink-2); display: inline-flex; align-items: center; gap: .35rem;
+}
+.pbtn:hover, .pbtn:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.pbtn:disabled { opacity: .4; cursor: default; }
+.pbtn.on { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.pbtn svg { width: .9rem; height: .9rem; }
+.row { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: .25rem .8rem; font-size: .8rem; font-weight: 700; cursor: pointer; color: var(--ink-2); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on { background: var(--accent); color: var(--surface); }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+kbd {
+  font-family: Consolas, ui-monospace, monospace; font-size: .8em; padding: .05rem .4rem; border-radius: 5px;
+  border: 1px solid var(--line); border-bottom-width: 2px; background: var(--surface); color: var(--ink-2);
+}
+
+/* [MASK] chip */
+.mask {
+  display: inline-block; border: 1.5px dashed var(--accent); background: var(--accent-bg); color: var(--accent);
+  border-radius: 6px; padding: 0 .35rem; font: 700 .78em Consolas, ui-monospace, monospace; letter-spacing: .02em;
+  cursor: pointer; line-height: 1.5; vertical-align: .05em;
+}
+.mask:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mask.rev { border-style: solid; font: inherit; font-weight: 700; padding: 0 .3rem; vertical-align: baseline; line-height: inherit; }
+.ctx { background: linear-gradient(transparent 58%, var(--accent-bg) 58%); font-weight: 600; }
+
+/* ---------- 1 · title ---------- */
+.hero .sub { font-size: 1.15rem; }
+.stats { display: flex; flex-wrap: wrap; gap: .5rem; margin: 0 0 1rem; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .45rem .8rem; }
+.stat b { display: block; font-size: 1.3rem; color: var(--accent); line-height: 1.15; font-variant-numeric: tabular-nums; }
+.stat span { font-size: .76rem; color: var(--muted); }
+.keys { margin-top: .8rem; font-size: .8rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .4rem 1rem; }
+.bookcard {
+  width: 100%; max-width: 30rem; background: var(--surface); border: 1px solid var(--line); border-radius: 6px 16px 16px 6px;
+  box-shadow: var(--shadow), inset 6px 0 0 var(--surface-2); padding: 1.2rem 1.4rem 1rem 1.8rem; font-size: 1.12rem; line-height: 1.75;
+}
+.bookcard .pg { font-size: .72rem; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; margin: 0 0 .5rem; }
+.bookcard p { margin: 0; }
+.bookcard .faint { color: var(--muted); }
+.arrows { display: flex; justify-content: space-between; align-items: center; gap: .5rem; margin-top: .7rem; font-size: .8rem; color: var(--ink-2); }
+.arrows b { color: var(--accent); }
+
+/* ---------- 2 · corpus bars ---------- */
+.bars { display: grid; gap: .55rem; }
+.bar-row { display: grid; grid-template-columns: 8.2rem minmax(0, 1fr) 4.6rem; gap: .6rem; align-items: center; font-size: .84rem; }
+.bar-row .lbl small { display: block; color: var(--muted); font-size: .72rem; }
+.bar-track { height: 1.1rem; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--accent); border-radius: 4px; min-width: 2px; }
+.bar-fill.soft { background: color-mix(in srgb, var(--accent) 55%, var(--surface)); }
+.bar-fill.me { background: var(--kr); }
+.bar-row .val { font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.bigstat { margin: .8rem 0 0; padding: .6rem .8rem; border-radius: 12px; background: var(--accent-bg); font-size: .9rem; }
+.bigstat b { color: var(--accent); font-size: 1.25rem; }
+
+/* ---------- 3 · BERT ideas ---------- */
+.idea { display: grid; grid-template-columns: 2.3rem minmax(0, 1fr); gap: .1rem .75rem; margin: 0 0 .6rem; }
+.idea .n { grid-row: span 2; width: 2.3rem; height: 2.3rem; border-radius: 10px; display: grid; place-items: center; background: var(--accent-bg); color: var(--accent); font-weight: 800; }
+.idea .t { font-weight: 800; font-size: .98rem; }
+.idea .t .en { font-weight: 600; color: var(--muted); font-size: .82rem; margin-left: .35rem; }
+.idea p { margin: 0; font-size: .86rem; color: var(--ink-2); }
+.idea q { font-style: italic; color: var(--ink); }
+.mlm { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr) auto; gap: .35rem .6rem; align-items: center; font-size: .9rem; }
+.mlm .pct { font-weight: 800; color: var(--accent); text-align: right; font-variant-numeric: tabular-nums; }
+.mlm .sent { font-family: Consolas, ui-monospace, monospace; background: var(--surface-2); border-radius: 8px; padding: .2rem .55rem; }
+.mlm .sent i { font-style: normal; color: var(--kr); font-weight: 700; }
+.mlm .why { font-size: .76rem; color: var(--muted); }
+.attn-svg { width: 100%; height: auto; display: block; }
+.attn-svg text { font: 600 15px "Segoe UI", system-ui, sans-serif; fill: var(--ink); }
+.attn-svg text.m { fill: var(--accent); font-family: Consolas, ui-monospace, monospace; font-weight: 700; }
+.attn-svg path { fill: none; stroke: var(--accent); stroke-linecap: round; }
+
+/* ---------- 4 · coverage grids ---------- */
+.grids { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .9rem; width: 100%; max-width: 38rem; }
+.gcard { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: .7rem; text-align: center; }
+.gcard.best { border: 2px solid var(--ok); }
+.gcard.bad { border-color: var(--kr); }
+.g100 { display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; margin: 0 auto .5rem; max-width: 9.5rem; }
+.g100 i { aspect-ratio: 1; border-radius: 2px; background: var(--surface-2); }
+.g100 i.u { background: var(--kr); }
+.gcard b { display: block; font-size: 1.35rem; line-height: 1.1; }
+.gcard.best b { color: var(--ok); }
+.gcard.bad b { color: var(--kr); }
+.gcard span { display: block; font-size: .76rem; color: var(--ink-2); }
+.gcard em { display: inline-block; margin-top: .3rem; font-style: normal; font-size: .72rem; font-weight: 800; padding: .08rem .5rem; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); }
+.gcard.best em { background: var(--ok-bg); color: var(--ok); }
+.gcard.bad em { background: var(--kr-bg); color: var(--kr); }
+
+/* ---------- 5 · rule map ---------- */
+.map { display: grid; grid-template-columns: 2.8rem minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 1.2fr) auto; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); font-size: .86rem; }
+.map > div { padding: .5rem .65rem; border-top: 1px solid var(--line); }
+.map > .h { border-top: 0; background: var(--surface-2); font-size: .74rem; font-weight: 800; letter-spacing: .05em; color: var(--muted); }
+.map .num { display: flex; align-items: center; justify-content: center; }
+.map .num span { width: 1.9rem; height: 1.9rem; border-radius: 9px; display: grid; place-items: center; font-weight: 800; background: var(--accent-bg); color: var(--accent); }
+.map .t { font-weight: 800; }
+.map .t small { display: block; font-weight: 600; font-size: .74rem; color: var(--muted); }
+.map .b { color: var(--ink-2); }
+.map .b code { font-family: Consolas, ui-monospace, monospace; font-size: .92em; color: var(--accent); font-weight: 700; }
+.map .tool { display: flex; flex-wrap: wrap; gap: .25rem; align-content: center; }
+
+/* ---------- 6 · book shelf ---------- */
+.shelf { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; width: 100%; max-width: 38rem; }
+.book { background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 6px 12px 12px 6px; padding: .5rem .75rem; }
+.book .t { font-weight: 800; font-size: .92rem; line-height: 1.3; }
+.book .k { display: block; font-size: .76rem; color: var(--muted); }
+.book p { margin: .25rem 0 0; font-size: .8rem; color: var(--ink-2); }
+.lv { display: inline-block; font-size: .68rem; font-weight: 800; padding: .03rem .45rem; border-radius: 999px; margin-right: .3rem; vertical-align: .1em; }
+.lv.e { background: var(--ok-bg); color: var(--ok); }
+.lv.m { background: var(--p3-bg); color: var(--p3); }
+.lv.h { background: var(--kr-bg); color: var(--kr); }
+.finger { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3rem; margin: .3rem 0 0; }
+.finger div { border-radius: 8px; padding: .3rem .4rem; text-align: center; font-size: .76rem; background: var(--surface-2); }
+.finger b { display: block; font-size: .92rem; }
+.finger .ok { background: var(--ok-bg); color: var(--ok); }
+.finger .x { background: var(--kr-bg); color: var(--kr); }
+
+/* ---------- 7 · page test ---------- */
+.pt-result { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .2rem 1rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: .7rem .9rem; margin: 0 0 .7rem; }
+.pt-big { grid-row: span 3; font-size: 2.6rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; color: var(--accent); }
+.pt-big small { display: block; font-size: .72rem; font-weight: 600; color: var(--muted); text-align: center; margin-top: .2rem; }
+.verdict { display: inline-block; justify-self: start; font-weight: 800; font-size: .86rem; padding: .12rem .65rem; border-radius: 999px; background: var(--surface-2); color: var(--ink-2); }
+.verdict.easy { background: var(--p2-bg); color: var(--p2); }
+.verdict.good { background: var(--ok-bg); color: var(--ok); }
+.verdict.chal { background: var(--p3-bg); color: var(--p3); }
+.verdict.hard { background: var(--kr-bg); color: var(--kr); }
+.pt-line { font-size: .84rem; color: var(--ink-2); }
+.pt-words {
+  width: 100%; max-height: 46vh; overflow-y: auto; font-size: 1.02rem; line-height: 2.05; padding: .2rem .1rem;
+  font-family: Georgia, "Times New Roman", serif; scrollbar-width: thin;
+}
+.pt-words .w { border: 0; background: none; padding: 0 .12rem; margin: 0 -.06rem; border-radius: 4px; cursor: pointer; font: inherit; color: inherit; }
+.pt-words .w:hover { background: var(--surface-2); }
+.pt-words .w:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+.pt-words .w.u { background: var(--kr-bg); color: var(--kr); box-shadow: inset 0 -2px 0 var(--kr); }
+.pt-paste { width: 100%; }
+.pt-paste summary { cursor: pointer; font-size: .82rem; font-weight: 700; color: var(--accent); }
+.pt-paste textarea { width: 100%; height: 7.5rem; margin: .4rem 0; padding: .5rem .6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); resize: vertical; font-size: .86rem; }
+.pt-paste textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.bands { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3rem; margin: 0 0 .6rem; }
+.bands div { font-size: .74rem; padding: .3rem .4rem; border-radius: 8px; text-align: center; background: var(--surface); border: 1px solid var(--line); }
+.bands b { display: block; font-size: .82rem; }
+.bands .on { outline: 2px solid var(--accent); }
+
+/* ---------- 8 · four steps ---------- */
+.steps4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .3rem; margin: 0 0 .7rem; }
+.steps4 div { border-radius: 10px; padding: .35rem .45rem; font-size: .76rem; background: var(--surface); border: 1px solid var(--line); text-align: center; }
+.steps4 b { display: block; font-size: .8rem; }
+.steps4 .on { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+
+/* ---------- 9 · chunk reading ---------- */
+.eye { display: grid; grid-template-columns: 6.4rem minmax(0, 1fr); gap: .35rem .6rem; align-items: center; font-size: .82rem; margin: 0 0 .7rem; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .5rem .75rem; }
+.eye .k { font-weight: 800; font-size: .76rem; }
+.eye .k.bad { color: var(--kr); }
+.eye .k.good { color: var(--ok); }
+.path { display: flex; flex-wrap: wrap; gap: .2rem; align-items: center; }
+.path span { display: inline-grid; place-items: center; min-width: 1.45rem; height: 1.45rem; border-radius: 6px; font-weight: 800; font-size: .76rem; background: var(--surface-2); }
+.path.bad span { background: var(--kr-bg); color: var(--kr); }
+.path.good span { background: var(--ok-bg); color: var(--ok); }
+.path i { font-style: normal; color: var(--muted); font-size: .7rem; }
+.chunks { display: flex; flex-wrap: wrap; gap: .45rem .3rem; align-items: flex-start; margin: .2rem 0 .6rem; }
+.ck { display: inline-flex; flex-direction: column; border-radius: 10px; padding: .25rem .5rem; background: var(--surface-2); transition: opacity .2s, background .2s; position: relative; }
+.ck .ix { position: absolute; top: -.55rem; left: .35rem; font-size: .62rem; font-weight: 800; color: var(--muted); background: var(--surface); border-radius: 999px; padding: 0 .3rem; border: 1px solid var(--line); line-height: 1.3; }
+.ck .e { font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; line-height: 1.35; }
+.ck .k { font-size: .78rem; color: var(--accent); font-weight: 600; display: none; }
+.chunks.ko .ck .k { display: block; }
+.chunks.run .ck { opacity: .28; }
+.chunks.run .ck.done { opacity: .75; }
+.chunks.run .ck.on { opacity: 1; background: var(--accent-bg); box-shadow: inset 0 0 0 2px var(--accent); }
+.chunks.back .ck.on { background: var(--kr-bg); box-shadow: inset 0 0 0 2px var(--kr); }
+.backtr { margin: 0 0 .6rem; font-size: .86rem; background: var(--kr-bg); border-radius: 10px; padding: .4rem .65rem; }
+.backtr[hidden] { display: none; }
+.backtr b { color: var(--kr); font-size: .74rem; display: block; }
+.ctl { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin: 0 0 .45rem; }
+.ctl select { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .2rem .5rem; font-size: .8rem; color: var(--ink-2); }
+.toggle { display: inline-flex; align-items: center; gap: .35rem; font-size: .8rem; color: var(--ink-2); cursor: pointer; }
+.toggle input { accent-color: var(--accent); width: 1rem; height: 1rem; margin: 0; }
+
+/* ---------- 10 · flowchart ---------- */
+.flow { width: 100%; max-width: 36rem; display: grid; grid-template-columns: minmax(0, 1.2fr) 2.6rem minmax(0, 1fr); gap: .25rem .3rem; align-items: center; font-size: .82rem; }
+.flow .q { background: var(--surface); border: 1.5px solid var(--accent); border-radius: 10px; padding: .35rem .6rem; font-weight: 700; }
+.flow .q small { display: block; font-weight: 400; color: var(--muted); font-size: .72rem; }
+.flow .yes { font-size: .7rem; font-weight: 800; color: var(--ok); text-align: center; }
+.flow .yes::after { content: "→"; display: block; font-size: .95rem; line-height: 1; }
+.flow .a { background: var(--ok-bg); color: var(--ok); border-radius: 10px; padding: .35rem .6rem; font-weight: 700; }
+.flow .a small { display: block; font-weight: 400; color: var(--ink-2); font-size: .72rem; }
+.flow .no { grid-column: 1; text-align: center; font-size: .7rem; font-weight: 800; color: var(--kr); line-height: 1.1; }
+.flow .start { grid-column: 1; background: var(--kr-bg); color: var(--kr); border-radius: 10px; padding: .3rem .6rem; font-weight: 800; text-align: center; }
+.flow .end { grid-column: 1; background: var(--surface-2); border-radius: 10px; padding: .35rem .6rem; font-weight: 700; }
+.flow .end small { display: block; font-weight: 400; color: var(--muted); font-size: .72rem; }
+.dots { font-family: Georgia, serif; font-size: 1rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .35rem .7rem; margin: 0 0 .7rem; }
+.dots sup { color: var(--kr); font-weight: 800; font-size: .8rem; margin-left: .05rem; }
+
+/* ---------- 11 · bidirectional + attention ---------- */
+.clues { display: flex; flex-wrap: wrap; gap: .3rem; margin: 0 0 .7rem; }
+.clues span { font-size: .78rem; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: .15rem .5rem; }
+.clues span b { color: var(--accent); }
+.clues span i { font-style: normal; color: var(--muted); font-family: Consolas, ui-monospace, monospace; font-size: .92em; }
+.bidi-s { font-family: Georgia, "Times New Roman", serif; font-size: 1.12rem; margin: .1rem 0 .55rem; line-height: 1.6; }
+.bidi-s .r { transition: filter .25s, opacity .25s; }
+.bidi.left .bidi-s .r { filter: blur(4px); opacity: .45; }
+.cands { display: grid; gap: .22rem; }
+.cand { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr) 2.6rem; gap: .5rem; align-items: center; font-size: .8rem; }
+.cand .w { font-weight: 700; text-align: right; }
+.cand .tr { height: .8rem; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+.cand .fl { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 4px; transition: width .45s ease; }
+.cand .p { font-variant-numeric: tabular-nums; color: var(--ink-2); text-align: right; }
+.att { border-top: 1px solid var(--line); padding: .5rem 0 .2rem; }
+.att:first-of-type { border-top: 0; }
+.att-s { font-family: Georgia, "Times New Roman", serif; font-size: 1.04rem; line-height: 1.75; margin: 0 0 .3rem; }
+.att-s span { border-radius: 4px; padding: 0 .08rem; transition: background .3s; }
+.att.show .att-s span[style] { background: color-mix(in srgb, var(--accent) var(--a), transparent); }
+.att-s .unk { border-bottom: 2px dashed var(--kr); color: var(--kr); font-weight: 700; font-style: italic; }
+.att-ans { display: none; font-size: .82rem; background: var(--ok-bg); border-radius: 8px; padding: .25rem .55rem; margin-top: .3rem; }
+.att.ans .att-ans { display: block; }
+.att-ans b { color: var(--ok); }
+.att-clue { display: none; font-size: .74rem; font-weight: 800; color: var(--accent); margin-left: .3rem; }
+.att.show .att-clue { display: inline; }
+
+/* ---------- 12 · masked reading ---------- */
+.mstats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem; margin: 0 0 .7rem; }
+.mstats div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .4rem .6rem; }
+.mstats b { display: block; font-size: 1.25rem; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.mstats span { font-size: .74rem; color: var(--muted); }
+.story { font-family: Georgia, "Times New Roman", serif; font-size: 1.08rem; line-height: 1.95; margin: 0; }
+.story .st { margin: 0 0 .1rem; font-weight: 700; font-size: 1.1rem; }
+.story .mask { font-size: .74em; }
+.story .mask.rev { font-size: inherit; font-family: inherit; }
+.mk-btns { display: inline-flex; gap: 2px; margin-left: 2px; vertical-align: .1em; }
+.mk-btns button { border: 1px solid var(--line); background: var(--surface); border-radius: 5px; font-size: .72rem; line-height: 1.2; padding: .08rem .35rem; cursor: pointer; font-family: "Segoe UI", system-ui, sans-serif; }
+.mk-btns button.y { color: var(--ok); }
+.mk-btns button.n { color: var(--kr); }
+.mask.right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+.mask.wrong { background: var(--kr-bg); border-color: var(--kr); color: var(--kr); }
+
+/* ---------- 13 · passes ---------- */
+.passes { width: 100%; max-width: 36rem; display: grid; gap: .55rem; }
+.pass { display: grid; grid-template-columns: 3.2rem minmax(0, 1fr); gap: .1rem .8rem; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: .6rem .8rem; box-shadow: var(--shadow); }
+.pass .n { grid-row: span 3; width: 3.2rem; height: 3.2rem; border-radius: 12px; display: grid; place-items: center; background: var(--accent-bg); color: var(--accent); font-weight: 800; font-size: .82rem; text-align: center; line-height: 1.1; }
+.pass .t { font-weight: 800; }
+.pass .t .en { color: var(--muted); font-weight: 600; font-size: .8rem; margin-left: .3rem; }
+.pass p { margin: 0; font-size: .82rem; color: var(--ink-2); }
+.pass .tools { display: flex; flex-wrap: wrap; gap: .25rem; margin-top: .2rem; }
+.pass .tools span { font-size: .7rem; font-weight: 700; background: var(--surface-2); border-radius: 999px; padding: .03rem .5rem; color: var(--ink-2); }
+.pass.opt { border-style: dashed; box-shadow: none; }
+.epochs { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr); gap: .3rem .6rem; align-items: center; font-size: .8rem; margin: 0 0 .7rem; }
+.epochs .ticks { display: flex; gap: 2px; flex-wrap: wrap; }
+.epochs .ticks i { width: .45rem; height: .9rem; border-radius: 2px; background: var(--accent); }
+.epochs .ticks.me i { background: var(--p3); width: 1.4rem; }
+
+/* ---------- 14 · read while listening ---------- */
+.rwl { width: 100%; max-width: 40rem; }
+.rwl-ctl { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: 0 0 .55rem; }
+.rwl-text { font-family: Georgia, "Times New Roman", serif; font-size: 1.08rem; line-height: 1.9; margin: 0; }
+.rwl-text .snt { border-radius: 5px; padding: .05rem .1rem; cursor: pointer; transition: background .2s, filter .2s; }
+.rwl-text .snt:hover { background: var(--surface-2); }
+.rwl-text .snt.cur { background: var(--accent-bg); box-shadow: inset 0 -2px 0 var(--accent); }
+.rwl.hide .rwl-text .snt { filter: blur(5px); }
+.rwl.marks .mk5 { box-shadow: inset 0 -2px 0 var(--p3); font-weight: 700; }
+.rwl-msg { font-size: .74rem; color: var(--muted); }
+
+/* ---------- 15/16 · cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; }
+.cards.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: .6rem .8rem; display: flex; flex-direction: column; gap: .2rem; }
+.card .ic { font-size: .7rem; font-weight: 800; letter-spacing: .05em; color: var(--accent); }
+.card .t { font-weight: 800; font-size: .96rem; line-height: 1.3; }
+.card .t .en { display: block; font-weight: 600; font-size: .76rem; color: var(--muted); }
+.card p { margin: 0; font-size: .82rem; color: var(--ink-2); }
+.card .go { align-self: flex-start; margin-top: auto; }
+.card .src2 { font-size: .7rem; color: var(--muted); margin-top: auto; }
+.card.p1, .card.p2, .card.p3, .card.p4, .card.p6 { border-top: 4px solid var(--accent); }
+.card .vs2 { display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); gap: .15rem .4rem; font-size: .8rem; }
+.card .vs2 b { font-size: .7rem; color: var(--muted); padding-top: .1rem; }
+.card .so { margin-top: .25rem; font-size: .8rem; background: var(--ok-bg); color: var(--ink); border-radius: 8px; padding: .25rem .5rem; }
+.card .so b { color: var(--ok); }
+
+/* ---------- 17 · plan ---------- */
+.weeks { display: grid; gap: .45rem; margin: 0 0 .7rem; }
+.wk { display: grid; grid-template-columns: 3.8rem minmax(0, 1fr); gap: .7rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .45rem .75rem; }
+.wk .n { font-weight: 800; color: var(--accent); font-size: .9rem; text-align: center; line-height: 1.1; }
+.wk .n small { display: block; font-size: .68rem; color: var(--muted); font-weight: 600; }
+.wk .what { font-size: .86rem; }
+.wk .what b { display: block; }
+.wk .what span { display: block; font-size: .78rem; color: var(--ink-2); }
+.checklist { display: grid; gap: .45rem; }
+.checklist label { display: grid; grid-template-columns: 1.3rem minmax(0, 1fr); gap: .5rem; align-items: start; font-size: .9rem; cursor: pointer; }
+.checklist input[type=checkbox] { width: 1.1rem; height: 1.1rem; margin: .2rem 0 0; accent-color: var(--ok); }
+.checklist .gl { font-size: .76rem; }
+.score { margin: .6rem 0 0; font-size: .88rem; font-weight: 800; color: var(--ok); }
+
+/* ---------- 18 · summary ---------- */
+.sumtab { display: grid; grid-template-columns: 2.6rem minmax(0, .9fr) minmax(0, 1.4fr); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); font-size: .88rem; margin: 0 0 .7rem; }
+.sumtab > div { padding: .45rem .65rem; border-top: 1px solid var(--line); }
+.sumtab > div:nth-child(-n+3) { border-top: 0; }
+.sumtab .n { display: flex; align-items: center; justify-content: center; }
+.sumtab .n span { width: 1.5rem; height: 1.5rem; border-radius: 7px; display: grid; place-items: center; font-weight: 800; font-size: .8rem; background: var(--accent-bg); color: var(--accent); }
+.sumtab .t { font-weight: 800; }
+.sumtab .t small { display: block; font-weight: 600; color: var(--muted); font-size: .74rem; }
+.refs { margin: 0; padding-left: 1.1rem; display: grid; gap: .35rem; font-size: .78rem; color: var(--ink-2); }
+.refs i { color: var(--ink); }
+
+/* ---------- chrome ---------- */
+.progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--accent); width: 0; transition: width .3s ease, background .3s; z-index: 20; }
+.bar-bottom {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 52px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(12px, 3vw, 48px); font-size: .8rem; color: var(--muted); z-index: 20; pointer-events: none;
+}
+.bar-bottom > * { pointer-events: auto; }
+.ctrls { display: flex; align-items: center; gap: .35rem; }
+.ctrls button {
+  width: 2.1rem; height: 2.1rem; border-radius: 50%; border: 1px solid var(--line); background: var(--surface);
+  display: grid; place-items: center; cursor: pointer; color: var(--ink-2);
+}
+.ctrls button:hover, .ctrls button:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.ctrls button:disabled { opacity: .35; cursor: default; }
+.ctrls svg { width: 1rem; height: 1rem; }
+.count { min-width: 3.4rem; text-align: center; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+
+/* ---------- narrow screens: stack and scroll ---------- */
+@media (max-width: 860px), (max-aspect-ratio: 1/1) {
+  html { font-size: 15px; }
+  .slide { overflow-y: auto; }
+  .split { display: block; height: auto; min-height: 100%; padding: 22px 16px 80px; }
+  .full { display: block; height: auto; min-height: 100%; padding: 22px 16px 80px; }
+  .col-text { overflow: visible; max-height: none; padding-right: 0; }
+  .col-media { margin-top: 1.1rem; overflow: visible; }
+  .player, .player.small { width: 100%; }
+  .cards, .cards.three, .shelf { grid-template-columns: 1fr; }
+  .grids { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .4rem; }
+  .map { grid-template-columns: 2.4rem minmax(0, 1fr); }
+  .map > .h { display: none; }
+  .map > div:nth-child(6) { border-top: 0; }
+  .map .b, .map .p, .map .tool { grid-column: 2; border-top: 0; padding-top: 0; }
+  .map .b::before { content: "BERT · "; font-weight: 800; color: var(--muted); }
+  .map .p::before { content: "사람 · "; font-weight: 800; color: var(--muted); }
+  .map .tool { padding-bottom: .7rem; }
+  .steps4, .finger, .bands { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bar-row { grid-template-columns: 6.4rem minmax(0, 1fr) 4rem; }
+  .pt-words { max-height: none; }
+  .bar-bottom { background: var(--bg); border-top: 1px solid var(--line); }
+  #label { display: none; }
+  h1 { font-size: 2.3rem; }
+  h2 { font-size: 1.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide, .progress, .cand .fl { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<main class="deck" id="deck">
+
+<!-- ================= 1 · TITLE ================= -->
+<section class="slide p1 hero" data-label="BERT처럼 영어책 읽기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">영어 원서 읽기 노하우</span><span class="en">Read English books like BERT</span></p>
+      <h1>BERT처럼<br>영어책 읽기</h1>
+      <p class="sub">번역하지 않고, 사전에 매달리지 않고, 두 번 읽기</p>
+      <p class="lead">구글의 언어 모델 <b>BERT</b>는 책과 위키백과를 읽으며 <b>단어를 가리고 맞히는 연습</b>으로 영어를 배웠습니다.
+        그 공부법을 사람에게 맞게 고치면, 우리도 사전 없이 원서를 끝까지 읽을 수 있습니다.</p>
+      <div class="stats">
+        <div class="stat"><b>15% → 2%</b><span>모르는 단어 비율: BERT → 사람</span></div>
+        <div class="stat"><b>3.3B</b><span>BERT가 읽은 단어 수 (33억)</span></div>
+        <div class="stat"><b>≈ 40번</b><span>BERT의 반복 읽기 (epochs)</span></div>
+        <div class="stat"><b>5 + 4</b><span>읽기 규칙 + 실습 도구</span></div>
+      </div>
+      <p class="keys"><span><kbd>←</kbd> <kbd>→</kbd> 이동</span><span><kbd>F</kbd> 전체 화면</span><span><kbd>T</kbd> 다크 모드</span><span><kbd>Home</kbd> 처음으로</span></p>
+    </div>
+    <div class="col-media">
+      <div class="bookcard en">
+        <p class="pg">The Monday Report · p. 1</p>
+        <p class="faint">This Monday, the printer on the fifth floor was broken again …</p>
+        <p>Mina did not want to wait, so she <span class="ctx">walked down</span> the <button type="button" class="mask" id="titleMask" aria-label="Hidden word: click to reveal">[MASK]</button> <span class="ctx">to the fourth floor</span>.</p>
+        <div class="arrows"><span><b>←</b> 앞 문맥</span><span>가려진 단어를 눌러 보세요</span><span>뒤 문맥 <b>→</b></span></div>
+      </div>
+      <p class="src">앞(walked down)과 뒤(to the fourth floor)를 함께 보면 답이 보입니다. 이게 BERT의 <b class="en">bidirectional</b>입니다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2 · BERT LEARNED FROM BOOKS ================= -->
+<section class="slide p1" data-label="BERT도 책으로 배웠다">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">BERT란?</span><span class="en">Devlin et al., Google AI Language · arXiv 1810.04805</span></p>
+      <h2>BERT도 책을 읽고 영어를 배웠다</h2>
+      <p class="sub en">BERT = <b>B</b>idirectional <b>E</b>ncoder <b>R</b>epresentations from <b>T</b>ransformers</p>
+      <ol class="points">
+        <li><b>사전 학습 <span class="en">(Pre-training)</span></b>: 정답지 없이 글만 대량으로 읽었다. 책 모음 BooksCorpus(8억 단어)와 영어 위키백과(25억 단어).
+          <span class="gl">교재나 문제집이 아니라 '진짜 글'을 많이 읽는 것부터 시작</span></li>
+        <li><b>반복 <span class="en">(Epochs)</span></b>: 33억 단어를 <b>약 40번</b> 다시 읽었다.
+          <span class="gl en">“1,000,000 steps, which is approximately 40 epochs over the 3.3 billion word corpus”</span></li>
+        <li><b>미세 조정 <span class="en">(Fine-tuning)</span></b>: 그다음에야 질문에 답하기, 문장 분류 같은 '업무'를 조금 더 배웠다.
+          <span class="gl">많이 읽는 기초가 먼저, 시험·업무 영어는 그다음</span></li>
+      </ol>
+      <aside class="box note">
+        <h3>오늘의 질문</h3>
+        <p>BERT의 공부법 중 <b>무엇을 그대로 따라 하고</b>, 사람에게 맞지 않는 <b>무엇을 고쳐야</b> 할까?</p>
+      </aside>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>BERT가 읽은 양 vs 우리가 1년에 읽는 양</h3>
+        <div class="bars">
+          <div class="bar-row"><span class="lbl en">BooksCorpus<small class="ko">소설 등 책 1만여 권</small></span><div class="bar-track"><div class="bar-fill soft" style="width:24.2%"></div></div><span class="val">8억</span></div>
+          <div class="bar-row"><span class="lbl en">Wikipedia<small>영어 위키백과</small></span><div class="bar-track"><div class="bar-fill soft" style="width:75.8%"></div></div><span class="val">25억</span></div>
+          <div class="bar-row"><span class="lbl">합계<small>BERT 1회독</small></span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="val">33억</span></div>
+          <div class="bar-row"><span class="lbl">나의 1년<small>하루 20분 × 분당 150단어</small></span><div class="bar-track"><div class="bar-fill me" style="width:.03%"></div></div><span class="val">110만</span></div>
+        </div>
+        <p class="bigstat">BERT의 한 바퀴를 사람이 읽으려면 <b>약 3,000년</b>.<br>
+          <span class="small">그러니 우리는 같은 '양'으로 이길 수 없습니다. <b>방법</b>을 빌려 오고, <b>난이도</b>를 사람에게 맞춰야 합니다.</span></p>
+        <p class="cap">BooksCorpus 800M + English Wikipedia 2,500M words (Devlin et al., 2019). '나의 1년'은 계산용 가정입니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3 · BERT'S METHOD ================= -->
+<section class="slide p1" data-label="BERT의 공부법 3가지">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">BERT의 공부법</span><span class="en">Masked LM · Bidirectional · Attention</span></p>
+      <h2>가리고, 양쪽을 보고, 단서에 집중한다</h2>
+      <p class="sub">BERT가 영어를 '이해'하게 된 세 가지 장치</p>
+      <div class="idea"><span class="n">1</span><span class="t">가리고 맞히기<span class="en">Masked LM</span></span>
+        <p>문장마다 단어의 <b>15%</b>를 골라 가린 뒤, 원래 단어를 맞힌다. <q class="en">we mask 15% of all WordPiece tokens in each sequence at random</q></p></div>
+      <div class="idea"><span class="n">2</span><span class="t">양쪽 보기<span class="en">Bidirectional</span></span>
+        <p>빈칸의 <b>왼쪽과 오른쪽 문맥</b>을 함께 쓴다. 이전 모델처럼 왼쪽에서 오른쪽으로만 읽지 않는다. <q class="en">fuse the left and the right context</q></p></div>
+      <div class="idea"><span class="n">3</span><span class="t">단서에 집중<span class="en">Attention</span></span>
+        <p>문장 속 모든 단어가 서로를 보면서, 빈칸과 <b>관련 있는 단어에 더 많은 주의</b>를 준다.</p></div>
+      <aside class="box bridge">
+        <h3>사람에게 옮기면</h3>
+        <p>모르는 단어 = 나만의 [MASK]. 멈추지 말고 <b>앞뒤를 끝까지 읽고</b>, <b>단서 단어</b>로 뜻을 좁힌다.</p>
+      </aside>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>① 15%로 뽑힌 단어는 이렇게 바뀐다 <span class="muted">(논문 예시)</span></h3>
+        <div class="mlm en">
+          <span class="pct">80%</span><span class="sent">my dog is <i>[MASK]</i></span><span class="why ko">가림</span>
+          <span class="pct">10%</span><span class="sent">my dog is <i>apple</i></span><span class="why ko">엉뚱한 단어</span>
+          <span class="pct">10%</span><span class="sent">my dog is <i>hairy</i></span><span class="why ko">그대로</span>
+        </div>
+        <p class="cap">어느 단어가 문제로 나올지 모르니, BERT는 <b>모든 단어를 문맥 속에서</b> 이해하도록 배운다.</p>
+      </div>
+      <div class="panel">
+        <h3>②③ 빈칸이 '주목'하는 단어들 <span class="muted">(설명용 그림)</span></h3>
+        <svg class="attn-svg" viewBox="0 45 570 100" role="img" aria-label="Attention lines from the masked word to the clue words opened, paid and card">
+          <path d="M252 112 Q 180 30 108 112" stroke-width="4.6" opacity=".85"/>
+          <path d="M252 112 Q 214 78 176 112" stroke-width="1.6" opacity=".4"/>
+          <path d="M252 112 Q 144 6 36 112" stroke-width="1.2" opacity=".3"/>
+          <path d="M252 112 Q 290 74 328 112" stroke-width="1.4" opacity=".35"/>
+          <path d="M252 112 Q 318 40 384 112" stroke-width="6" opacity="1"/>
+          <path d="M252 112 Q 346 30 440 112" stroke-width="1.6" opacity=".4"/>
+          <path d="M252 112 Q 368 22 484 112" stroke-width="1" opacity=".25"/>
+          <path d="M252 112 Q 390 2 528 112" stroke-width="5.2" opacity=".9"/>
+          <text x="36" y="134" text-anchor="middle">She</text>
+          <text x="108" y="134" text-anchor="middle">opened</text>
+          <text x="176" y="134" text-anchor="middle">her</text>
+          <text x="252" y="134" text-anchor="middle" class="m">[MASK]</text>
+          <text x="328" y="134" text-anchor="middle">and</text>
+          <text x="384" y="134" text-anchor="middle">paid</text>
+          <text x="440" y="134" text-anchor="middle">with</text>
+          <text x="484" y="134" text-anchor="middle">a</text>
+          <text x="528" y="134" text-anchor="middle">card</text>
+        </svg>
+        <p class="cap">선이 굵을수록 더 주목. <b>opened</b>(왼쪽)와 <b>paid … card</b>(오른쪽)를 함께 보면 → <b>wallet</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4 · 15% IS TOO MUCH FOR HUMANS ================= -->
+<section class="slide p3" data-label="15%는 사람에게 너무 많다">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">고쳐야 할 점</span><span class="en">BERT's 15% ≠ a good book for you</span></p>
+      <h2>그런데 15%는 사람에게 너무 많다</h2>
+      <p class="sub">사람은 아는 단어가 <b>약 98%</b>(모르는 단어 2%)일 때 혼자 즐겁게 읽는다</p>
+      <ol class="points">
+        <li><b>98% = 50단어에 1개</b>, 한 페이지(약 300단어)에 5~6개. 사전 없이 즐겁게 읽기 가능.
+          <span class="gl">Hu & Nation (2000): 소설을 혼자 읽을 때 대부분의 학습자에게 권하는 기준</span></li>
+        <li><b>95% = 20단어에 1개</b>, 페이지당 약 15개. 최소선. 도움(사전·두 번 읽기)이 필요.
+          <span class="gl">Laufer & Ravenhorst-Kalovski (2010): 95% 최소, 98% 최적</span></li>
+        <li><b>85% = 7단어에 1개</b>, 거의 모든 줄에 1~2개. 독서가 아니라 '해석 작업'이 된다.
+          <span class="gl">Hu & Nation 연구에서 80% 수준으로는 충분히 이해한 학습자가 없었다</span></li>
+      </ol>
+      <aside class="box bridge">
+        <h3>기억하기</h3>
+        <p>BERT의 15%는 33억 단어를 40번 읽은 기계의 <b>훈련 난이도</b>. 사람의 2%는 <b>독서 난이도</b>.</p>
+      </aside>
+      <button type="button" class="go" data-go="12">직접 체험: 같은 이야기를 2% · 5% · 15%로 읽기 →</button>
+    </div>
+    <div class="col-media">
+      <div class="grids" id="grids"></div>
+      <p class="src">빨간 칸 = 모르는 단어. 100단어 중 몇 개를 모르는지.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5 · RULE MAP ================= -->
+<section class="slide p1" data-label="5가지 규칙 지도">
+  <div class="full">
+    <p class="kicker"><span class="tag">오늘의 지도</span><span class="en">Five rules, each borrowed from BERT and fitted to people</span></p>
+    <h2>5가지 규칙 = BERT의 공부법을 사람에게 맞춘 것</h2>
+    <p class="sub">번호를 누르면 그 규칙으로, 실습 버튼을 누르면 바로 체험으로 갑니다</p>
+    <div class="map" role="table" aria-label="Five reading rules mapped to BERT">
+      <div class="h"></div><div class="h">규칙</div><div class="h">BERT에서는</div><div class="h">사람에게는</div><div class="h">실습</div>
+      <div class="num p3"><span>1</span></div>
+      <div class="t p3">책 고르기<small class="en">Choose the right book</small></div>
+      <div class="b">가리는 비율 <code>15%</code>가 정해져 있다</div>
+      <div class="p">모르는 단어 <b>2% 안팎</b>, 이미 아는 내용(배경지식)</div>
+      <div class="tool"><button type="button" class="go" data-go="6">규칙</button><button type="button" class="go" data-go="7">페이지 테스트</button></div>
+      <div class="num p4"><span>2</span></div>
+      <div class="t p4">번역하지 않기<small class="en">Don't translate</small></div>
+      <div class="b">다른 언어를 거치지 않고 영어 문맥 속 의미(<code>representation</code>)로 이해</div>
+      <div class="p">영어 → 바로 이해. 한국어는 <b>보조 바퀴</b>로만, 그것도 영어 순서대로</div>
+      <div class="tool"><button type="button" class="go" data-go="8">규칙</button><button type="button" class="go" data-go="9">덩어리 읽기</button></div>
+      <div class="num p2"><span>3</span></div>
+      <div class="t p2">사전 멈추기<small class="en">Don't look up every word</small></div>
+      <div class="b"><code>[MASK]</code>가 있어도 멈추지 않고 문장 전체를 본다</div>
+      <div class="p">연필로 <b>점(·)만 찍고</b> 계속 읽기, 사전은 챕터 끝에</div>
+      <div class="tool"><button type="button" class="go" data-go="10">규칙</button></div>
+      <div class="num p1"><span>4</span></div>
+      <div class="t p1">앞뒤로 추측하기<small class="en">Guess from both sides</small></div>
+      <div class="b"><code>Bidirectional</code> + <code>Attention</code></div>
+      <div class="p">빈칸 <b>뒤까지</b> 읽고, <b>단서 단어</b>(but, such as, because …)에 주목</div>
+      <div class="tool"><button type="button" class="go" data-go="11">규칙</button><button type="button" class="go" data-go="12">마스크 읽기</button></div>
+      <div class="num p6"><span>5</span></div>
+      <div class="t p6">두 번 읽기<small class="en">Read at least twice</small></div>
+      <div class="b">같은 글을 약 <code>40 epochs</code></div>
+      <div class="p">1회독 줄거리, 2회독 디테일과 소리. 1회독이 2회독의 배경지식이 된다</div>
+      <div class="tool"><button type="button" class="go" data-go="13">규칙</button><button type="button" class="go" data-go="14">듣면서 읽기</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6 · RULE 1 ================= -->
+<section class="slide p3" data-label="① 책 고르기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">규칙 ①</span><span class="en">Choose the right book</span></p>
+      <h2>너무 쉽지도, 어렵지도 않은 책</h2>
+      <p class="sub en">Not too easy, not too hard, and best if you already know the story</p>
+      <p class="rule">기준: 한 페이지에 모르는 단어 <b>2~5개</b> (아는 단어 약 98%)</p>
+      <ol class="points">
+        <li><b>내용을 이미 아는 책</b>: 줄거리를 알면 [MASK]를 맞히기 훨씬 쉽다. 배경지식(<span class="en">background knowledge</span>)은 BERT에게 없는 사람만의 무기.
+          <span class="gl">한국어로 읽은 책의 원서 · 영화나 드라마로 본 작품 · 내 업무 분야의 책</span></li>
+        <li><b>재미가 먼저</b>: 끝까지 읽은 쉬운 책 1권이 30쪽에서 멈춘 명작보다 낫다.</li>
+        <li><b>처음이라면 Graded readers</b>: Oxford Bookworms, Penguin Readers처럼 단계별로 단어 수를 제한한 책.</li>
+        <li><b>3분 테스트</b>: 아무 페이지나 펴고 모르는 단어를 손가락으로 센다.
+          <div class="finger"><div><b>0~1개</b>쉬움</div><div class="ok"><b>2~5개</b>딱 좋음</div><div><b>6~15개</b>도전 (2회독)</div><div class="x"><b>16개+</b>어려움</div></div></li>
+      </ol>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>직장인 첫 원서 예시 <span class="muted">(이미 내용을 아는 책 위주)</span></h3>
+        <div class="shelf">
+          <div class="book"><span class="t en">Who Moved My Cheese?</span><span class="k">누가 내 치즈를 옮겼을까</span><p><span class="lv e">쉬움</span>회사 우화, 100쪽 남짓</p></div>
+          <div class="book"><span class="t en">The Little Prince</span><span class="k">어린 왕자</span><p><span class="lv e">쉬움</span>모두가 아는 이야기</p></div>
+          <div class="book"><span class="t en">Wonder</span><span class="k">원더</span><p><span class="lv e">쉬움</span><span class="lv m">보통</span>영화로 본 사람이 많음</p></div>
+          <div class="book"><span class="t en">Tuesdays with Morrie</span><span class="k">모리와 함께한 화요일</span><p><span class="lv m">보통</span>짧은 장, 대화체</p></div>
+          <div class="book"><span class="t en">Harry Potter and the Philosopher's Stone</span><span class="k">해리 포터와 마법사의 돌</span><p><span class="lv m">보통</span>영화로 줄거리를 앎</p></div>
+          <div class="book"><span class="t en">Atomic Habits</span><span class="k">아주 작은 습관의 힘</span><p><span class="lv m">보통</span><span class="lv h">어려움</span>비문학, 업무와 연결</p></div>
+        </div>
+        <p class="cap">난이도는 대략적인 참고입니다. 결정은 페이지 테스트로 하세요.</p>
+      </div>
+      <button type="button" class="go" data-go="7">내 책으로 페이지 테스트 하기 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7 · PAGE TEST ================= -->
+<section class="slide p3" data-label="실습 · 페이지 테스트">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">실습 · 규칙 ①</span><span class="en">Page test</span></p>
+      <h2>이 책, 나에게 맞을까?</h2>
+      <p class="sub en">Paste one page, click the words you don't know</p>
+      <ol class="bul">
+        <li>오른쪽 샘플을 쓰거나, <b>내 책의 한 페이지</b>를 붙여넣고 <b>단어 나누기</b>.</li>
+        <li><b>모르는 단어를 클릭</b>합니다. 같은 단어는 모두 함께 표시됩니다.</li>
+        <li>사람·장소 이름은 아는 단어로 칩니다. 뜻을 <b>대충이라도</b> 알면 아는 단어.</li>
+      </ol>
+      <div class="pt-result" aria-live="polite">
+        <div class="pt-big" id="ptPct">100%<small>아는 단어</small></div>
+        <span class="verdict" id="ptVerdict">—</span>
+        <span class="pt-line" id="ptLine"></span>
+        <span class="pt-line" id="ptAdvice"></span>
+      </div>
+      <div class="bands" id="ptBands">
+        <div data-b="easy"><b>100%</b>쉬움</div>
+        <div data-b="good"><b>98~99%</b>딱 좋음</div>
+        <div data-b="chal"><b>95~97%</b>도전</div>
+        <div data-b="hard"><b>95% 미만</b>어려움</div>
+      </div>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;margin-bottom:.3rem">
+          <h3 style="margin:0">샘플 페이지 <span class="muted" id="ptCount"></span></h3>
+          <span class="row"><button type="button" class="pbtn" id="ptClear">선택 지우기</button><button type="button" class="pbtn" id="ptSample">샘플로 되돌리기</button></span>
+        </div>
+        <div class="pt-words en" id="ptWords"></div>
+        <details class="pt-paste">
+          <summary>내 책 한 페이지 붙여넣기</summary>
+          <textarea id="ptInput" class="en" placeholder="Paste a page of your book here…"></textarea>
+          <button type="button" class="pbtn on" id="ptSplit">단어 나누기</button>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 8 · RULE 2 (VIDEO) ================= -->
+<section class="slide p4" data-label="② 번역하지 않기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">규칙 ②</span><span class="en">Don't translate · Speak English With Tiffani</span></p>
+      <h2>번역하지 말고, 영어로 바로 이해하기</h2>
+      <p class="sub en">Connect English to meaning, not to Korean</p>
+      <blockquote class="rule en">“Remove the small pause where <b>translation</b> usually happens. You can think in English right away.”<span class="by">Tiffani, 3:12</span></blockquote>
+      <ol class="points">
+        <li><b>번역 = 멈춤</b>: 영어 → 한국어 → 의미(2단계) 대신 영어 → 의미(1단계). Tiffani도 한국어를 영어로 옮겨 달라는 말에 멈칫했다. <button type="button" class="at" data-t="11:42">11:42</button></li>
+        <li><b>영어를 그림과 영어에 연결</b>: 아기가 water를 '컵 속 투명한 액체'와 연결하듯. 새 단어는 아는 영어로 설명해 본다. <button type="button" class="at" data-t="12:52">12:52</button></li>
+        <li><b>영영사전 먼저</b> <span class="en">(English-English dictionary)</span>: Oxford Learner's, Longman, Cambridge 같은 학습자용 사전. <button type="button" class="at" data-t="14:13">14:13</button></li>
+        <li><b>번역이 안 되는 말도 있다</b>: '눈치', '정'이 영어로 딱 떨어지지 않듯, 영어에도 그런 말이 있다. <button type="button" class="at" data-t="10:32">10:32</button></li>
+      </ol>
+      <div class="steps4">
+        <div class="on"><b>1 Perception</b>듣고 보기</div>
+        <div class="on"><b>2 Comprehension</b>바로 이해</div>
+        <div><b>3 Decision</b>반응 고르기</div>
+        <div><b>4 Formulation</b>문장 만들기</div>
+      </div>
+      <aside class="box note">
+        <h3>균형 잡기</h3>
+        <p>목표는 '한국어 0%'가 아니라 <b>문장 전체를 한국어로 옮기는 습관</b>을 끊는 것. 어려운 단어는 Tiffani도 한국어 확인을 허용했다. <button type="button" class="at" data-t="13:21">13:21</button></p>
+      </aside>
+    </div>
+    <div class="col-media">
+      <div class="player"></div>
+      <div class="chapters">
+        <button type="button" data-t="3:06" data-q="Here's the third reason you react faster. Good listening skills. Remove the small pause where translation usually happens. You can think in English right away."><b>3:06</b>번역의 '멈춤'</button>
+        <button type="button" data-t="8:24" data-q="Step number two. Now, it's about comprehension, understanding English directly. … The goal is to understand English concepts directly in English, not by translating them to your native language."><b>8:24</b>2단계: 바로 이해</button>
+        <button type="button" data-t="9:06" data-q="Then something happens where the baby starts to comprehend, wait a minute, water. That word is not just random. When mommy says water, I see this clear liquid in a glass."><b>9:06</b>아기와 water</button>
+        <button type="button" data-t="10:32" data-q="You understand English specific meanings. Some English ideas don't translate or exist in other languages. Direct understanding captures these special meanings."><b>10:32</b>번역 안 되는 말</button>
+        <button type="button" data-t="11:42" data-q="I was on the phone with my friend, my Korean friend called me … she said something in Korean and she's like, wait, Tiff, what is that in English? … I paused and I was like, ah."><b>11:42</b>한국인 친구 이야기</button>
+        <button type="button" data-t="12:52" data-q="Learn new words in English only. … When you learn new vocabulary, connect it to English words and pictures you already know. Never translate."><b>12:52</b>새 단어는 영어로</button>
+        <button type="button" data-t="13:21" data-q="Sometimes I would allow it depending on the complexity of the word. Other times I would say, no, no, no … How can you describe or explain this word in English without using Korean?"><b>13:21</b>가끔은 한국어 OK</button>
+        <button type="button" data-t="14:13" data-q="Use English dictionaries only when you don't know a word. Look it up in an English English dictionary … and explain new words using English you already know."><b>14:13</b>영영사전</button>
+      </div>
+      <p class="src en">“STOP TRANSLATING! How to train your brain to think in English” · Speak English With Tiffani · 36:16</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 9 · BACK-TRANSLATION + CHUNK DRILL ================= -->
+<section class="slide p4" data-label="② 거꾸로 해석 끊기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">규칙 ② · 실습</span><span class="en">Read in chunks, front to back</span></p>
+      <h2>한국인의 함정: 뒤에서부터 해석하기</h2>
+      <p class="sub">의미 덩어리(<span class="en">chunk</span>)로 끊어 <b>앞에서부터</b> 이해한다 (직독직해)</p>
+      <p class="lead">학교에서 배운 '해석'은 영어 문장을 한국어 어순으로 다시 조립합니다. 눈이 문장 끝으로 갔다가 되돌아오니 느리고, 책 한 권이면 지칩니다.</p>
+      <div class="eye">
+        <span class="k bad">거꾸로 해석</span><span class="path bad"><span>6</span><i>→</i><span>7</span><i>→</i><span>3</span><i>→</i><span>2</span><i>→</i><span>1</span><i>→</i><span>5</span><i>→</i><span>4</span></span>
+        <span class="k good">앞에서부터</span><span class="path good"><span>1</span><i>→</i><span>2</span><i>→</i><span>3</span><i>→</i><span>4</span><i>→</i><span>5</span><i>→</i><span>6</span><i>→</i><span>7</span></span>
+      </div>
+      <ol class="points">
+        <li><b>끊기</b>: that, who, because, to, 전치사(on, in, at) 앞에서 '/'.</li>
+        <li><b>보조 바퀴</b>: 한국어를 쓰더라도 <b>영어 순서대로</b>. "그 보고서는 / 팀장님이 요청했던 거 / 금요일에 …"</li>
+        <li><b>바퀴 떼기</b>: 한국어 없이 덩어리만 보며, 페이서(<span class="en">pacer</span>)로 속도를 올린다.</li>
+      </ol>
+    </div>
+    <div class="col-media">
+      <div class="panel" id="chunkPanel">
+        <div class="ctl">
+          <span class="seg" id="ckPick" role="group" aria-label="Choose a sentence"></span>
+          <label class="toggle"><input type="checkbox" id="ckKo" checked> 한국어 보조 바퀴</label>
+        </div>
+        <div class="chunks en ko" id="ckBox" aria-live="polite"></div>
+        <div class="backtr" id="ckBack" hidden><b>거꾸로 해석 (눈이 이 순서로 움직임)</b><span id="ckBackText"></span></div>
+        <div class="ctl">
+          <button type="button" class="pbtn" id="ckStep">다음 덩어리 ▶</button>
+          <button type="button" class="pbtn" id="ckReset">처음부터</button>
+          <button type="button" class="pbtn" id="ckPace">자동 읽기 (페이서)</button>
+          <select id="ckWpm" aria-label="Pacer speed"><option value="100">분당 100단어</option><option value="150" selected>분당 150단어</option><option value="200">분당 200단어</option></select>
+          <button type="button" class="pbtn" id="ckEye">거꾸로 해석 보기</button>
+        </div>
+        <p class="cap">① 보조 바퀴를 켜고 한 덩어리씩 → ② 끄고 다시 → ③ 페이서로 앞에서부터만 읽기.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 10 · RULE 3 ================= -->
+<section class="slide p2" data-label="③ 사전 멈추기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">규칙 ③</span><span class="en">Don't look up every word</span></p>
+      <h2>모를 때마다 사전 찾지 않기</h2>
+      <p class="sub en">Mark it, don't stop: a dot now, the dictionary later</p>
+      <blockquote class="rule en">“Don't panic. Don't immediately pull out your dictionary. <b>Guess.</b>”<span class="by">Tiffani, 15:26</span></blockquote>
+      <ol class="points">
+        <li><b>사전 = 흐름 끊김</b>: 찾고 돌아오면 앞 문장을 잊는다. BERT도 [MASK]에서 멈추지 않고 문장 전체를 본다.</li>
+        <li><b>점(·)만 찍기</b>: 연필로 단어 옆에 점. 또 나오면 점 하나 더. <b>점 3개</b>면 찾아볼 가치가 있는 단어.
+          <div class="dots en">… the <u>reluctant</u><sup>·</sup> intern … still <u>reluctant</u><sup>··</sup> … so <u>reluctant</u><sup>···</sup> → 이제 찾기</div></li>
+        <li><b>찾는 시간은 챕터 끝에 한 번에</b>: 영영사전 → 예문까지 → 원래 문장으로 돌아가 다시 읽기.</li>
+      </ol>
+    </div>
+    <div class="col-media">
+      <div class="flow" aria-label="When to look up a word">
+        <div class="start">모르는 단어를 만났다!</div><span></span><span></span>
+        <div class="q">이야기가 계속 이해되나?<small>누가, 무엇을, 왜</small></div><span class="yes">예</span><div class="a">점(·) 찍고 계속<small>대부분 여기서 끝</small></div>
+        <div class="no">아니오 ↓</div><span></span><span></span>
+        <div class="q">앞뒤 문장에 단서가 있나?<small>but, such as, because …</small></div><span class="yes">예</span><div class="a">추측하고 계속<small>2회독 때 확인</small></div>
+        <div class="no">아니오 ↓</div><span></span><span></span>
+        <div class="q">자주 나오거나 핵심 단어인가?<small>제목, 반복, 점 3개</small></div><span class="yes">예</span><div class="a">지금 찾기<small>영영사전 → 예문</small></div>
+        <div class="no">아니오 ↓</div><span></span><span></span>
+        <div class="end">건너뛰기<small>다시 나오면 그때 생각</small></div><span></span><span></span>
+      </div>
+      <div class="player small"></div>
+      <div class="chapters">
+        <button type="button" data-t="15:07" data-q="Guess meaning from context. When reading something, try to understand unknown words from the situation. Don't look up every word immediately as you're reading something."><b>15:07</b>문맥으로 추측</button>
+        <button type="button" data-t="15:23" data-q="You're going to encounter words that you don't know. Don't panic. Don't immediately pull out your dictionary. Guess."><b>15:23</b>Don't panic</button>
+        <button type="button" data-t="15:39" data-q="Trust your judgment. Trust yourself. Just guess. Attempt. Try to guess the meaning based on the context."><b>15:39</b>Trust yourself</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 11 · RULE 4 ================= -->
+<section class="slide p1" data-label="④ 앞뒤로 추측하기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">규칙 ④</span><span class="en">Bidirectional + Attention</span></p>
+      <h2>빈칸의 앞과 뒤를 모두 보고 추측하기</h2>
+      <p class="sub en">Guess from both sides, and pay attention to the clue words</p>
+      <ol class="points">
+        <li><b>양쪽 보기 <span class="en">(Bidirectional)</span></b>: 모르는 단어에서 판단하지 말고 <b>문장 끝, 다음 문장</b>까지 읽은 뒤 정한다.</li>
+        <li><b>단서에 집중 <span class="en">(Attention)</span></b>: 모든 단어가 똑같이 중요하지 않다. 빈칸과 이어진 단어를 찾는다.
+          <div class="clues" style="margin-top:.35rem">
+            <span><b>정의·바꿔 말하기</b> <i>or, that is, —</i></span>
+            <span><b>대조</b> <i>but, unlike, however</i></span>
+            <span><b>예시</b> <i>such as, like</i></span>
+            <span><b>원인·결과</b> <i>because, so … that</i></span>
+            <span><b>단어 조각</b> <i>un-, re-, -less, -able</i></span>
+            <span><b>배경지식</b> 상식, 줄거리</span>
+          </div></li>
+        <li><b>정확한 뜻보다 방향</b>: 좋은 뜻/나쁜 뜻, 사람/물건 정도만 맞혀도 계속 읽기엔 충분하다.</li>
+      </ol>
+      <aside class="box note"><h3>주의</h3><p>추측은 자주 틀린다(연구마다 약 30~55%만 맞힘). 그래서 반복되는 단어와 핵심 단어는 <b>2회독 때 확인</b>.</p></aside>
+    </div>
+    <div class="col-media">
+      <div class="panel bidi" id="bidi">
+        <div class="row" style="justify-content:space-between;margin-bottom:.2rem">
+          <h3 style="margin:0">왼쪽만 vs 양쪽</h3>
+          <span class="seg" role="group" aria-label="Context direction"><button type="button" data-mode="left">→ 왼쪽만</button><button type="button" data-mode="both" class="on">↔ 양쪽</button></span>
+        </div>
+        <p class="bidi-s en">She opened her <span class="mask">[MASK]</span> <span class="r">and paid for the coffee with a card.</span></p>
+        <div class="cands en" id="cands"></div>
+        <p class="cap">숫자는 설명용 예시입니다 (실제 모델 출력 아님).</p>
+      </div>
+      <div class="panel" id="attPanel">
+        <h3>단서 찾기: 밑줄 친 단어의 뜻은? <span class="muted">(attention)</span></h3>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 12 · MASKED READING ================= -->
+<section class="slide p1" data-label="실습 · 마스크 읽기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">실습 · 규칙 ③④</span><span class="en">Masked reading: 2% · 5% · 15%</span></p>
+      <h2>[MASK] 읽기 체험</h2>
+      <p class="sub">같은 이야기를, 가린 단어만 늘려 가며 읽어 봅니다</p>
+      <ol class="bul">
+        <li><b>2%</b>로 시작. 멈추지 말고 <b>끝까지</b> 읽은 뒤 줄거리를 한 문장으로 말해 보기.</li>
+        <li>[MASK]를 눌러 정답 확인. 맞혔으면 ✓, 틀렸으면 ✗.</li>
+        <li><b>15%</b>로 바꿔 처음부터. 어떤 느낌인가요? 그게 '너무 어려운 책'의 느낌입니다.</li>
+      </ol>
+      <div class="mstats" aria-live="polite">
+        <div><b id="msMasked">–</b><span>가린 단어 (전체 <span id="msTotal"></span>단어)</span></div>
+        <div><b id="msRate">–</b><span>모르는 단어 빈도</span></div>
+        <div><b id="msScore">0 / 0</b><span>맞힘 / 공개</span></div>
+      </div>
+      <aside class="box bridge"><h3>다음 단계</h3><p>다 읽었다면 같은 이야기를 <b>소리와 함께 2회독</b>. 1회독 때 가려졌던 단어가 어떻게 보이는지 확인하세요. <button type="button" class="go" data-go="14">듣면서 읽기 →</button></p></aside>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <div class="row" style="justify-content:space-between;margin-bottom:.5rem">
+          <span class="seg" id="msLevel" role="group" aria-label="Masking level"><button type="button" data-l="2" class="on">2%</button><button type="button" data-l="5">5%</button><button type="button" data-l="15">15%</button></span>
+          <span class="row"><button type="button" class="pbtn" id="msAll">모두 공개</button><button type="button" class="pbtn" id="msReset">다시 가리기</button></span>
+        </div>
+        <div class="story en" id="msStory"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 13 · RULE 5 ================= -->
+<section class="slide p6" data-label="⑤ 두 번 읽기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">규칙 ⑤</span><span class="en">Read at least twice</span></p>
+      <h2>최소 두 번 읽기: 두 번째는 다른 책이다</h2>
+      <p class="sub en">BERT read its whole library about 40 times (epochs)</p>
+      <p class="lead">1회독에서 알게 된 줄거리가 2회독의 <b>배경지식</b>이 됩니다. 처음엔 [MASK]였던 단어가, 두 번째엔 앞뒤 문맥으로 풀립니다. 규칙 ①의 '내용을 아는 책'을 스스로 만드는 셈입니다.</p>
+      <div class="epochs">
+        <b>BERT</b><span class="ticks" aria-label="40 passes"></span>
+        <b>우리</b><span class="ticks me" aria-label="2 to 3 passes"><i></i><i></i><i style="opacity:.4"></i></span>
+      </div>
+      <ol class="points">
+        <li><b>왜 2~3번이면 될까?</b> BERT는 지치지 않지만 사람은 지친다. 40번 대신 <b>2~3번 + 다음 책</b>.</li>
+        <li><b>반복 읽기 <span class="en">(repeated reading)</span></b>는 읽기 속도와 유창성을 높이는 방법으로 오래 연구되었다 (Samuels, 1979).</li>
+        <li><b>회차마다 목표를 바꾼다</b>: 같은 방식으로 두 번 읽으면 지루하다. 오른쪽처럼 초점을 바꾼다.</li>
+      </ol>
+    </div>
+    <div class="col-media">
+      <div class="passes">
+        <div class="pass"><span class="n">1회독</span><span class="t">줄거리<span class="en">Gist</span></span>
+          <p>멈추지 않고 빠르게. 모르는 단어는 점(·)만. 챕터 끝에 "다음엔 무슨 일이?" 한 줄 예측.</p>
+          <span class="tools"><span>사전 X</span><span>연필</span><span>한 줄 예측</span></span></div>
+        <div class="pass"><span class="n">2회독</span><span class="t">디테일과 소리<span class="en">Detail + sound</span></span>
+          <p>점 찍은 단어 중 반복된 것만 영영사전으로. 오디오북을 들으며 따라 읽기 (0.8× → 1.0×).</p>
+          <span class="tools"><span>영영사전</span><span>듣면서 읽기</span><span>덩어리</span></span></div>
+        <div class="pass opt"><span class="n">3회독<br><small>선택</small></span><span class="t">속도와 출력<span class="en">Fluency + output</span></span>
+          <p>1.25×로 듣기만, 또는 소리 내어 읽기. 챕터마다 영어로 3줄 요약.</p>
+          <span class="tools"><span>1.25×</span><span>소리 내어</span><span>3줄 요약</span></span></div>
+      </div>
+      <button type="button" class="go" data-go="14">2회독 도구: 듣면서 읽기 →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 14 · READ WHILE LISTENING ================= -->
+<section class="slide p6" data-label="실습 · 듣면서 2회독">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">실습 · 규칙 ⑤</span><span class="en">Reading while listening</span></p>
+      <h2>듣면서 다시 읽기</h2>
+      <p class="sub en">Second read: follow the voice, sentence by sentence</p>
+      <ol class="bul">
+        <li><b>0.8×</b>로 들으며 눈으로 따라가기. 소리와 글자를 맞춘다.</li>
+        <li><b>1.0×</b>로 한 번 더. 이번엔 덩어리로 끊어 듣기.</li>
+        <li><b>1.25×</b> + <b>글자 숨기기</b>: 듣기만으로 따라가 보기. Tiffani도 1.25×로 귀를 훈련하라고 한다 (5:57).</li>
+        <li>문장을 누르면 그 문장부터. <b>5% [MASK] 단어 표시</b>를 켜면 마스크 체험 때 가려졌던 단어에 밑줄이 생긴다.</li>
+      </ol>
+      <aside class="box note">
+        <h3>근거와 한계</h3>
+        <p>오디오와 함께 다독한 초급 학습자는 혼자 읽은 그룹보다 읽기 속도와 이해도가 더 많이 올랐다 (Chang &amp; Millett, 2015).</p>
+        <p>단, 30개 연구 메타분석에서 이해도 효과는 작았고 <b>오디오가 속도를 끌어줄 때</b> 주로 나타났다 (Clinton-Lisell, 2023). 그래서 1회독이 아니라 <b>2회독 도구</b>로 씁니다.</p>
+      </aside>
+    </div>
+    <div class="col-media">
+      <div class="panel rwl" id="rwl">
+        <div class="rwl-ctl">
+          <button type="button" class="pbtn on" id="rwPlay">▶ 재생</button>
+          <span class="seg" id="rwSpeed" role="group" aria-label="Speed"><button type="button" data-s="0.8">0.8×</button><button type="button" data-s="1" class="on">1.0×</button><button type="button" data-s="1.25">1.25×</button></span>
+          <label class="toggle"><input type="checkbox" id="rwHide"> 글자 숨기기</label>
+          <label class="toggle"><input type="checkbox" id="rwMarks"> 5% [MASK] 단어 표시</label>
+        </div>
+        <div class="rwl-text en" id="rwText"></div>
+        <p class="rwl-msg" id="rwMsg">Kokoro 음성(af_heart)이 파일에 들어 있어 오프라인에서도 재생됩니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 15 · BETTER METHODS ================= -->
+<section class="slide p2" data-label="더 좋은 방법">
+  <div class="full">
+    <p class="kicker"><span class="tag">추가 제안</span><span class="en">Upgrades to the five rules</span></p>
+    <h2>더 좋은 방법: 5가지 규칙에 더하면 좋은 것</h2>
+    <p class="sub">앞의 규칙은 그대로, 효과를 키우는 습관 8가지</p>
+    <div class="cards">
+      <div class="card p3"><span class="ic">규칙 ① 강화</span><span class="t">98% 규칙 + 페이지 테스트<span class="en">Measure, don't guess</span></span><p>'느낌' 대신 숫자로 책을 고른다. 한 페이지 2~5개.</p><button type="button" class="go" data-go="7">테스트 →</button></div>
+      <div class="card p4"><span class="ic">규칙 ② 강화</span><span class="t">덩어리로 앞에서부터<span class="en">Chunk reading</span></span><p>거꾸로 해석을 끊는 가장 빠른 길. 한국어는 영어 순서대로만.</p><button type="button" class="go" data-go="9">드릴 →</button></div>
+      <div class="card p6"><span class="ic">규칙 ⑤ 강화</span><span class="t">듣면서 읽기<span class="en">Reading while listening</span></span><p>2회독에 오디오북. 발음, 끊어 읽기, 속도가 같이 잡힌다.</p><button type="button" class="go" data-go="14">듣기 →</button></div>
+      <div class="card p1"><span class="ic">BERT에서 착안</span><span class="t">다음 내용 예측<span class="en">Predict what comes next</span></span><p>챕터 끝마다 "I think ___ will happen." 한 줄. BERT의 다음 문장 예측(NSP)처럼 집중을 붙잡는다.</p></div>
+      <div class="card p2"><span class="ic">출력 연결</span><span class="t">영어로 3줄 요약<span class="en">Retell in three lines</span></span><p>이해했는지 확인하고, 말하기·쓰기로 이어진다 (Tiffani의 4단계 formulation).</p></div>
+      <div class="card p1"><span class="ic">BERT에서 착안</span><span class="t">쉬운 책 많이 → 업무 문서<span class="en">Pre-train, then fine-tune</span></span><p>쉬운 책으로 양을 쌓은 뒤 이메일·보고서·기술 문서로. 순서를 바꾸면 지친다.</p></div>
+      <div class="card p3"><span class="ic">직장인용</span><span class="t">점심 북클럽<span class="en">Read with coworkers</span></span><p>같은 책을 읽고 주 1회 영어 3줄 요약을 나눈다. 같이 읽으면 끝까지 간다.</p></div>
+      <div class="card p4"><span class="ic">단어 정리</span><span class="t">단어는 문장째로<span class="en">Collect chunks, not words</span></span><p>"make a decision"처럼 함께 쓰이는 묶음으로 적는다. 한국어 뜻보다 원문 문장을 남긴다.</p><span class="src2 en">Tiffani 28:30 “learning in chunks”</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 16 · WHERE THE ANALOGY BREAKS ================= -->
+<section class="slide p3" data-label="BERT 비유의 한계">
+  <div class="full">
+    <p class="kicker"><span class="tag">솔직하게</span><span class="en">Where the analogy breaks</span></p>
+    <h2>BERT 비유가 맞지 않는 곳</h2>
+    <p class="sub">비유는 기억하기 좋지만, 사람은 기계가 아닙니다. 다른 점과 그 대처법</p>
+    <div class="cards three">
+      <div class="card"><span class="t">가리는 비율</span>
+        <div class="vs2"><b>BERT</b><span>15%를 맞히는 훈련 (33억 단어 × 40번)</span><b>사람</b><span>약 2%일 때 즐겁게 읽는다</span></div>
+        <p class="so"><b>그래서</b> 책은 98% 기준으로 고른다</p></div>
+      <div class="card"><span class="t">추측의 정확도</span>
+        <div class="vs2"><b>BERT</b><span>틀리면 바로 정답으로 교정된다</span><b>사람</b><span>문맥 추측 성공률은 연구마다 약 30~55%</span></div>
+        <p class="so"><b>그래서</b> 반복·핵심 단어는 2회독 때 사전으로 확인</p></div>
+      <div class="card"><span class="t">지루함과 피로</span>
+        <div class="vs2"><b>BERT</b><span>지치지 않고 같은 글을 40번</span><b>사람</b><span>재미없으면 그만둔다</span></div>
+        <p class="so"><b>그래서</b> 재미있는 책, 20분 단위, 2~3회독 후 다음 책</p></div>
+      <div class="card"><span class="t">배경지식</span>
+        <div class="vs2"><b>BERT</b><span>글자만 안다. 세상, 그림, 감정은 모른다</span><b>사람</b><span>상식과 경험이 강력한 단서</span></div>
+        <p class="so"><b>그래서</b> 내용을 아는 책이 유리하다 (우리가 이기는 부분)</p></div>
+      <div class="card"><span class="t">다음 문장 예측 (NSP)</span>
+        <div class="vs2"><b>BERT</b><span>후속 연구(RoBERTa, 2019)는 NSP를 빼도 성능이 같거나 더 나았다</span><b>사람</b><span>예측하며 읽으면 집중이 유지된다</span></div>
+        <p class="so"><b>그래서</b> 기계에는 덜 중요해도, 사람에겐 좋은 읽기 전략</p></div>
+      <div class="card"><span class="t">기억</span>
+        <div class="vs2"><b>BERT</b><span>배운 것이 가중치에 남는다</span><b>사람</b><span>한 번 본 단어는 대부분 잊는다. 여러 번 다시 만나야 남는다</span></div>
+        <p class="so"><b>그래서</b> 많이 읽기 + 문장째로 단어 복습</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 17 · 4-WEEK PLAN ================= -->
+<section class="slide p6" data-label="4주 계획">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">실천</span><span class="en">A 4-week plan for busy coworkers</span></p>
+      <h2>4주 계획: 출퇴근 20분</h2>
+      <p class="sub">하루 20분, 주 5일. 한 권을 끝내는 것이 목표</p>
+      <div class="weeks">
+        <div class="wk"><span class="n">1주<small>고르기</small></span><span class="what"><b>페이지 테스트로 책 한 권 고르고 1회독 시작</b><span>사전 없이, 점(·)만. 하루 20분이면 충분</span></span></div>
+        <div class="wk"><span class="n">2주<small>1회독</small></span><span class="what"><b>1회독 계속 + 챕터 끝 한 줄 예측</b><span>"I think ___ will happen." 맞았는지 다음 날 확인</span></span></div>
+        <div class="wk"><span class="n">3주<small>2회독</small></span><span class="what"><b>1회독 끝 → 2회독: 오디오북과 함께</b><span>점이 3개인 단어만 영영사전으로. 문장째로 기록</span></span></div>
+        <div class="wk"><span class="n">4주<small>마무리</small></span><span class="what"><b>2회독 끝 + 챕터별 영어 3줄 요약</b><span>북클럽에서 나누고, 조금 더 어려운 다음 책 고르기</span></span></div>
+      </div>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>오늘의 체크 <span class="muted">(이 브라우저에만 저장)</span></h3>
+        <div class="checklist" id="todayCheck">
+          <label><input type="checkbox" data-k="c1"><span>20분 읽었다<span class="gl">출근길, 점심, 퇴근길 어디서든</span></span></label>
+          <label><input type="checkbox" data-k="c2"><span>1회독 중에는 사전을 열지 않았다<span class="gl">점(·)만 찍었다</span></span></label>
+          <label><input type="checkbox" data-k="c3"><span>문장을 머릿속에서 한국어로 옮기지 않았다<span class="gl">덩어리로, 앞에서부터</span></span></label>
+          <label><input type="checkbox" data-k="c4"><span>다음 내용을 한 줄로 예측했다 (또는 3줄 요약)</span></label>
+        </div>
+        <p class="score" id="checkScore">0 / 4</p>
+        <button type="button" class="pbtn" id="checkClear">체크 초기화</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 18 · SUMMARY + SOURCES ================= -->
+<section class="slide p1" data-label="한 장 요약">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">한 장 요약</span><span class="en">Read like BERT, but as a person</span></p>
+      <h2>BERT처럼, 그러나 사람답게</h2>
+      <div class="sumtab" style="margin-top:.7rem">
+        <div class="n"><span>1</span></div><div class="t">책 고르기<small class="en">BERT: 15% → 사람: 2%</small></div><div>한 페이지 모르는 단어 2~5개, 내용을 아는 책</div>
+        <div class="n"><span>2</span></div><div class="t">번역하지 않기<small class="en">representation</small></div><div>영어 → 바로 의미. 덩어리로, 앞에서부터</div>
+        <div class="n"><span>3</span></div><div class="t">사전 멈추기<small class="en">keep reading past [MASK]</small></div><div>점(·)만 찍고 계속, 사전은 챕터 끝에</div>
+        <div class="n"><span>4</span></div><div class="t">앞뒤로 추측<small class="en">bidirectional + attention</small></div><div>문장 끝까지 읽고 단서 단어에 집중</div>
+        <div class="n"><span>5</span></div><div class="t">두 번 읽기<small class="en">epochs</small></div><div>1회독 줄거리, 2회독 디테일과 소리</div>
+      </div>
+      <p class="rule">오늘 할 일 하나: <b>페이지 테스트로 책 한 권 고르기.</b> <button type="button" class="go" data-go="7">테스트 →</button></p>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>출처</h3>
+        <ol class="refs en">
+          <li>Devlin, Chang, Lee &amp; Toutanova (2019). <i>BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding.</i> arXiv:1810.04805v2.</li>
+          <li>Speak English With Tiffani (2025). <i>STOP TRANSLATING! How to train your brain to think in English.</i> YouTube, noD9L_9hXU4.</li>
+          <li>Hu &amp; Nation (2000). <i>Unknown vocabulary density and reading comprehension.</i> Reading in a Foreign Language, 13(1).</li>
+          <li>Laufer &amp; Ravenhorst-Kalovski (2010). <i>Lexical threshold revisited.</i> Reading in a Foreign Language, 22(1).</li>
+          <li>Chang &amp; Millett (2015). <i>Improving reading rates and comprehension through audio-assisted extensive reading for beginner learners.</i> System, 52.</li>
+          <li>Clinton-Lisell (2023). <i>Reading while listening</i> (systematic review and meta-analysis). Educational Research: Theory and Practice, 34(3).</li>
+          <li>Samuels (1979). <i>The method of repeated readings.</i> The Reading Teacher, 32(4).</li>
+          <li>Liu et al. (2019). <i>RoBERTa: A robustly optimized BERT pretraining approach.</i> arXiv:1907.11692.</li>
+          <li class="ko">문맥 추측 성공률 30~55%: Nylander (2014, 약 29%), Qian (2005, 45%), Kaivanpanah &amp; Rahimi (2017, 약 56%)의 보고를 묶은 범위.</li>
+        </ol>
+        <p class="cap">예문과 이야기 'The Monday Report'는 이 강의를 위해 새로 쓴 글입니다. 음성: Kokoro TTS (af_heart).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div class="bar-bottom">
+  <span id="label"></span>
+  <div class="ctrls">
+    <button type="button" id="prev" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <span class="count" id="count" aria-live="polite"></span>
+    <button type="button" id="next" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    <button type="button" id="theme" aria-label="Toggle light or dark theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+    <button type="button" id="full" aria-label="Toggle full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const DATA = /*__DATA__*/;
+  const AUDIO = /*__AUDIO__*/;
+  const THUMB = 'data:image/jpeg;base64,__THUMB__';
+  const VIDEO = { id: 'noD9L_9hXU4', len: '36:16', title: 'STOP TRANSLATING! How to train your brain to think in English – Speak English With Tiffani' };
+  const FILE = location.protocol === 'file:';
+  const root = document.documentElement;
+  if (FILE) root.classList.add('is-file');
+  const $ = id => document.getElementById(id);
+  const slides = [...document.querySelectorAll('.slide')];
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ---------- theme (remembered per browser when storage is available) ----------
+  { const t = store.get('readbert-theme'); if (t) root.dataset.theme = t; }
+  function toggleTheme() {
+    const dark = root.dataset.theme ? root.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.dataset.theme = dark ? 'light' : 'dark';
+    store.set('readbert-theme', root.dataset.theme);
+  }
+  const playIcon = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>';
+
+  // ---------- YouTube player: thumbnail first, iframe on click ----------
+  const secs = v => String(v || 0).split(':').map(Number).reduce((a, n) => a * 60 + n, 0);
+  const watchUrl = t => `https://www.youtube.com/watch?v=${VIDEO.id}${t ? `&t=${t}s` : ''}`;
+  function showFacade(p) {
+    p.classList.remove('playing');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'facade';
+    b.setAttribute('aria-label', (FILE ? 'Watch on YouTube: ' : 'Play video: ') + VIDEO.title);
+    const img = document.createElement('img');
+    img.alt = '';
+    img.src = THUMB;
+    const pill = document.createElement('span');
+    pill.className = 'play';
+    pill.innerHTML = playIcon + (FILE ? 'YouTube에서 보기 ↗' : '재생 · ' + VIDEO.len);
+    b.append(img, pill);
+    b.addEventListener('click', () => {
+      if (FILE) window.open(watchUrl(0), '_blank', 'noopener');
+      else play(p, 0);
+    });
+    p.replaceChildren(b);
+  }
+  function play(p, t) {
+    const f = document.createElement('iframe');
+    f.src = `https://www.youtube-nocookie.com/embed/${VIDEO.id}?autoplay=1&rel=0&playsinline=1&cc_load_policy=1&cc_lang_pref=en${t ? `&start=${t}` : ''}`;
+    f.title = VIDEO.title;
+    f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    f.referrerPolicy = 'strict-origin-when-cross-origin';
+    p.replaceChildren(f);
+    p.classList.add('playing');
+  }
+  document.querySelectorAll('.player').forEach(showFacade);
+
+  // A "moment" box under each chip row shows what she says at that time. It is the only
+  // way to "watch" offline (file://), and a handy English caption when the video plays.
+  document.querySelectorAll('.chapters').forEach(c => {
+    const m = document.createElement('p');
+    m.className = 'moment en';
+    m.hidden = true;
+    m.setAttribute('aria-live', 'polite');
+    const w = document.createElement('p');
+    w.className = 'filewarn';
+    w.innerHTML = '파일로 열어서 영상이 재생되지 않습니다. 시간을 누르면 그 장면의 대사가 나옵니다. 집에서는 <code>start_deck.bat</code>으로 열면 영상이 재생됩니다.';
+    c.after(m, w);
+  });
+  function showMoment(slide, t, q, chip) {
+    const m = slide.querySelector('.moment');
+    if (!m || !q) return;
+    m.innerHTML = '';
+    const b = document.createElement('b');
+    b.textContent = t;
+    const quote = document.createElement('q');
+    quote.textContent = q;
+    m.append(b, quote);
+    m.hidden = false;
+    slide.querySelectorAll('.chapters button').forEach(x => x.classList.toggle('on', x === chip));
+  }
+  // chips and inline times: jump the slide's player (localhost) and show the line
+  document.querySelectorAll('.slide button[data-t]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const slide = btn.closest('.slide');
+      const p = slide.querySelector('.player');
+      const chip = btn.closest('.chapters') ? btn : slide.querySelector(`.chapters button[data-t="${btn.dataset.t}"]`);
+      const q = btn.dataset.q || (chip && chip.dataset.q);
+      showMoment(slide, btn.dataset.t, q, chip);
+      if (p && !FILE) play(p, secs(btn.dataset.t));
+    });
+  });
+
+  // ---------- 1 · title mask ----------
+  $('titleMask').addEventListener('click', e => {
+    const m = e.currentTarget;
+    const on = !m.classList.contains('rev');
+    m.classList.toggle('rev', on);
+    m.textContent = on ? 'stairs' : '[MASK]';
+  });
+
+  // ---------- 4 · coverage grids ----------
+  {
+    // fixed, scattered cells; the first 2 and 5 are reused so the three grids are nested
+    const SPOTS = [12, 47, 83, 5, 66, 29, 91, 38, 74, 57, 20, 95, 3, 61, 86];
+    const pick = n => new Set(SPOTS.slice(0, n));
+    const cards = [
+      { n: 2, cls: 'best', pct: '98%', line: '50단어에 1개', tag: '즐겁게 읽기' },
+      { n: 5, cls: '', pct: '95%', line: '20단어에 1개', tag: '최소선' },
+      { n: 15, cls: 'bad', pct: '85%', line: '7단어에 1개', tag: 'BERT의 15%' }
+    ];
+    $('grids').innerHTML = cards.map(c => {
+      const u = pick(c.n);
+      const cells = Array.from({ length: 100 }, (_, i) => `<i${u.has(i) ? ' class="u"' : ''}></i>`).join('');
+      return `<div class="gcard ${c.cls}"><div class="g100" aria-hidden="true">${cells}</div><b>${c.pct}</b><span>아는 단어 · ${c.line}</span><em>${c.tag}</em></div>`;
+    }).join('');
+  }
+
+  // ---------- 7 · page test ----------
+  const SAMPLE = 'Most people believe that big changes need big moments. They wait for a new year, a new job, or a sudden burst of motivation. Yet the habits that shape our lives are usually built in small, almost invisible steps. A runner does not begin with a marathon; she begins by putting on her shoes. A writer does not begin with a novel; he begins with a single paragraph before breakfast. The trick is to make the first step so easy that skipping it feels silly. Over weeks and months, these tiny actions accumulate, and what once felt like a burden quietly becomes part of who you are. Progress, in other words, is less about intensity and more about consistency.';
+  const WORD_RE = /[A-Za-z]+(?:['’][A-Za-z]+)*/g;
+  const pt = { unknown: new Set(), total: 0 };
+  const keyOf = w => w.toLowerCase().replace(/’/g, "'");
+  function ptBuild(text) {
+    pt.unknown.clear();
+    const box = $('ptWords');
+    box.innerHTML = '';
+    let last = 0, total = 0;
+    const frag = document.createDocumentFragment();
+    for (const m of text.matchAll(WORD_RE)) {
+      if (m.index > last) frag.append(text.slice(last, m.index));
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'w';
+      b.textContent = m[0];
+      b.dataset.k = keyOf(m[0]);
+      frag.append(b);
+      last = m.index + m[0].length;
+      total++;
+    }
+    if (last < text.length) frag.append(text.slice(last));
+    box.append(frag);
+    pt.total = total;
+    ptScore();
+  }
+  function ptScore() {
+    const words = [...$('ptWords').querySelectorAll('.w')];
+    let unk = 0;
+    words.forEach(w => { const u = pt.unknown.has(w.dataset.k); w.classList.toggle('u', u); if (u) unk++; });
+    const total = pt.total || 1;
+    const cov = 100 * (1 - unk / total);
+    const shown = cov === 100 ? '100' : cov >= 99.95 ? '99.9' : cov.toFixed(1);
+    $('ptPct').firstChild.textContent = shown + '%';
+    $('ptCount').textContent = `· ${pt.total}단어`;
+    let band, label, advice;
+    if (unk === 0) { band = 'easy'; label = '쉬움'; advice = '속도 연습(다독)용으로 좋아요. 새 단어를 배우려면 조금 더 어려운 책도 함께.'; }
+    else if (cov >= 98) { band = 'good'; label = '딱 좋음'; advice = '혼자 즐겁게 읽을 수 있는 수준. 사전 없이 1회독!'; }
+    else if (cov >= 95) { band = 'chal'; label = '도전'; advice = '읽을 수는 있지만 힘들어요. 내용을 아는 책이거나 두 번 읽을 계획일 때만.'; }
+    else { band = 'hard'; label = '어려움'; advice = '지금은 해석 작업이 됩니다. 더 쉬운 책이나 graded reader부터.'; }
+    const v = $('ptVerdict');
+    v.className = 'verdict ' + band;
+    v.textContent = label;
+    const per = unk ? `모르는 단어 ${unk}개 = ${Math.round(total / unk)}단어에 1개 · 300단어 페이지라면 약 ${Math.round(300 * unk / total)}개` : '모르는 단어 0개';
+    $('ptLine').textContent = per;
+    $('ptAdvice').textContent = advice;
+    $('ptBands').querySelectorAll('div').forEach(d => d.classList.toggle('on', d.dataset.b === band));
+  }
+  $('ptWords').addEventListener('click', e => {
+    const b = e.target.closest('.w');
+    if (!b) return;
+    const k = b.dataset.k;
+    if (pt.unknown.has(k)) pt.unknown.delete(k); else pt.unknown.add(k);
+    ptScore();
+  });
+  $('ptClear').addEventListener('click', () => { pt.unknown.clear(); ptScore(); });
+  $('ptSample').addEventListener('click', () => { $('ptInput').value = ''; ptBuild(SAMPLE); });
+  $('ptSplit').addEventListener('click', () => {
+    const t = $('ptInput').value.trim();
+    if (t) { ptBuild(t); $('ptWords').scrollTop = 0; }
+  });
+  ptBuild(SAMPLE);
+
+  // ---------- 9 · chunk drill ----------
+  const CHUNKS = [
+    { en: ['The report', 'that my manager asked for', 'on Friday', 'is still', 'on my desk', 'because the numbers', 'didn’t match.'],
+      ko: ['그 보고서는', '팀장님이 요청했던 거', '금요일에', '아직도 있다', '내 책상 위에', '왜냐면 숫자들이', '안 맞았거든'],
+      back: '숫자들이 맞지 않았기 때문에, 금요일에 팀장님이 요청했던 보고서는 내 책상 위에 아직 있다.', path: [6, 7, 3, 2, 1, 5, 4] },
+    { en: ['Last night', 'I finished a novel', 'that a friend had recommended', 'two years ago,', 'and I was surprised', 'by how much', 'I enjoyed it.'],
+      ko: ['어젯밤', '소설 한 권을 다 읽었다', '친구가 추천했던 거', '2년 전에', '그리고 놀랐다', '얼마나 많이', '내가 그걸 즐겼는지'],
+      back: '어젯밤 나는 2년 전에 친구가 추천했던 소설을 다 읽었고, 내가 그것을 얼마나 즐겼는지에 놀랐다.', path: [1, 4, 3, 2, 7, 6, 5] },
+    { en: ['If you stop', 'at every word', 'you don’t know,', 'you will lose', 'the story', 'long before', 'you reach', 'the end of the chapter.'],
+      ko: ['만약 멈추면', '모든 단어에서', '모르는 (단어)', '잃어버릴 거다', '이야기를', '한참 전에', '닿기', '챕터 끝에'],
+      back: '모르는 모든 단어에서 멈춘다면, 챕터의 끝에 닿기 한참 전에 이야기를 잃어버릴 것이다.', path: [3, 2, 1, 8, 7, 6, 5, 4] },
+    { en: ['The book', 'I’m reading now', 'is about a woman', 'who leaves her job', 'in Seoul', 'to open a small bookstore', 'on Jeju Island.'],
+      ko: ['그 책은', '내가 지금 읽는 거', '한 여자에 관한 거다', '(그 여자는) 일을 그만둔다', '서울에서', '작은 서점을 열려고', '제주도에'],
+      back: '내가 지금 읽고 있는 책은 제주도에 작은 서점을 열기 위해 서울에서 일을 그만두는 한 여자에 관한 것이다.', path: [2, 1, 7, 6, 5, 4, 3] }
+  ];
+  const ck = { i: 0, step: -1, timer: null, mode: null };
+  function ckStop() { clearTimeout(ck.timer); ck.timer = null; ck.mode = null; $('ckPace').classList.remove('on'); $('ckEye').classList.remove('on'); $('ckBox').classList.remove('back'); }
+  function ckRender() {
+    const c = CHUNKS[ck.i];
+    $('ckBox').innerHTML = c.en.map((e, j) => `<span class="ck"><span class="ix">${j + 1}</span><span class="e">${esc(e)}</span><span class="k ko">${esc(c.ko[j])}</span></span>`).join('');
+    $('ckBackText').textContent = c.back;
+    ckShow();
+  }
+  function ckShow(order) {
+    const box = $('ckBox');
+    const cks = [...box.children];
+    box.classList.toggle('run', ck.step >= 0);
+    cks.forEach((el, j) => {
+      const pos = order ? order.indexOf(j + 1) : j;
+      el.classList.toggle('on', pos === ck.step);
+      el.classList.toggle('done', pos < ck.step);
+    });
+  }
+  function ckPick(i) {
+    ckStop();
+    ck.i = i; ck.step = -1;
+    $('ckPick').querySelectorAll('button').forEach((b, j) => b.classList.toggle('on', j === i));
+    $('ckBack').hidden = true;
+    ckRender();
+  }
+  $('ckPick').innerHTML = CHUNKS.map((_, i) => `<button type="button">문장 ${i + 1}</button>`).join('');
+  $('ckPick').querySelectorAll('button').forEach((b, i) => b.addEventListener('click', () => ckPick(i)));
+  $('ckKo').addEventListener('change', e => $('ckBox').classList.toggle('ko', e.target.checked));
+  $('ckStep').addEventListener('click', () => {
+    if (ck.mode) { ckStop(); ck.step = -1; }
+    $('ckBack').hidden = true;
+    const n = CHUNKS[ck.i].en.length;
+    ck.step = ck.step + 1 >= n ? -1 : ck.step + 1;
+    ckShow();
+  });
+  $('ckReset').addEventListener('click', () => { ckStop(); ck.step = -1; $('ckBack').hidden = true; ckShow(); });
+  function ckRun(mode) {
+    const was = ck.mode;
+    ckStop();
+    ck.step = -1;
+    if (was === mode) { ckShow(); if (mode === 'eye') $('ckBack').hidden = true; return; }
+    ck.mode = mode;
+    const c = CHUNKS[ck.i];
+    const order = mode === 'eye' ? c.path : null;
+    $(mode === 'eye' ? 'ckEye' : 'ckPace').classList.add('on');
+    $('ckBox').classList.toggle('back', mode === 'eye');
+    $('ckBack').hidden = mode !== 'eye';
+    const wpm = +$('ckWpm').value;
+    const tick = () => {
+      ck.step++;
+      if (ck.step >= c.en.length) { const m = ck.mode; ckStop(); ck.step = -1; ckShow(); if (m === 'eye') $('ckBack').hidden = false; return; }
+      ckShow(order);
+      const idx = order ? order[ck.step] - 1 : ck.step;
+      const words = c.en[idx].split(/\s+/).length;
+      ck.timer = setTimeout(tick, mode === 'eye' ? 900 : Math.max(380, words / wpm * 60000));
+    };
+    tick();
+  }
+  $('ckPace').addEventListener('click', () => ckRun('pace'));
+  $('ckEye').addEventListener('click', () => ckRun('eye'));
+  ckPick(0);
+
+  // ---------- 11 · bidirectional + attention ----------
+  const CANDS = {
+    left: [['eyes', 28], ['laptop', 18], ['bag', 16], ['mouth', 12], ['book', 10], ['wallet', 8], ['…', 8]],
+    both: [['wallet', 72], ['bag', 18], ['purse', 10]]
+  };
+  function bidi(mode) {
+    $('bidi').classList.toggle('left', mode === 'left');
+    $('bidi').querySelectorAll('[data-mode]').forEach(b => b.classList.toggle('on', b.dataset.mode === mode));
+    $('cands').innerHTML = CANDS[mode].map(([w, p]) => `<div class="cand"><span class="w">${w}</span><span class="tr"><span class="fl" data-p="${p}"></span></span><span class="p">${p}%</span></div>`).join('');
+    requestAnimationFrame(() => requestAnimationFrame(() => $('cands').querySelectorAll('.fl').forEach(f => { f.style.width = f.dataset.p + '%'; })));
+  }
+  $('bidi').querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => bidi(b.dataset.mode)));
+  bidi('both');
+
+  // tokens: [text, weight] — weight 0..1 is how much the unknown word "attends" to it (shaded from .3 up); null = the unknown word
+  const ATT = [
+    { s: [['The', 0], ['meeting', .3], ['was', 0], ['so', .7], ['tedious', null], ['that', .7], ['half', .3], ['the', 0], ['team', .2], ['started', .2], ['checking', .9], ['their', 0], ['phones.', 1]],
+      clue: '원인·결과 (so … that)', ans: 'tedious', def: 'long and boring', ko: '지루한' },
+    { s: [['Unlike', 1], ['her', 0], ['talkative', 1], ['brother,', .3], ['Jisoo', .1], ['is', 0], ['quite', .1], ['reticent;', null], ['she', 0], ['rarely', .9], ['says', .8], ['a', 0], ['word', .7], ['in', 0], ['meetings.', .2]],
+      clue: '대조 + 바꿔 말하기 (unlike …; …)', ans: 'reticent', def: 'not saying much about your thoughts', ko: '말수가 적은' },
+    { s: [['Our', 0], ['company', .3], ['has', .1], ['great', .6], ['perks,', null], ['such', 1], ['as', 1], ['free', .8], ['lunch,', .8], ['a', 0], ['gym,', .8], ['and', 0], ['flexible', .7], ['hours.', .7]],
+      clue: '예시 (such as)', ans: 'perks', def: 'extra good things you get from your job', ko: '(복지) 혜택' },
+    { s: [['After', .2], ['the', 0], ['update,', .6], ['the', 0], ['app', .4], ['became', .2], ['almost', .2], ['unusable:', null], ['it', 0], ['crashed', 1], ['every', .4], ['time', .2], ['I', 0], ['opened', .5], ['it.', 0]],
+      clue: '단어 조각 (un + use + able) + 뒤 문장', ans: 'unusable', def: 'not possible to use', ko: '쓸 수 없는' }
+  ];
+  {
+    const panel = $('attPanel');
+    ATT.forEach(a => {
+      const d = document.createElement('div');
+      d.className = 'att';
+      const toks = a.s.map(([t, w]) => w === null ? `<span class="unk">${esc(t)}</span>` : w >= .3 ? `<span style="--a:${Math.round(w * 62)}%">${esc(t)}</span>` : `<span>${esc(t)}</span>`).join(' ');
+      d.innerHTML = `<p class="att-s en">${toks}</p>
+        <div class="row"><button type="button" class="pbtn" data-a="show">단서 보기</button><button type="button" class="pbtn" data-a="ans">뜻 보기</button><span class="att-clue">${esc(a.clue)}</span></div>
+        <div class="att-ans"><b class="en">${esc(a.ans)}</b> = <span class="en">${esc(a.def)}</span> <span class="muted">(${esc(a.ko)})</span></div>`;
+      d.querySelector('[data-a="show"]').addEventListener('click', e => e.currentTarget.classList.toggle('on', d.classList.toggle('show')));
+      d.querySelector('[data-a="ans"]').addEventListener('click', e => e.currentTarget.classList.toggle('on', d.classList.toggle('ans')));
+      panel.append(d);
+    });
+  }
+
+  // ---------- 12 · masked reading ----------
+  const MARK_RE = /\[\[([^:\]]+):(2|5|15)\]\]/g;
+  const ms = { level: 2, shown: 0, right: 0 };
+  function msBuild() {
+    const L = ms.level;
+    ms.shown = 0; ms.right = 0;
+    let masked = 0;
+    const html = DATA.passage.map(p => esc(p.s).replace(MARK_RE, (_, w, l) => {
+      if (+l > L) return w;
+      masked++;
+      return `<button type="button" class="mask" data-w="${w}" aria-label="Hidden word">[MASK]</button>`;
+    })).join(' ');
+    $('msStory').innerHTML = `<p class="st">${esc(DATA.title)}</p><p style="margin:0">${html}</p>`;
+    $('msMasked').textContent = `${masked}개 · ${(100 * masked / DATA.total).toFixed(1)}%`;
+    $('msTotal').textContent = DATA.total;
+    $('msRate').textContent = `${Math.round(DATA.total / masked)}단어에 1개`;
+    msScore();
+  }
+  function msScore() { $('msScore').textContent = `${ms.right} / ${ms.shown}`; }
+  function msReveal(m) {
+    if (m.classList.contains('rev')) return;
+    m.classList.add('rev');
+    m.textContent = m.dataset.w;
+    m.removeAttribute('aria-label');
+    ms.shown++;
+    const btns = document.createElement('span');
+    btns.className = 'mk-btns';
+    btns.innerHTML = '<button type="button" class="y" aria-label="I guessed it">✓</button><button type="button" class="n" aria-label="I missed it">✗</button>';
+    btns.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      const ok = b.classList.contains('y');
+      if (ok) ms.right++;
+      m.classList.add(ok ? 'right' : 'wrong');
+      btns.remove();
+      msScore();
+    });
+    m.after(btns);
+    msScore();
+  }
+  $('msStory').addEventListener('click', e => { const m = e.target.closest('.mask'); if (m) msReveal(m); });
+  $('msLevel').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    ms.level = +b.dataset.l;
+    $('msLevel').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    msBuild();
+  }));
+  $('msAll').addEventListener('click', () => {
+    $('msStory').querySelectorAll('.mask:not(.rev)').forEach(m => { m.classList.add('rev'); m.textContent = m.dataset.w; ms.shown++; });
+    msScore();
+  });
+  $('msReset').addEventListener('click', msBuild);
+  msBuild();
+
+  // ---------- 14 · read while listening ----------
+  const CAN_OPUS = (() => { try { return !!new Audio().canPlayType('audio/ogg; codecs=opus'); } catch (e) { return false; } })();
+  const rw = { i: -1, speed: 1, playing: false, audio: null, utter: null };
+  $('rwText').innerHTML = `<p class="st" style="margin:0 0 .2rem;font-weight:700">${esc(DATA.title)}</p>` +
+    DATA.passage.map((p, i) => `<span class="snt" data-i="${i}">${esc(p.s).replace(MARK_RE, (_, w, l) => +l <= 5 ? `<span class="mk5">${w}</span>` : w)}</span>`).join(' ');
+  const snts = [...$('rwText').querySelectorAll('.snt')];
+  const hasAudio = DATA.passage.every(p => AUDIO[p.a[0]]);
+  if (!hasAudio || !CAN_OPUS) $('rwMsg').textContent = '내장 음성이 없어 브라우저 음성으로 읽습니다.';
+  function rwMark() { snts.forEach((s, j) => s.classList.toggle('cur', j === rw.i)); }
+  function rwButton() { $('rwPlay').textContent = rw.playing ? '❚❚ 일시 정지' : '▶ 재생'; }
+  function rwHalt() {
+    if (rw.audio) { rw.audio.onended = null; rw.audio.pause(); rw.audio = null; }
+    if (rw.utter) { rw.utter.onend = null; rw.utter = null; try { speechSynthesis.cancel(); } catch (e) {} }
+  }
+  function rwStop(reset) {
+    rwHalt();
+    rw.playing = false;
+    if (reset) rw.i = -1;
+    rwMark(); rwButton();
+  }
+  function rwNext() {
+    rwHalt();
+    if (!rw.playing) return;
+    if (rw.i >= DATA.passage.length) { rw.playing = false; rw.i = -1; rwMark(); rwButton(); return; }
+    rwMark();
+    const p = DATA.passage[rw.i];
+    const done = () => { if (rw.playing) { rw.i++; rwNext(); } };
+    const b64 = AUDIO[rw.speed === 0.8 ? p.a[1] : p.a[0]];
+    if (b64 && CAN_OPUS) {
+      const a = new Audio('data:audio/ogg;base64,' + b64);
+      a.playbackRate = rw.speed === 1.25 ? 1.25 : 1;
+      a.preservesPitch = true;
+      a.onended = done;
+      rw.audio = a;
+      a.play().catch(() => { rw.playing = false; rwButton(); $('rwMsg').textContent = '재생이 막혔습니다. 다시 눌러 주세요.'; });
+    } else if ('speechSynthesis' in window) {
+      const u = new SpeechSynthesisUtterance(p.tts);
+      u.lang = 'en-US';
+      u.rate = rw.speed;
+      u.onend = done;
+      rw.utter = u;
+      speechSynthesis.speak(u);
+    } else {
+      rw.playing = false; rwButton(); $('rwMsg').textContent = '이 브라우저는 음성 재생을 지원하지 않습니다.';
+    }
+  }
+  function rwPlayFrom(i) { rw.i = i; rw.playing = true; rwButton(); rwNext(); }
+  $('rwPlay').addEventListener('click', () => {
+    if (rw.playing) { rwStop(false); return; }
+    rwPlayFrom(rw.i < 0 ? 0 : rw.i);
+  });
+  $('rwText').addEventListener('click', e => { const s = e.target.closest('.snt'); if (s) rwPlayFrom(+s.dataset.i); });
+  $('rwSpeed').querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    rw.speed = +b.dataset.s;
+    $('rwSpeed').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    if (rw.playing) rwPlayFrom(Math.max(0, rw.i));
+  }));
+  $('rwHide').addEventListener('change', e => $('rwl').classList.toggle('hide', e.target.checked));
+  $('rwMarks').addEventListener('change', e => $('rwl').classList.toggle('marks', e.target.checked));
+
+  // ---------- 13 · epoch ticks ----------
+  document.querySelector('.epochs .ticks').innerHTML = '<i></i>'.repeat(40);
+
+  // ---------- 17 · today's checklist (kept in this browser) ----------
+  const CKEY = 'readbert-today-v1';
+  const checks = [...document.querySelectorAll('#todayCheck input')];
+  let saved = {};
+  try { saved = JSON.parse(store.get(CKEY)) || {}; } catch (e) { saved = {}; }
+  const scoreNow = () => { $('checkScore').textContent = `${checks.filter(c => c.checked).length} / ${checks.length}`; };
+  checks.forEach(c => {
+    c.checked = !!saved[c.dataset.k];
+    c.addEventListener('change', () => { saved[c.dataset.k] = c.checked; store.set(CKEY, JSON.stringify(saved)); scoreNow(); });
+  });
+  $('checkClear').addEventListener('click', () => { saved = {}; checks.forEach(c => { c.checked = false; }); store.set(CKEY, '{}'); scoreNow(); });
+  scoreNow();
+
+  // ---------- navigation ----------
+  let cur = -1;
+  function go(i) {
+    i = Math.max(0, Math.min(slides.length - 1, i));
+    if (i === cur) return;
+    if (cur >= 0) {
+      slides[cur].classList.remove('active');
+      slides[cur].querySelectorAll('.player.playing').forEach(showFacade); // stop the video when leaving
+      ckStop();
+      rwStop(false);
+    }
+    cur = i;
+    const s = slides[cur];
+    s.classList.add('active');
+    s.scrollTop = 0;
+    $('progress').style.width = ((cur + 1) / slides.length * 100) + '%';
+    refreshAccent();
+    $('count').textContent = `${cur + 1} / ${slides.length}`;
+    $('label').textContent = s.dataset.label;
+    $('prev').disabled = cur === 0;
+    $('next').disabled = cur === slides.length - 1;
+    try { history.replaceState(null, '', '#' + (cur + 1)); } catch (e) {}
+  }
+  function refreshAccent() { $('progress').style.background = getComputedStyle(slides[cur]).getPropertyValue('--accent'); }
+  function toggleFull() {
+    if (document.fullscreenElement) document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(() => {});
+  }
+  $('prev').addEventListener('click', () => go(cur - 1));
+  $('next').addEventListener('click', () => go(cur + 1));
+  $('theme').addEventListener('click', () => { toggleTheme(); refreshAccent(); });
+  $('full').addEventListener('click', toggleFull);
+  document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => go(+b.dataset.go - 1)));
+
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.target.closest && e.target.closest('input, textarea, select, details summary')) return;
+    const onControl = e.target.closest && e.target.closest('button, a');
+    switch (e.key) {
+      case 'ArrowRight': case 'PageDown': go(cur + 1); break;
+      case 'ArrowLeft': case 'PageUp': go(cur - 1); break;
+      case ' ': if (onControl) return; go(e.shiftKey ? cur - 1 : cur + 1); break;
+      case 'Home': go(0); break;
+      case 'End': go(slides.length - 1); break;
+      case 'f': case 'F': toggleFull(); break;
+      case 't': case 'T': toggleTheme(); refreshAccent(); break;
+      default: return;
+    }
+    e.preventDefault();
+  });
+
+  const start = parseInt(location.hash.slice(1), 10);
+  go(Number.isFinite(start) ? start - 1 : 0);
+})();
+</script>
+</body>
+</html>

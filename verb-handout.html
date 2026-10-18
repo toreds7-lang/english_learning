@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>English Verb Handout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;600&display=swap">
+<style>
+@page{size:A4 landscape; margin:0}
+:root{
+  --ink:#18212C; --muted:#4F5C6C; --rule:#D3DAE2;
+  --h1:#0F7C7A; --h2:#3656C9; --h3:#B8325A; --h4:#8F5F00;
+  --f-display:"Alegreya", Georgia, "Times New Roman", serif;
+  --f-body:"Atkinson Hyperlegible", "Segoe UI", Arial, sans-serif;
+  --f-mono:"Atkinson Hyperlegible Mono", Consolas, "Courier New", monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0; background:#fff}
+body{color:var(--ink); font:7.2pt/1.27 var(--f-body); -webkit-print-color-adjust:exact; print-color-adjust:exact}
+.page{width:297mm; height:210mm; padding:6.5mm 8mm 7mm; display:grid; grid-template-rows:auto minmax(0,1fr); gap:3mm; overflow:hidden; margin:0 auto}
+
+/* header */
+.top{display:flex; align-items:flex-end; justify-content:space-between; gap:6mm}
+.top h1{margin:0; font:800 20pt/1 var(--f-display); letter-spacing:-.01em}
+.top .sub{margin:1mm 0 0; color:var(--muted); font-size:7.6pt}
+.top .sub b{font-family:var(--f-mono); color:var(--ink)}
+.namebox{display:flex; gap:5mm; font-size:8pt; color:var(--muted); white-space:nowrap}
+.namebox span{display:inline-block; border-bottom:.25mm solid var(--muted); min-width:34mm; margin-left:1.5mm}
+.namebox .short{min-width:18mm}
+
+/* quadrants: same places as on the online mindmap */
+.quads{display:grid; grid-template-columns:44fr 56fr; grid-template-rows:minmax(0,1fr) minmax(0,1fr); gap:3mm; min-height:0}
+.q{--tint:color-mix(in srgb, var(--hue) 11%, #fff); border:.35mm solid var(--hue); border-radius:2.5mm; overflow:hidden; display:flex; flex-direction:column; min-height:0}
+.q1{--hue:var(--h1)} .q2{--hue:var(--h2)} .q3{--hue:var(--h3)} .q4{--hue:var(--h4)}
+.q > h2{margin:0; padding:1.1mm 3mm 1.2mm; background:var(--hue); color:#fff; font:700 10.5pt/1.1 var(--f-display); display:flex; justify-content:space-between; align-items:baseline}
+.q > h2 small{font:400 6.8pt var(--f-body); opacity:.9; letter-spacing:.03em}
+.cols{flex:1; min-height:0; display:grid; grid-template-columns:1fr 1fr; gap:3mm; padding:1.8mm 3mm 2mm}
+.col{display:flex; flex-direction:column; gap:1.6mm; min-width:0}
+h3{margin:0 0 .5mm; font:700 6.8pt/1.2 var(--f-body); letter-spacing:.09em; text-transform:uppercase; color:var(--hue)}
+p{margin:0}
+.f{font:600 6.7pt/1.3 var(--f-mono); background:var(--tint); border-radius:.8mm; padding:0 .7mm; white-space:nowrap}
+.x{font-style:italic}
+.m{color:var(--muted)}
+ul.items{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:.9mm}
+ul.items li{padding-left:2.2mm; position:relative}
+ul.items li::before{content:""; position:absolute; left:0; top:1.25mm; width:1mm; height:1mm; border-radius:50%; background:var(--hue)}
+table{border-collapse:collapse; width:100%}
+th,td{padding:.45mm .9mm; text-align:left; vertical-align:top; border-bottom:.2mm solid var(--rule)}
+th{font:700 6.5pt var(--f-body); color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td b{white-space:nowrap}
+.pips{display:inline-flex; gap:.45mm; vertical-align:.1mm; margin-left:.8mm}
+.pips i{display:block; width:1.45mm; height:1.45mm; border-radius:50%; border:.2mm solid var(--hue)}
+.pips i.on{background:var(--hue)}
+.forms td,.forms th{text-align:center; font-family:var(--f-mono)}
+.forms th{font-family:var(--f-mono); color:var(--hue); font-size:7pt}
+.forms tr.use td{font:6.2pt/1.2 var(--f-body); color:var(--muted)}
+
+/* tenses quadrant */
+.q2 .body{flex:1; min-height:0; padding:1.8mm 3mm 2mm; display:flex; flex-direction:column; gap:1.6mm}
+.tg{display:grid; grid-template-columns:19mm repeat(3, minmax(0,1fr)); border-top:.2mm solid var(--rule)}
+.tg > div{padding:.6mm 1mm; border-bottom:.2mm solid var(--rule)}
+.tg .th{font:700 8.5pt/1.1 var(--f-display); padding-bottom:.6mm}
+.tg .th small{font:400 6pt var(--f-body); color:var(--muted); margin-left:1mm}
+.tg .rh b{display:block; font:700 7.6pt/1.1 var(--f-display)}
+.tg .rh code{font:600 6.2pt/1.2 var(--f-mono); color:var(--hue)}
+.tg .c{display:grid; grid-template-columns:12mm 1fr; column-gap:1.3mm; row-gap:.3mm; align-items:start}
+.tg .c svg{width:12mm; height:2.7mm; margin-top:.5mm; grid-row:1; grid-column:1}
+.tg .c .n{grid-column:2}
+.tg .c .x{grid-column:1 / -1}
+.tg .c .n{font-weight:700; font-size:6.9pt; line-height:1.2}
+.tg .c .f{grid-column:1 / -1; justify-self:start; font-size:6.3pt}
+.tg .c .x{font-size:6.6pt}
+.tl .ax{fill:none; stroke:#98A6B5; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round}
+.tl .now{stroke:var(--muted); stroke-width:1.4; stroke-dasharray:2.2 2.2}
+.tl .ref{stroke:var(--hue); stroke-width:2}
+.tl circle{fill:var(--hue)}
+.tl .w{fill:none; stroke:var(--hue); stroke-width:2; stroke-linecap:round; stroke-linejoin:round}
+.extras{display:grid; grid-template-columns:1fr 1fr; gap:3mm}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top">
+    <div>
+      <h1>The English Verb</h1>
+      <p class="sub"><b>V1</b> base · <b>V2</b> past · <b>V3</b> past participle &nbsp;·&nbsp; Level:
+        <span class="pips" style="--hue:var(--ink)"><i class="on"></i><i></i><i></i></span> beginner
+        <span class="pips" style="--hue:var(--ink)"><i class="on"></i><i class="on"></i><i></i></span> intermediate
+        <span class="pips" style="--hue:var(--ink)"><i class="on"></i><i class="on"></i><i class="on"></i></span> advanced (items with no dots are for everyone)</p>
+    </div>
+    <div class="namebox"><label>Name<span></span></label><label>Class<span class="short"></span></label><label>Date<span class="short"></span></label></div>
+  </header>
+
+  <div class="quads">
+
+    <!-- Top left: Verbals -->
+    <section class="q q4">
+      <h2>Verbals <small>infinitives · gerunds · participles</small></h2>
+      <div class="cols">
+        <div class="col">
+          <div><h3>Infinitives</h3>
+            <ul class="items">
+              <li><span class="f">to + V1</span> after many verbs and adjectives: <span class="x">I want to learn. It’s easy to use.</span></li>
+              <li>Purpose, <span class="f">to + V1</span> = in order to: <span class="x">She went out to buy milk.</span></li>
+              <li>No <i>to</i> after modals and <span class="f">make / let + object</span>: <span class="x">They made me wait.</span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span></li>
+              <li><span class="f">to have + V3</span> · <span class="f">to be + V3</span>: <span class="x">She seems to have forgotten.</span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span></li>
+            </ul></div>
+          <div><h3>Gerunds (-ing as a noun)</h3>
+            <ul class="items">
+              <li>As the subject: <span class="x">Swimming is good exercise.</span></li>
+              <li>After prepositions: <span class="x">good at drawing · thanks for coming</span></li>
+              <li><span class="f">go + V-ing</span> for activities: <span class="x">Let’s go swimming.</span></li>
+            </ul></div>
+          <div><h3>Participles</h3>
+            <ul class="items">
+              <li><b>-ing</b> adjective = causes the feeling; <b>-ed</b> = has the feeling: <span class="x">The lesson was boring, so I was bored.</span></li>
+              <li>Participle clauses: <span class="x">Having finished dinner, we went for a walk.</span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span></li>
+            </ul></div>
+        </div>
+        <div class="col">
+          <div><h3>Gerund or infinitive?</h3>
+            <table>
+              <tr><td><b>verb + -ing</b><br><span class="m">enjoy · avoid · finish · mind · keep · suggest</span><br><span class="x">I enjoy reading.</span></td></tr>
+              <tr><td><b>verb + to V1</b><br><span class="m">want · decide · hope · plan · refuse · agree</span><br><span class="x">We decided to leave.</span></td></tr>
+              <tr><td><b>verb + object + to V1</b><br><span class="m">ask · tell · advise · allow · want</span><br><span class="x">I asked him to call me.</span></td></tr>
+              <tr><td><b>both, same meaning</b><br><span class="m">begin · start · like · love · prefer</span><br><span class="x">It started to rain. = It started raining.</span></td></tr>
+              <tr><td><b>both, new meaning</b><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span><br><span class="m">stop · remember · forget · try · regret</span><br><span class="x">I remember locking the door.</span> <span class="m">(a memory)</span><br><span class="x">Remember to lock the door!</span> <span class="m">(a task)</span></td></tr>
+            </table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Top right: Verb types & forms -->
+    <section class="q q1">
+      <h2>Verb Types &amp; Forms <small>forms · modals · verb types</small></h2>
+      <div class="cols">
+        <div class="col">
+          <div><h3>The five forms</h3>
+            <table class="forms">
+              <tr><th>V1</th><th>-s</th><th>V2</th><th>-ing</th><th>V3</th></tr>
+              <tr><td>work</td><td>works</td><td>worked</td><td>working</td><td>worked</td></tr>
+              <tr><td>go</td><td>goes</td><td>went</td><td>going</td><td>gone</td></tr>
+              <tr><td>be</td><td>is</td><td>was/were</td><td>being</td><td>been</td></tr>
+              <tr><td>write</td><td>writes</td><td>wrote</td><td>writing</td><td>written</td></tr>
+              <tr class="use"><td>to, modals, commands</td><td>he / she / it</td><td>past simple</td><td>continuous, gerund</td><td>perfect, passive</td></tr>
+            </table></div>
+          <div><h3>Regular &amp; irregular</h3>
+            <ul class="items">
+              <li>Regular: <span class="f">V1 + -ed</span>, V2 = V3: <span class="x">play – played – played</span></li>
+              <li>Irregular patterns: <b>A-A-A</b> cut–cut–cut · <b>A-B-B</b> buy–bought–bought · <b>A-B-C</b> sing–sang–sung · <b>A-B-A</b> come–came–come<span class="pips"><i class="on"></i><i class="on"></i><i></i></span></li>
+              <li>-ed sounds: <b>/t/</b> walked · <b>/d/</b> played · <b>/ɪd/</b> wanted<span class="pips"><i class="on"></i><i class="on"></i><i></i></span></li>
+            </ul></div>
+          <div><h3>Agreement &amp; helping verbs</h3>
+            <ul class="items">
+              <li><span class="f">he / she / it → V-s</span>: <span class="x">My brother lives in Leeds. My brothers live in Leeds.</span></li>
+              <li><b>be · do · have</b> build tenses, questions, negatives, the passive: <span class="x">Do you like it? She has left.</span></li>
+            </ul></div>
+        </div>
+        <div class="col">
+          <div><h3>Modal verbs: <span class="f">modal + V1</span> (no -s, no to)</h3>
+            <table>
+              <tr><td>ability</td><td><b>can · could · be able to</b></td><td class="x">She can swim.</td></tr>
+              <tr><td>permission</td><td><b>can · could · may</b></td><td class="x">May I come in?</td></tr>
+              <tr><td>obligation</td><td><b>must · have to</b></td><td class="x">I have to work.</td></tr>
+              <tr><td>not necessary</td><td><b>don’t have to</b></td><td class="x">You don’t have to pay.</td></tr>
+              <tr><td>not allowed</td><td><b>mustn’t</b></td><td class="x">You mustn’t park here.</td></tr>
+              <tr><td>advice</td><td><b>should · ought to</b></td><td class="x">You should rest.</td></tr>
+              <tr><td>deduction</td><td><b>must · might · can’t</b></td><td class="x">He must be tired.</td></tr>
+              <tr><td>past<span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span></td><td><b>modal + have + V3</b></td><td class="x">You should have told me.</td></tr>
+            </table></div>
+          <div><h3>Verb types</h3>
+            <ul class="items">
+              <li><b>Transitive</b> + object: <span class="x">She opened the door.</span> <b>Intransitive</b>: <span class="x">The baby is sleeping.</span></li>
+              <li><b>Two objects</b>: <span class="x">She gave me a book.</span> <b>Linking</b> + adjective: <span class="x">The soup smells good.</span></li>
+              <li><b>State verbs</b> (know, like, want, own, seem) are not usually continuous: <span class="x">I know.</span> <span class="m">not</span> <span class="x">I’m knowing.</span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span></li>
+              <li><b>Phrasal verbs</b>: <span class="x">Turn it off. · look after her · The plane took off. · put up with</span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span></li>
+            </ul></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom left: Voice & mood -->
+    <section class="q q3">
+      <h2>Voice &amp; Mood <small>passive · conditionals · unreal forms</small></h2>
+      <div class="cols">
+        <div class="col">
+          <div><h3>Passive: <span class="f">be + V3 (+ by …)</span></h3>
+            <table>
+              <tr><td>present simple</td><td><b>is made</b></td></tr>
+              <tr><td>present continuous</td><td><b>is being made</b></td></tr>
+              <tr><td>past simple</td><td><b>was made</b></td></tr>
+              <tr><td>present perfect</td><td><b>has been made</b></td></tr>
+              <tr><td>future · modal</td><td><b>will be made · must be made</b></td></tr>
+            </table>
+            <p class="x" style="margin-top:.8mm">The meal was cooked by the chef. My bike was stolen.</p></div>
+          <ul class="items">
+            <li>Causative <span class="f">have / get + object + V3</span>: <span class="x">I had my hair cut.</span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span></li>
+            <li>Reporting: <span class="x">She is said to be in London.</span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span></li>
+          </ul>
+          <div><h3>Mood</h3>
+            <ul class="items">
+              <li>Imperative: <span class="x">Close the door. Don’t be late. Let’s go.</span></li>
+              <li><span class="f">wish + past</span> (now) · <span class="f">wish + had V3</span> (past): <span class="x">I wish I had more time.</span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span></li>
+              <li><span class="x">If I were you, I’d call her. It’s time we left.</span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span></li>
+            </ul></div>
+        </div>
+        <div class="col">
+          <div><h3>Conditionals</h3>
+            <table>
+              <tr><td><b>Zero</b> <span class="m">always true</span><br><span class="f">if + present, present</span><br><span class="x">If you heat ice, it melts.</span></td></tr>
+              <tr><td><b>First</b> <span class="m">real future</span><br><span class="f">if + present, will + V1</span><br><span class="x">If it rains, we’ll stay home.</span></td></tr>
+              <tr><td><b>Second</b> <span class="m">unreal now</span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span><br><span class="f">if + past, would + V1</span><br><span class="x">If I had a car, I’d drive to work.</span></td></tr>
+              <tr><td><b>Third</b> <span class="m">unreal past</span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span><br><span class="f">if + had V3, would have V3</span><br><span class="x">If we’d left earlier, we wouldn’t have missed it.</span></td></tr>
+              <tr><td><b>Mixed</b> <span class="m">past → now</span><span class="pips"><i class="on"></i><i class="on"></i><i class="on"></i></span><br><span class="f">if + had V3, would + V1</span><br><span class="x">If I’d studied medicine, I’d be a doctor now.</span></td></tr>
+            </table></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom right: Tenses -->
+    <section class="q q2">
+      <h2>Tenses &amp; Aspects <small>time × aspect = 12 tenses</small></h2>
+      <div class="body">
+        <div class="tg" id="tg"></div>
+        <div class="extras">
+          <ul class="items">
+            <li>Future forms: <b>be going to</b> plans, evidence (<span class="x">It’s going to rain.</span>) · <b>present continuous</b> arrangements (<span class="x">I’m meeting Sam at six.</span>) · <b>present simple</b> timetables (<span class="x">The train leaves at 7:15.</span>)</li>
+            <li><span class="f">used to + V1</span> past habits: <span class="x">I used to play the violin.</span></li>
+            <li class="m">Timelines: dashed = now · dot = complete action · wave = in progress · arrow = up to a point</li>
+          </ul>
+          <ul class="items">
+            <li>Signal words: <b>ago, yesterday</b> → past simple · <b>now, at the moment</b> → present continuous · <b>ever, never, just, yet, since, for</b> → present perfect</li>
+            <li>Reported speech moves one step back: <span class="f">is → was</span> <span class="f">has done → had done</span> <span class="f">will → would</span><span class="pips"><i class="on"></i><i class="on"></i><i></i></span></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const TL_R = { past: 26, present: 50, future: 74 };
+function wave(a, b, y) {
+  const n = Math.max(2, Math.round((b - a) / 5)), st = (b - a) / n;
+  let d = `M${a} ${y}`;
+  for (let i = 0; i < n; i++) d += ` q${(st / 2).toFixed(2)} ${i % 2 ? 4 : -4} ${st.toFixed(2)} 0`;
+  return d;
+}
+function timeline(time, aspect) {
+  const R = TL_R[time], S = R - 22, y = 9;
+  const head = `<path class="w" d="M${R - 5} ${y - 4}L${R} ${y}L${R - 5} ${y + 4}"/>`;
+  let m;
+  if (aspect === "simple") m = time === "present" ? [30, 50, 70].map(x => `<circle cx="${x}" cy="${y}" r="3.2"/>`).join("") : `<circle cx="${R}" cy="${y}" r="3.6"/>`;
+  else if (aspect === "continuous") m = `<path class="w" d="${wave(R - 13, R + 13, y)}"/>`;
+  else if (aspect === "perfect") m = `<circle cx="${S}" cy="${y}" r="2.8"/><path class="w" d="M${S} ${y}H${R - 1}"/>${head}`;
+  else m = `<path class="w" d="${wave(S, R - 1, y)}"/>${head}`;
+  return `<svg class="tl" viewBox="0 0 100 22" aria-hidden="true"><path class="ax" d="M3 18H95M91 15.5L95 18L91 20.5"/><path class="now" d="M50 3V21"/><path class="ref" d="M${R} 15V21"/>${m}</svg>`;
+}
+const pips = lv => `<span class="pips">${[1, 2, 3].map(i => `<i class="${i <= lv ? "on" : ""}"></i>`).join("")}</span>`;
+const ASPECTS = [["simple", "Simple", "V1 · V2 · will V1"], ["continuous", "Continuous", "be + V-ing"], ["perfect", "Perfect", "have + V3"], ["perfcont", "Perfect continuous", "have been + V-ing"]];
+const TIMES = [["past", "Past", "before now"], ["present", "Present", "around now"], ["future", "Future", "after now"]];
+const T = {
+  "past simple": ["V2 · did + V1", "We met in 2019.", 1],
+  "present simple": ["V1 / V-s", "She walks to school.", 1],
+  "future simple": ["will + V1", "I’ll help you.", 1],
+  "past continuous": ["was / were + V-ing", "I was cooking when you called.", 2],
+  "present continuous": ["am / is / are + V-ing", "I’m studying now.", 1],
+  "future continuous": ["will be + V-ing", "I’ll be flying at nine.", 2],
+  "past perfect": ["had + V3", "The film had started.", 2],
+  "present perfect": ["have / has + V3", "I’ve lost my keys.", 2],
+  "future perfect": ["will have + V3", "She’ll have finished by June.", 3],
+  "past perfcont": ["had been + V-ing", "He’d been running.", 3],
+  "present perfcont": ["have / has been + V-ing", "She’s been waiting for an hour.", 2],
+  "future perfcont": ["will have been + V-ing", "I’ll have been working all day.", 3],
+};
+let h = `<div></div>` + TIMES.map(([, n, s]) => `<div class="th">${n}<small>${s}</small></div>`).join("");
+for (const [ak, an, af] of ASPECTS) {
+  h += `<div class="rh"><b>${an}</b><code>${af}</code></div>`;
+  for (const [tk, tn] of TIMES) {
+    const [form, ex, lv] = T[`${tk} ${ak}`];
+    const name = `${tn} ${an.toLowerCase()}`;
+    h += `<div class="c">${timeline(tk, ak)}<span class="n">${name}${pips(lv)}</span><span class="f">${form}</span><span class="x">${ex}</span></div>`;
+  }
+}
+document.getElementById("tg").innerHTML = h;
+</script>
+</body>
+</html>

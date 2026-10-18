@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; media-src data: blob:; font-src data:">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>영어 구문 지도 101</title>
+<style>
+:root{
+  --bg:#f7f5f0; --panel:#ffffff; --soft:#f0ece3; --ink:#1c2128; --muted:#5f6772; --line:#e2ddd2;
+  --accent:#0f766e; --accent-ink:#ffffff; --good:#15803d; --warn:#c2410c; --bad:#b91c1c; --rev:#d97706;
+  --S:#2563eb; --V:#dc2626; --O:#15803d; --C:#ea580c; --M:#64748b; --A:#7c3aed; --X:#334155; --G:#94a3b8;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.06);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13161b; --panel:#1b1f26; --soft:#232832; --ink:#e8eaee; --muted:#9aa3ae; --line:#2e3440;
+    --accent:#2dd4bf; --accent-ink:#06201d; --good:#4ade80; --warn:#fb923c; --bad:#f87171; --rev:#fbbf24;
+    --S:#60a5fa; --V:#f87171; --O:#4ade80; --C:#fb923c; --M:#94a3b8; --A:#a78bfa; --X:#cbd5e1; --G:#64748b;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13161b; --panel:#1b1f26; --soft:#232832; --ink:#e8eaee; --muted:#9aa3ae; --line:#2e3440;
+  --accent:#2dd4bf; --accent-ink:#06201d; --good:#4ade80; --warn:#fb923c; --bad:#f87171; --rev:#fbbf24;
+  --S:#60a5fa; --V:#f87171; --O:#4ade80; --C:#fb923c; --M:#94a3b8; --A:#a78bfa; --X:#cbd5e1; --G:#64748b;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden;
+  font-family:"Segoe UI","Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;}
+button{font:inherit;color:inherit;cursor:pointer}
+#stage{position:fixed;left:0;right:0;top:0;bottom:46px;overflow:hidden}
+#canvas{width:1280px;height:720px;position:absolute;left:50%;top:50%;background:var(--bg);transform-origin:center center;transform:translate(-50%,-50%)}
+#bar{position:fixed;left:0;top:0;height:3px;background:var(--accent);transition:width .25s;z-index:5}
+#nav{position:fixed;left:0;right:0;bottom:0;height:46px;display:flex;align-items:center;gap:6px;padding:0 10px;
+  background:var(--panel);border-top:1px solid var(--line);font-size:14px;z-index:6}
+#nav .nb{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:5px 10px;line-height:1.2;white-space:nowrap}
+#nav .nb:hover{border-color:var(--accent)}
+#nav .nb.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#nav .cnt{min-width:76px;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted)}
+#nav .ttl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);padding:0 8px}
+#nav input{width:84px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 8px;font:inherit}
+
+/* ---------- slide frame ---------- */
+.slide{position:absolute;inset:0;padding:20px 34px 14px;display:flex;flex-direction:column;overflow:hidden}
+.crumb{font-size:13px;color:var(--muted);letter-spacing:.01em}
+.crumb b{color:var(--ink);font-weight:700}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700;background:var(--soft);border:1px solid var(--line)}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:6px 11px;font-size:14px;line-height:1.2;box-shadow:var(--shadow)}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.sm{padding:3px 8px;font-size:12.5px;box-shadow:none}
+.btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+
+/* ---------- unit slide ---------- */
+.u-head{display:grid;grid-template-columns:1fr auto;gap:2px 18px;align-items:end;padding-bottom:9px;border-bottom:2px solid var(--line)}
+.u-title{display:flex;align-items:baseline;gap:12px;min-width:0}
+.u-no{font-weight:800;font-size:14px;background:var(--ink);color:var(--bg);border-radius:999px;padding:3px 11px;white-space:nowrap;align-self:center}
+.u-no.fs{background:var(--rev);color:#1c1300}
+.u-title h2{margin:0;font-size:29px;line-height:1.15;letter-spacing:-.01em;white-space:nowrap}
+.u-title h2.long{font-size:24px}.u-title h2.xlong{font-size:21px}
+.u-head>div:first-child{min-width:0}
+.u-sub{font-size:17px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.u-side{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.chl{display:flex;gap:4px;align-items:center}
+.chl .st{width:28px;height:28px;border-radius:50%;border:2px solid var(--pc,var(--accent));background:var(--panel);font-size:11px;font-weight:700;padding:0;display:grid;place-items:center}
+.chl .st.fs{border-radius:7px;width:24px;height:24px;font-size:10px}
+.chl .st.cur{background:var(--pc,var(--accent));color:#fff;transform:scale(1.15)}
+.chl .st.got{box-shadow:inset 0 0 0 3px var(--good)}
+.chl .st.rev{box-shadow:inset 0 0 0 3px var(--rev)}
+.chl .ln{width:8px;height:3px;background:var(--pc,var(--accent));opacity:.6}
+.thr{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.thr .tb{font-size:11.5px;border-radius:999px;padding:2px 9px;border:1.5px solid var(--tc);color:var(--ink);background:color-mix(in srgb,var(--tc) 10%,var(--panel))}
+.u-body{flex:1;min-height:0;display:grid;grid-template-columns:505px 1fr;gap:22px;padding-top:12px}
+.fit{min-height:0;overflow:hidden;font-size:17px}
+.col-l{display:flex;flex-direction:column;gap:.6em}
+.formula{font-size:1.02em;font-weight:700;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:.45em .7em;line-height:1.9}
+.formula .b>.bt{padding:.02em .3em}
+.pts{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:.32em}
+.pts li{position:relative;padding-left:1.05em;font-size:1em;line-height:1.45}
+.pts li::before{content:"";position:absolute;left:.15em;top:.62em;width:.42em;height:.42em;border-radius:50%;background:var(--accent)}
+.pts b{color:var(--ink)}
+.tip{font-size:.92em;line-height:1.45;background:color-mix(in srgb,var(--rev) 12%,var(--panel));border:1px solid color-mix(in srgb,var(--rev) 40%,var(--line));border-radius:10px;padding:.45em .75em}
+.tip::before{content:"수능 포인트 ";font-weight:800;color:var(--warn)}
+.col-r{display:flex;flex-direction:column;gap:.55em}
+.ex-h{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.95em;color:var(--muted)}
+.ex-h .sp{flex:1}
+.exs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.55em}
+.ex{display:grid;grid-template-columns:1.6em 1fr auto;gap:.2em .6em;align-items:start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.5em .6em .45em;position:relative}
+.ex.sh-on{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent)}
+.exn{font-weight:800;color:var(--muted);font-size:.95em;padding-top:.35em;text-align:center}
+.ex .sent{font-size:1.24em}
+.exc{display:flex;gap:4px;padding-top:.15em}
+.exc button{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:2px 6px;font-size:.82em;line-height:1.3}
+.exc button:hover{border-color:var(--accent)}
+.exc button.on{background:var(--accent);color:var(--accent-ink)}
+.ko{display:none;grid-column:2/4;font-size:.9em;color:var(--muted);padding:.05em 0 .05em .1em}
+.ko .hl{color:var(--ink)}
+.ex.kon .ko,body.allko .ko{display:block}
+.shbar{grid-column:1/4;height:5px;border-radius:3px;background:var(--soft);overflow:hidden;display:none}
+.shbar i{display:block;height:100%;width:0;background:var(--accent)}
+.ex.sh-wait .shbar{display:block}
+.shmsg{position:absolute;right:.6em;bottom:.2em;font-size:.75em;font-weight:800;color:var(--accent)}
+.u-foot{display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--line);min-height:46px}
+.links{flex:1;display:flex;gap:4px 6px;flex-wrap:wrap;overflow:hidden;align-items:center;min-width:0;max-height:64px}
+.links .lk-h{font-size:12px;color:var(--muted);white-space:nowrap}
+.lchip{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:3px 10px;font-size:12.5px;white-space:nowrap}
+.lchip:hover{border-color:var(--accent)}
+.lchip i{font-style:normal;color:var(--muted)}
+.pg{display:flex;gap:6px}
+.pg .btn.got.on{background:var(--good);border-color:var(--good);color:#fff}
+.pg .btn.rev.on{background:var(--rev);border-color:var(--rev);color:#1c1300}
+
+/* ---------- blocks ---------- */
+.sent{position:relative;line-height:1.3;overflow-wrap:break-word}
+.sent.lk{padding-top:.95em}
+.sent.lk .b{margin-top:.55em}
+.b{display:inline-flex;flex-direction:column;align-items:stretch;margin:0 .07em;--rc:var(--X);max-width:100%}
+.f-S{--rc:var(--S)} .f-V{--rc:var(--V)} .f-O{--rc:var(--O)} .f-C{--rc:var(--C)} .f-M{--rc:var(--M)} .f-A{--rc:var(--A)} .f-X{--rc:var(--X)} .f-G{--rc:var(--G)}
+.b>.bt{padding:.06em .3em .08em;border-radius:.3em;background:color-mix(in srgb,var(--rc) 13%,var(--panel));border-bottom:.15em solid var(--rc)}
+.b>.bl{font-size:.5em;font-weight:800;color:var(--rc);text-align:center;letter-spacing:.03em;line-height:1.25;padding-top:.12em;white-space:nowrap}
+.b.in>.bt{background:transparent;border:1px dashed color-mix(in srgb,var(--rc) 65%,transparent);border-bottom:.12em solid var(--rc);padding:0 .2em}
+.b.in>.bl{font-size:.46em}
+.b.x>.bt{background:transparent;border-bottom-color:transparent;padding-left:.08em;padding-right:.08em}
+.b.gap>.bt{background:transparent;border:1px dashed var(--G);color:var(--muted);font-style:italic}
+.b.gap>.bl{color:var(--muted)}
+.hl{font-weight:800;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--rc,var(--accent)) 65%,transparent);text-decoration-thickness:.11em;text-underline-offset:.16em}
+.anc{border-radius:.2em;box-shadow:inset 0 -.12em 0 color-mix(in srgb,var(--accent) 45%,transparent)}
+.nolab .b>.bl{display:none}
+.nb{white-space:nowrap}.nb>.b{white-space:normal}
+svg.lk{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+svg.lk path{fill:none;stroke:var(--rc);stroke-width:1.6}
+svg.lk path.ah{fill:var(--rc);stroke:none}
+svg.lk circle.eqc{fill:var(--panel);stroke:var(--rc);stroke-width:1.2}
+svg.lk text{font-size:11px;font-weight:800;text-anchor:middle;dominant-baseline:central;fill:var(--rc);stroke:none}
+
+/* ---------- viz ---------- */
+.viz{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:.6em .75em;font-size:.95em}
+.viz+.viz{margin-top:.1em}
+.vnote{font-size:.85em;color:var(--muted);margin-top:.4em;line-height:1.4}
+.vh{font-size:.8em;font-weight:800;color:var(--muted);letter-spacing:.02em;margin-bottom:.35em}
+.viz .sent{font-size:1.12em}
+/* morph */
+.mstage{min-height:3.6em;padding:.2em .1em;font-size:1.12em;position:relative}
+.mstage .w{display:inline-block}
+.mstage .enter{animation:pop .7s ease}
+@keyframes pop{0%{filter:brightness(1.6);box-shadow:0 0 0 .2em color-mix(in srgb,var(--accent) 50%,transparent)}100%{filter:none;box-shadow:0 0 0 0 transparent}}
+.ghost{position:absolute;pointer-events:none;animation:gone .6s ease forwards;margin:0}
+@keyframes gone{to{opacity:0;transform:translateY(-.6em) scale(.9)}}
+.msteps{list-style:none;margin:.35em 0 0;padding:0;display:flex;flex-direction:column;gap:.18em}
+.msteps li{font-size:.84em;padding:.18em .5em;border-radius:7px;color:var(--muted);cursor:pointer;line-height:1.35}
+.msteps li b{display:inline-grid;place-items:center;width:1.4em;height:1.4em;border-radius:50%;background:var(--soft);margin-right:.35em;font-size:.85em;color:var(--ink)}
+.msteps li.on{background:color-mix(in srgb,var(--accent) 12%,var(--panel));color:var(--ink);font-weight:700}
+.msteps li.on b{background:var(--accent);color:var(--accent-ink)}
+.mctl{display:flex;gap:6px;margin-top:.4em}
+/* compare */
+.cmp{display:grid;gap:.5em}
+.cmp .cc{border:1px solid var(--line);border-radius:10px;padding:.45em .55em;background:var(--bg);position:relative}
+.cmp .cc h4{margin:0 0 .3em;font-size:.82em;color:var(--muted);font-weight:800}
+.cmp .cc .sent{font-size:1em}
+.cmp .cc.ok{border-color:color-mix(in srgb,var(--good) 55%,var(--line))}
+.cmp .cc.no{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.cmp .cc.no{background:color-mix(in srgb,var(--bad) 6%,var(--bg))}
+.cmp .cc.no .sent{opacity:.8}
+.cmp .cc .mk{position:absolute;right:.45em;top:.3em;font-weight:900}
+.cmp .cc.ok .mk{color:var(--good)} .cmp .cc.no .mk{color:var(--bad)}
+.cmp .cc .cn{font-size:.8em;color:var(--muted);margin-top:.3em;line-height:1.35}
+/* table */
+table.vt{border-collapse:collapse;width:100%;font-size:.86em}
+table.vt th,table.vt td{border-bottom:1px solid var(--line);padding:.28em .4em;text-align:left;vertical-align:top;line-height:1.35}
+table.vt th{font-size:.9em;color:var(--muted);font-weight:800;background:var(--soft)}
+table.vt td.c,table.vt th.c{text-align:center}
+table.vt td .sent{font-size:1em}
+table.vt s{color:var(--bad)}
+.yes{color:var(--good);font-weight:900}.no{color:var(--bad);font-weight:900}
+/* rows */
+.rws{display:flex;flex-direction:column;gap:.4em}
+.rw{display:grid;grid-template-columns:auto 1fr auto;gap:.2em .6em;align-items:center;border-left:3px solid var(--accent);padding:.15em .3em .15em .5em;border-radius:0 8px 8px 0}
+.rw .rf{font-size:.8em;font-weight:800;background:var(--soft);border-radius:7px;padding:.18em .45em;white-space:nowrap}
+.rw .sent{font-size:1em}
+.rw .rn{font-size:.78em;color:var(--muted);text-align:right;white-space:nowrap}
+.rw .ru{font-size:.75em;font-weight:800;color:var(--accent);white-space:nowrap}
+.rw.lnk{cursor:pointer}
+.rw.lnk:hover{background:var(--soft)}
+/* slots */
+.slots{display:flex;gap:.5em;align-items:flex-start}
+.slot.dim{flex:.45}
+.slot{flex:1;min-width:0;display:flex;flex-direction:column;gap:.25em;align-items:stretch}
+.slot .sh{--rc:var(--X);border-radius:10px;border:2px solid var(--rc);background:color-mix(in srgb,var(--rc) 13%,var(--panel));text-align:center;padding:.3em .2em;font-weight:900;font-size:1.05em;color:var(--rc)}
+.slot .sh small{display:block;font-size:.62em;color:var(--muted);font-weight:700}
+.slot.dim .sh{opacity:.45}
+.fills{display:grid;grid-template-columns:repeat(auto-fill,minmax(7.5em,1fr));gap:.25em}
+.fill{font-size:.78em;border:1px solid var(--line);border-radius:8px;padding:.2em .35em;background:var(--bg);text-align:center;line-height:1.3}
+.fill.lnk{cursor:pointer;border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.fill.lnk:hover{background:color-mix(in srgb,var(--accent) 12%,var(--panel))}
+.fill.lnk small{display:block;color:var(--accent);font-weight:800;font-size:.85em}
+.fill.no{text-decoration:line-through;color:var(--bad);border-style:dashed}
+/* flow */
+.flow{display:flex;flex-direction:column;align-items:center;gap:.35em;font-size:.88em}
+.fq{border:2px solid var(--accent);border-radius:10px;padding:.35em .6em;font-weight:700;text-align:center;background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.fbr{display:grid;grid-template-columns:1fr 1fr;gap:.6em;width:100%}
+.fb{display:flex;flex-direction:column;align-items:center;gap:.3em}
+.fl{font-size:.8em;font-weight:800;color:var(--muted)}
+.fl::before{content:"↓ "}
+.fa{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:.35em .55em;text-align:center;width:100%}
+.fa b{color:var(--accent)}
+.fa .sent{font-size:.95em;margin-top:.2em}
+/* meter */
+.mtr{display:flex;flex-direction:column;gap:.32em}
+.mrow{display:grid;grid-template-columns:8.6em 1fr;gap:.5em;align-items:center}
+.mrow .mw{font-weight:800;font-size:.9em;text-align:right;white-space:nowrap}
+.mtrack{height:1.35em;background:var(--soft);border-radius:999px;position:relative;overflow:hidden}
+.mtrack i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 35%,var(--panel)),var(--accent))}
+.mtrack span{position:absolute;left:.6em;top:0;bottom:0;display:flex;align-items:center;font-size:.76em;font-weight:700;color:var(--ink)}
+.mlh{display:flex;justify-content:space-between;font-size:.74em;color:var(--muted);padding-left:9.1em}
+/* pair */
+.pr{display:grid;grid-template-columns:auto auto auto 1fr;gap:.3em .6em;align-items:center;font-size:.88em}
+.pr .pe{font-weight:800;white-space:nowrap}
+.pr .pd{display:flex;gap:.25em}
+.pr .pd span{width:1.55em;height:1.55em;border-radius:50%;display:grid;place-items:center;font-size:.78em;font-weight:900;border:2px solid var(--S);color:var(--S)}
+.pr .pd span.on{background:var(--S);color:#fff}
+.pr .pd span.half{background:linear-gradient(90deg,var(--S) 50%,transparent 50%);color:var(--ink)}
+.pr .pd span.off{opacity:.35;border-style:dashed}
+.pr .pv{font-size:.8em;font-weight:800;color:var(--V);white-space:nowrap}
+.pr .pk{font-size:.8em;color:var(--muted)}
+/* bars */
+.bars{display:flex;gap:.8em;justify-content:space-around;align-items:flex-end}
+.bg{display:flex;flex-direction:column;align-items:center;gap:.25em;min-width:0}
+.bg .bb{display:flex;gap:.3em;align-items:flex-end;height:6.2em}
+.bg .bar{width:2.2em;border-radius:6px 6px 0 0;background:color-mix(in srgb,var(--S) 45%,var(--panel));position:relative}
+.bg .bar.hl{background:var(--S)}
+.bg .bar small{position:absolute;bottom:-1.3em;left:50%;transform:translateX(-50%);font-size:.7em;white-space:nowrap;color:var(--muted)}
+.bg .cap{margin-top:1.3em;font-size:.8em;font-weight:800;text-align:center}
+/* groups (dots) */
+.grs{display:flex;flex-direction:column;gap:.45em}
+.gr{display:grid;grid-template-columns:7.6em 1fr;gap:.6em;align-items:center}
+.gr .gl{font-size:.82em;font-weight:800;line-height:1.3}
+.gr .gg{display:flex;gap:.6em;flex-wrap:wrap}
+.gset{display:flex;flex-direction:column;align-items:center;gap:.15em}
+.gset .dts{display:flex;gap:.18em;padding:.18em .3em;border-radius:999px;border:1.5px solid var(--line)}
+.gset .dts i{width:.95em;height:.95em;border-radius:50%;background:var(--S);display:block}
+.gset .dts i.off{background:transparent;border:1.5px solid var(--M)}
+.gset small{font-size:.74em;font-weight:800}
+/* emotion */
+.emo{display:grid;grid-template-columns:1fr auto 1fr;gap:.3em .4em;align-items:center;text-align:center}
+.emo .eb{border:2px solid var(--line);border-radius:12px;padding:.4em;font-weight:800;background:var(--bg)}
+.emo .ea{font-size:.8em;color:var(--muted);font-weight:700}
+.emo .ea::after{content:"";display:block;height:3px;background:var(--accent);margin-top:.2em;border-radius:2px;
+  clip-path:polygon(0 0,92% 0,92% -150%,100% 50%,92% 250%,92% 100%,0 100%)}
+.emo .ew{font-size:.9em;font-weight:800;line-height:1.3}
+.emo .ew small{display:block;color:var(--muted);font-weight:600;font-size:.82em}
+.emo .ing{color:var(--C)} .emo .pp{color:var(--S)}
+/* prep */
+.preps{display:grid;grid-template-columns:repeat(auto-fill,minmax(9.5em,1fr));gap:.4em}
+.prep{border:1px solid var(--line);border-radius:10px;padding:.35em;text-align:center;background:var(--bg)}
+.prep.lnk{cursor:pointer}.prep.lnk:hover{border-color:var(--accent)}
+.prep .pa{display:flex;align-items:center;justify-content:center;gap:.3em;font-weight:900;font-size:1em}
+.prep .pa span{border:2px solid var(--S);border-radius:7px;padding:0 .35em;color:var(--S)}
+.prep .pa span.b2{border-color:var(--O);color:var(--O)}
+.prep .pa em{font-style:normal;color:var(--accent);font-size:1.15em}
+.prep .pw{font-weight:800;font-size:.85em;margin-top:.15em}
+.prep .pk{font-size:.75em;color:var(--muted);line-height:1.3}
+/* chips */
+.chs{display:flex;flex-direction:column;gap:.5em}
+.chr{display:flex;align-items:flex-start;gap:.3em;flex-wrap:wrap}
+.chp{display:flex;flex-direction:column;align-items:center}
+.chp b{border-radius:8px;padding:.15em .45em;background:color-mix(in srgb,var(--V) 13%,var(--panel));border-bottom:.15em solid var(--V)}
+.chp small{font-size:.7em;font-weight:800;color:var(--muted);margin-top:.1em}
+.chr .plus{color:var(--muted);font-weight:800;padding-top:.15em}
+.chr .ccap{align-self:center;font-size:.82em;color:var(--muted);margin-left:.4em}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(10.5em,1fr));gap:.45em}
+.tile2{border:1px solid var(--line);border-radius:10px;padding:.4em .5em;background:var(--bg);text-align:left}
+.tile2.lnk{cursor:pointer}.tile2.lnk:hover{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--panel))}
+.tile2 h5{margin:0 0 .15em;font-size:.9em}
+.tile2 h5 small{color:var(--accent);font-weight:800;margin-left:.3em}
+.tile2 p{margin:0;font-size:.78em;color:var(--muted);line-height:1.35}
+/* scale */
+.scl{display:flex;flex-direction:column;align-items:center;padding-top:.3em}
+.scl .beam{position:relative;width:92%;height:.45em;background:var(--ink);border-radius:4px;display:flex;justify-content:space-between;align-items:flex-end}
+.scl .pan{transform:translateY(-.2em);border:2px solid var(--O);border-radius:9px;padding:.15em .45em;font-weight:800;font-size:.86em;background:var(--panel);white-space:nowrap}
+.scl .mid{position:absolute;left:50%;bottom:.6em;transform:translateX(-50%);font-weight:900;color:var(--accent)}
+.scl .ful{width:0;height:0;border-left:.8em solid transparent;border-right:.8em solid transparent;border-bottom:1.1em solid var(--muted)}
+.scl .cap{font-size:.8em;margin-top:.2em;font-weight:700}
+.scl.bad .pan{border-color:var(--bad)}
+.scl.bad .cap{color:var(--bad)} .scl.ok .cap{color:var(--good)}
+.sclw+.sclw{margin-top:.3em}
+/* trend */
+svg.tr text{font-size:12px;fill:var(--muted);font-weight:700}
+svg.tr .ax{stroke:var(--muted);stroke-width:1.5;fill:none}
+svg.tr .ln{stroke:var(--accent);stroke-width:3;fill:none}
+/* timeline */
+svg.tl{width:100%;max-width:540px;height:auto;display:block;margin:0 auto}
+svg.tl text{font-size:11.5px;fill:var(--ink)}
+svg.tl .rl{font-weight:800;font-size:12px}
+svg.tl .ax{stroke:var(--muted);stroke-width:1.5}
+svg.tl .axl{fill:var(--muted);font-size:11px;font-weight:700;text-anchor:middle}
+svg.tl .now{stroke:var(--accent);stroke-dasharray:4 3;stroke-width:1.5}
+svg.tl .nowl{fill:var(--accent);font-weight:800;font-size:11px;text-anchor:middle}
+svg.tl .grid{stroke:var(--line);stroke-width:1}
+svg.tl .it-t{text-anchor:middle;font-size:11px;font-weight:700}
+
+/* ---------- chapter / part ---------- */
+.ch-top{display:flex;align-items:flex-end;gap:16px;padding-bottom:10px;border-bottom:2px solid var(--line)}
+.ch-no{font-size:15px;font-weight:900;color:var(--pc);letter-spacing:.06em}
+.ch-top h1{margin:0;font-size:36px;letter-spacing:-.01em}
+.ch-body{flex:1;min-height:0;display:grid;grid-template-columns:430px 1fr;gap:24px;padding-top:14px}
+.big{font-size:1.25em;font-weight:800;line-height:1.4;border-left:5px solid var(--pc,var(--accent));padding:.1em 0 .1em .6em;margin-bottom:.6em}
+.stline{display:flex;align-items:flex-start;gap:0;padding:12px 4px 2px;border-top:1px solid var(--line);overflow:hidden}
+.stn{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative;cursor:pointer;background:none;border:0;padding:0 2px}
+.stn::before{content:"";position:absolute;top:15px;left:0;right:0;height:5px;background:var(--pc);opacity:.75;z-index:0}
+.stn:first-child::before{left:50%}.stn:last-child::before{right:50%}
+.stn .dot{width:34px;height:34px;border-radius:50%;border:3px solid var(--pc);background:var(--panel);display:grid;place-items:center;font-weight:800;font-size:12px;z-index:1}
+.stn.fs .dot{border-radius:9px;width:30px;height:30px;margin-top:2px}
+.stn.got .dot{background:var(--good);border-color:var(--good);color:#fff}
+.stn.rev .dot{background:var(--rev);border-color:var(--rev);color:#1c1300}
+.stn .nm{font-size:12px;line-height:1.25;text-align:center;color:var(--ink);word-break:keep-all}
+.stn:hover .dot{transform:scale(1.12)}
+.p-wrap{flex:1;display:grid;grid-template-columns:1.15fr 1fr;gap:28px;align-items:stretch;padding-top:12px;min-height:0}
+.p-hero{display:flex;flex-direction:column;gap:6px;padding:14px 0 10px;border-bottom:2px solid var(--line)}
+.p-hero .pn{font-size:16px;font-weight:900;letter-spacing:.12em;color:var(--pc)}
+.p-hero h1{margin:0;font-size:46px;letter-spacing:-.02em}
+.p-hero .en{font-size:18px;color:var(--muted)}
+.chcards{display:flex;flex-direction:column;gap:8px}
+.chcard{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px 14px;box-shadow:var(--shadow)}
+.chcard:hover{border-color:var(--pc)}
+.chcard .n{font-weight:900;color:var(--pc);font-size:15px}
+.chcard .t{font-weight:800;font-size:17px}
+.chcard .u{font-size:12.5px;color:var(--muted)}
+.chcard .bar{grid-column:1/4;height:5px;border-radius:3px;background:var(--soft);overflow:hidden}
+.chcard .bar i{display:block;height:100%;background:var(--good)}
+
+/* ---------- title / howto / map / board ---------- */
+.ttl-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;padding:0 40px}
+.ttl-wrap h1{font-size:64px;margin:0;letter-spacing:-.03em;line-height:1.05}
+.ttl-wrap .sub{font-size:21px;color:var(--muted)}
+.ttl-wrap .demo{font-size:30px;margin:10px 0}
+.ttl-wrap .acts{display:flex;gap:10px;flex-wrap:wrap}
+.ttl-wrap .acts .btn{font-size:17px;padding:10px 18px}
+.lg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.lg .li{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.lg .li .sent{font-size:20px;min-width:92px}
+.lg .li div{font-size:13.5px;line-height:1.35}
+.lg .li div b{font-size:14.5px}
+.keys{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 24px;font-size:13.5px}
+.keys kbd{display:inline-block;min-width:1.8em;text-align:center;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:0 .35em;background:var(--panel);font:inherit;font-weight:700;font-size:12.5px;margin-right:.3em}
+.map-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-bottom:6px}
+.map-top h1{margin:0 8px 0 0;font-size:26px}
+.thb{border:1.5px solid var(--tc);background:color-mix(in srgb,var(--tc) 10%,var(--panel));border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:700}
+.thb.on{background:var(--tc);color:#fff}
+.thstory{font-size:14px;color:var(--ink);min-height:22px;padding:2px 0 0}
+.thstory b{color:var(--tc)}
+svg.metro{width:100%;height:auto;display:block}
+svg.metro .pl{stroke-width:7;stroke-linecap:round;fill:none}
+svg.metro .plab{font-size:16px;font-weight:900}
+svg.metro .plab2{font-size:13px;fill:var(--muted);font-weight:700}
+svg.metro .chlab{font-size:12px;fill:var(--muted);font-weight:700;cursor:pointer}
+svg.metro .sta{cursor:pointer}
+svg.metro .sta circle,svg.metro .sta rect{fill:var(--panel);stroke-width:3}
+svg.metro .sta text{font-size:10.5px;font-weight:800;text-anchor:middle;dominant-baseline:central;fill:var(--ink);pointer-events:none}
+svg.metro .sta.got circle,svg.metro .sta.got rect{fill:var(--good);stroke:var(--good)}
+svg.metro .sta.got text{fill:#fff}
+svg.metro .sta.rev circle,svg.metro .sta.rev rect{fill:var(--rev);stroke:var(--rev)}
+svg.metro .sta:hover circle,svg.metro .sta:hover rect{stroke-width:5}
+svg.metro .dim{opacity:.18}
+svg.metro .thp{fill:none;stroke-width:3.5;stroke-dasharray:7 5;stroke-linecap:round}
+svg.metro .tick{stroke:var(--panel);stroke-width:3}
+.mleg{display:flex;gap:16px;font-size:12.5px;color:var(--muted);align-items:center;justify-content:flex-end}
+.mleg i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;vertical-align:-1px;border:2px solid var(--muted)}
+.thl{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px;flex:1;min-height:0;align-content:start}
+.thrw{display:flex;flex-direction:column;gap:.3em;border-left:5px solid var(--tc);background:var(--panel);border-radius:10px;padding:.5em .75em;box-shadow:var(--shadow)}
+.thrw .tn{font-weight:900;color:var(--tc);font-size:1.05em;cursor:pointer}
+.thrw .ts{font-size:.82em;color:var(--muted);line-height:1.4}
+.thrw .tu{display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+.thrw .tu button{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:1px 7px;font-size:.74em;font-weight:700}
+.thrw .tu button:hover{border-color:var(--tc)}
+.thrw .tu .ar{color:var(--tc);font-weight:900;font-size:12px}
+.brd{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;align-content:start;padding-top:8px}
+.bch{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px 8px}
+.bch h5{margin:0 0 4px;font-size:12px;color:var(--muted)}
+.bch .bt2{display:flex;flex-wrap:wrap;gap:3px}
+.bch .bt2 button{width:30px;height:24px;border-radius:6px;border:1px solid var(--line);background:var(--bg);font-size:11px;font-weight:800;padding:0}
+.bch .bt2 button.fs{width:24px;border-style:dashed}
+.bch .bt2 button.got{background:var(--good);color:#fff;border-color:var(--good)}
+.bch .bt2 button.rev{background:var(--rev);color:#1c1300;border-color:var(--rev)}
+.bsum{display:flex;gap:14px;align-items:center;font-size:15px;padding-top:6px}
+.bsum b{font-size:22px}
+.meterbar{flex:1;height:10px;border-radius:5px;background:var(--soft);overflow:hidden;display:flex}
+.meterbar i{display:block;height:100%}
+
+/* ---------- drawer / modal ---------- */
+#drawer{position:fixed;top:0;bottom:46px;left:0;width:380px;max-width:92vw;background:var(--panel);border-right:1px solid var(--line);
+  transform:translateX(-102%);transition:transform .22s;z-index:8;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+#drawer.open{transform:none}
+#drawer .dh{display:flex;gap:8px;padding:10px;border-bottom:1px solid var(--line)}
+#drawer .dh input{flex:1;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:6px 9px;font:inherit}
+#drawer .dl{overflow:auto;padding:6px 6px 20px;font-size:14px}
+#drawer .dp{font-weight:900;color:var(--pc);padding:10px 8px 2px;font-size:13px;letter-spacing:.04em}
+#drawer .dc{font-weight:800;padding:6px 8px 2px;font-size:13.5px;cursor:pointer}
+#drawer .di{display:flex;gap:8px;align-items:center;padding:4px 8px 4px 16px;border-radius:7px;cursor:pointer;font-size:13.5px}
+#drawer .di:hover,#drawer .dc:hover{background:var(--soft)}
+#drawer .di.cur{background:color-mix(in srgb,var(--accent) 14%,var(--panel));font-weight:700}
+#drawer .di .s{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--muted);flex:none}
+#drawer .di .s.got{background:var(--good);border-color:var(--good)}
+#drawer .di .s.rev{background:var(--rev);border-color:var(--rev)}
+#drawer .di .n{color:var(--muted);font-variant-numeric:tabular-nums;min-width:34px;font-size:12.5px}
+#modal{position:fixed;inset:0;background:rgba(10,12,16,.45);display:none;place-items:center;z-index:9}
+#modal.open{display:grid}
+#modal .mb{width:min(860px,94vw);max-height:88vh;overflow:auto;background:var(--panel);border-radius:16px;border:1px solid var(--line);box-shadow:0 20px 60px rgba(0,0,0,.35);padding:18px 22px;position:relative}
+#modal .mx{position:absolute;right:12px;top:10px;border:0;background:none;font-size:22px;color:var(--muted)}
+#modal h3{margin:0 0 10px;font-size:20px}
+.q{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px;background:var(--bg)}
+.q .qq{font-size:17px;font-weight:700;line-height:1.45}
+.q .sent{font-size:21px;margin:8px 0 2px}
+.q .opts{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.q .opt{text-align:left;border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 12px;font-size:16px}
+.q .opt:hover:not([disabled]){border-color:var(--accent)}
+.q .opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 14%,var(--panel))}
+.q .opt.wrong{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--panel))}
+.q .why{display:none;margin-top:10px;font-size:15px;line-height:1.5;border-left:4px solid var(--accent);padding:4px 10px}
+.q.done .why{display:block}
+.dr-k{font-size:17px;background:var(--soft);border-radius:10px;padding:8px 12px;margin-bottom:10px}
+.dr-k small{color:var(--muted);font-weight:700;margin-right:6px}
+.dr-ans{min-height:88px;border:2px dashed var(--line);border-radius:12px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;align-content:flex-start;margin-bottom:10px}
+.dr-ans.ok{border-color:var(--good);border-style:solid;background:color-mix(in srgb,var(--good) 8%,var(--panel))}
+.dr-pool{display:flex;flex-wrap:wrap;gap:6px;min-height:60px;margin-bottom:10px}
+.tile{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:5px 7px;font-size:20px;line-height:1.25}
+.tile:hover{border-color:var(--accent)}
+.tile.bad{border-color:var(--bad);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.tile .b{margin:0}
+.dr-ans.hide-lab .bl{visibility:hidden}.dr-pool.hide-lab .bl{visibility:hidden}
+.dr-ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.dr-msg{margin-top:10px;font-size:16px;font-weight:700;min-height:24px}
+.dr-msg.ok{color:var(--good)}.dr-msg.no{color:var(--bad)}
+.toast{position:fixed;left:50%;bottom:62px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:10px;font-size:14px;z-index:10;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:.95}
+@media (max-width:720px){#nav .ttl{display:none}#nav input{width:60px}}
+@media print{#nav,#bar,#drawer{display:none}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="stage"><div id="canvas"></div></div>
+<nav id="nav">
+  <button class="nb" data-nav="toc" title="목차 (T)">☰ 목차</button>
+  <button class="nb" data-nav="prev" title="이전 (←)">◀</button>
+  <span class="cnt" id="cnt">1 / 1</span>
+  <button class="nb" data-nav="next" title="다음 (→)">▶</button>
+  <span class="ttl" id="ttl"></span>
+  <input id="goto" placeholder="Unit #" title="유닛 번호를 입력하고 Enter (예: 41)">
+  <button class="nb" data-nav="map" title="지도 (M)">🗺 지도</button>
+  <button class="nb" data-nav="board" title="진도판">📊 진도</button>
+  <button class="nb" data-nav="ko" id="kobtn" title="해석 모두 보기 (K)">해석</button>
+  <button class="nb" data-nav="theme" title="밝게/어둡게">🌓</button>
+</nav>
+<aside id="drawer"><div class="dh"><input id="dq" placeholder="검색: 가주어, 41, which…"><button class="btn sm" data-nav="toc">✕</button></div><div class="dl" id="dl"></div></aside>
+<div id="modal"><div class="mb"><button class="mx" data-act="close" aria-label="닫기">✕</button><div id="mc"></div></div></div>
+<div class="toast" id="toast"></div>
+<script type="application/json" id="gm-data">/*__DATA__*/</script>
+<script type="application/json" id="gm-audio">/*__AUDIO__*/</script>
+<script>
+(function(){
+'use strict';
+const D = JSON.parse(document.getElementById('gm-data').textContent);
+let AU = {};
+try { AU = JSON.parse(document.getElementById('gm-audio').textContent) || {}; } catch (e) { AU = {}; }
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const NS = 'http://www.w3.org/2000/svg';
+const canvas = $('#canvas');
+let SCALE = 1;
+
+/* ---------- storage ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('gm101.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('gm101.' + k, JSON.stringify(v)); } catch (e) {} }
+};
+let PROG = store.get('prog', {}) || {};
+const saveProg = () => store.set('prog', PROG);
+
+/* ---------- index ---------- */
+const PARTS = {}, CHS = {}, ITEMS = {}, ORDER = [], THR_OF = {};
+D.parts.forEach(p => { PARTS[p.id] = p; p.chapters = []; });
+D.chapters.forEach(c => {
+  CHS[c.id] = c; PARTS[c.part].chapters.push(c);
+  c.items.forEach(it => { it.ch = c.id; it.part = c.part; ITEMS[it.id] = it; ORDER.push(it); });
+});
+D.threads.forEach(t => t.units.forEach(u => { (THR_OF[u] = THR_OF[u] || []).push(t); }));
+const THREADS = {}; D.threads.forEach(t => THREADS[t.id] = t);
+const itemCode = it => it.kind === 'fs' ? 'FS' + it.fsno : 'Unit ' + String(it.no).padStart(2, '0');
+const itemShort = it => it.kind === 'fs' ? 'FS' + it.fsno : String(it.no).padStart(2, '0');
+const itemName = it => (it.kind === 'fs' ? 'FS' + it.fsno + ' ' : 'U' + String(it.no).padStart(2, '0') + ' ') + it.title;
+
+/* ---------- slides ---------- */
+const SL = [];
+SL.push({type:'title', id:'title', name:'표지'});
+SL.push({type:'howto', id:'howto', name:'보는 법'});
+SL.push({type:'map', id:'map', name:'구문 지도'});
+SL.push({type:'threads', id:'threads', name:'연결고리 9가지'});
+D.parts.forEach(p => {
+  SL.push({type:'part', id:p.id, ref:p, name:'PART ' + p.no + ' ' + p.title});
+  p.chapters.forEach(c => {
+    SL.push({type:'chapter', id:c.id, ref:c, name:'CHAPTER ' + String(c.no).padStart(2,'0') + ' ' + c.title});
+    c.items.forEach(it => SL.push({type:'item', id:it.id, ref:it, name:itemName(it)}));
+  });
+});
+SL.push({type:'board', id:'board', name:'진도판'});
+const IDX = {}; SL.forEach((s, i) => IDX[s.id] = i);
+
+/* ---------- markup parser ---------- */
+const ROLE = {S:'S',V:'V',O:'O',IO:'I.O.',DO:'D.O.',C:'C',OC:'O.C.',M:'M',A:'A',X:'',G:'생략'};
+const ROLE_KO = {S:'주어',V:'동사',O:'목적어',IO:'간접목적어',DO:'직접목적어',C:'보어',OC:'목적격보어',M:'수식어',A:'필수 부사어',X:'',G:'생략된 말'};
+const FAM = {S:'S',V:'V',O:'O',IO:'O',DO:'O',C:'C',OC:'C',M:'M',A:'A',X:'X',G:'G'};
+const MKC = new Map();
+function parseMk(src) {
+  const s = String(src);
+  if (MKC.has(s)) return MKC.get(s);
+  let i = 0;
+  function seq(end) {
+    const out = []; let buf = '';
+    const flush = () => { if (buf) { out.push({t:'txt', v:buf}); buf = ''; } };
+    while (i < s.length) {
+      const ch = s[i];
+      if (end && ch === end) { flush(); i++; return out; }
+      if (ch === '[') { flush(); i++; out.push(blk()); continue; }
+      if (ch === '@') {
+        const m = /^@([A-Za-z0-9]+)\(/.exec(s.slice(i));
+        if (m) { flush(); i += m[0].length; out.push({t:'anc', id:m[1], kids:seq(')')}); continue; }
+      }
+      buf += ch; i++;
+    }
+    flush(); return out;
+  }
+  function blk() {
+    const m = /^([A-Za-z]+)((?:#[A-Za-z0-9]+|>[A-Za-z0-9]+|=[A-Za-z0-9]+|\{[^}]*\})*) ?/.exec(s.slice(i));
+    if (!m) return {t:'txt', v:'['};
+    i += m[0].length;
+    const n = {t:'blk', role:m[1], id:null, to:[], eq:[], lab:null};
+    m[2].replace(/#([A-Za-z0-9]+)|>([A-Za-z0-9]+)|=([A-Za-z0-9]+)|\{([^}]*)\}/g, (_, a, b, c, d) => {
+      if (a) n.id = a; else if (b) n.to.push(b); else if (c) n.eq.push(c); else if (d !== undefined) n.lab = d;
+      return '';
+    });
+    n.kids = seq(']');
+    return n;
+  }
+  const r = seq(null); MKC.set(s, r); return r;
+}
+function plain(nodes, keepG) {
+  return nodes.map(n => n.t === 'txt' ? n.v.replace(/\*/g, '') :
+    (n.t === 'blk' && n.role.toUpperCase() === 'G' && !keepG) ? '' : plain(n.kids, keepG)).join('');
+}
+const tidy = s => s.replace(/\s+/g, ' ').replace(/\s+([,.;:?!])/g, '$1').trim();
+function rMk(src, opt) {
+  opt = opt || {};
+  const nodes = typeof src === 'string' ? parseMk(src) : src;
+  const ctx = {hl:false, words:!!opt.words, cnt:{}, nolab:!!opt.nolab};
+  return rNodes(nodes, ctx);
+}
+function rNodes(nodes, ctx) {
+  // keep punctuation that follows a block on the same line as the block
+  let out = '';
+  for (let i = 0; i < nodes.length; i++) {
+    const n = nodes[i], nx = nodes[i + 1];
+    const m = n.t !== 'txt' && nx && nx.t === 'txt' && /^[.,;:!?]+/.exec(nx.v);
+    if (m) {
+      out += '<span class="nb">' + rNode(n, ctx) + rText(m[0], ctx) + '</span>';
+      if (nx.v.length > m[0].length) out += rText(nx.v.slice(m[0].length), ctx);
+      i++;
+    } else out += rNode(n, ctx);
+  }
+  return out;
+}
+function kkey(ctx, base) { const c = ctx.cnt[base] = (ctx.cnt[base] || 0) + 1; return c > 1 ? base + '~' + c : base; }
+function rText(v, ctx) {
+  let out = '';
+  v.split('*').forEach((p, idx) => {
+    if (idx > 0) ctx.hl = !ctx.hl;
+    if (!p) return;
+    let h;
+    if (ctx.words) h = p.split(/(\s+)/).map(w => (!w || /^\s+$/.test(w)) ? w :
+      '<span class="w" data-k="' + esc(kkey(ctx, 'w:' + w.toLowerCase())) + '">' + esc(w) + '</span>').join('');
+    else h = esc(p);
+    out += ctx.hl ? '<b class="hl">' + h + '</b>' : h;
+  });
+  return out;
+}
+function rNode(n, ctx) {
+  if (n.t === 'txt') return rText(n.v, ctx);
+  if (n.t === 'anc') return '<span class="anc" data-anc="' + esc(n.id) + '">' + rNodes(n.kids, ctx) + '</span>';
+  const R = n.role, U = R.toUpperCase(), inner = R !== U;
+  const fam = FAM[U] || 'X';
+  let lab = n.lab != null ? n.lab : (inner ? (ROLE[U] || '').toLowerCase() : (ROLE[U] || ''));
+  if (U === 'G' && n.lab == null) lab = '생략';
+  const k = ctx.words ? kkey(ctx, n.id ? 'id:' + n.id : 'b:' + U + ':' + plain(n.kids, true).trim().toLowerCase()) : '';
+  const body = rNodes(n.kids, ctx);
+  let cls = 'b f-' + fam + (inner ? ' in' : '') + (U === 'G' ? ' gap' : '') + (U === 'X' && !n.lab ? ' x' : '');
+  let a = ' class="' + cls + '"';
+  if (n.id) a += ' data-id="' + esc(n.id) + '"';
+  if (n.to.length) a += ' data-to="' + esc(n.to.join(' ')) + '"';
+  if (n.eq.length) a += ' data-eq="' + esc(n.eq.join(' ')) + '"';
+  if (k) a += ' data-k="' + esc(k) + '"';
+  if (ROLE_KO[U]) a += ' title="' + esc(ROLE_KO[U] + (n.lab ? ' · ' + n.lab : '')) + '"';
+  const bt = '<span class="bt">' + (U === 'G' ? '(' : '') + body + (U === 'G' ? ')' : '') + '</span>';
+  const bl = (ctx.nolab || !lab) ? '' : '<span class="bl">' + esc(lab) + '</span>';
+  return '<span' + a + '>' + bt + bl + '</span>';
+}
+function hasLinks(src) { return /\[[A-Za-z]+[^\] ]*[>=][A-Za-z0-9]/.test(src); }
+function sent(src, cls, opt) { return '<div class="sent' + (hasLinks(src) ? ' lk' : '') + (cls ? ' ' + cls : '') + '">' + rMk(src, opt) + '</div>'; }
+/* inline text: **bold**, ~~strike~~, *hl*, [U12] chips */
+function inl(s) {
+  let h = esc(s);
+  h = h.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/~~(.+?)~~/g, '<s>$1</s>').replace(/\*(.+?)\*/g, '<b class="hl">$1</b>');
+  return h;
+}
+/* formula: bracket markup + bare role tokens */
+function formula(f) {
+  if (!f) return '';
+  const toks = String(f).split(/(\[[^\]]*\])/);
+  return toks.map(t => {
+    if (t.startsWith('[')) return rMk(t, {nolab:true});
+    return esc(t).replace(/(^|[\s(+=/·→,])(S|V|O|C|IO|DO|OC|M)(?=$|[\s)+=/·,→:(])/g, (m, pre, r) => pre + rMk('[' + r + ' ' + r + ']', {nolab:true}));
+  }).join('');
+}
+
+/* ---------- links / arrows ---------- */
+function rectIn(el, base) {
+  const r = el.getBoundingClientRect();
+  return {x:(r.left - base.left) / SCALE, y:(r.top - base.top) / SCALE, w:r.width / SCALE, h:r.height / SCALE};
+}
+function drawLinks(root) {
+  $$('.sent', root).forEach(st => {
+    $$('svg.lk', st).forEach(x => x.remove());
+    const srcs = $$('.b[data-to], .b[data-eq]', st);
+    if (!srcs.length) return;
+    const base = st.getBoundingClientRect();
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'lk');
+    svg.setAttribute('width', st.offsetWidth); svg.setAttribute('height', st.offsetHeight);
+    let lvl = 0, h = '';
+    srcs.forEach(b => {
+      const fam = (b.className.match(/f-([A-Z])/) || [0, 'X'])[1];
+      [['to', b.dataset.to], ['eq', b.dataset.eq]].forEach(([kind, ids]) => {
+        if (!ids) return;
+        ids.split(' ').forEach(id => {
+          const t = st.querySelector('[data-anc="' + id + '"]') || st.querySelector('.b[data-id="' + id + '"]');
+          if (!t) return;
+          const a = rectIn(b.firstElementChild, base);
+          const tt = t.classList.contains('b') ? t.firstElementChild : t;
+          const c = rectIn(tt, base);
+          const x1 = a.x + a.w / 2, y1 = a.y, x2 = c.x + c.w / 2, y2 = c.y;
+          const lift = 11 + 5 * (lvl++ % 3);
+          const top = Math.min(y1, y2) - lift;
+          if (kind === 'to') {
+            h += '<path class="f-' + fam + '" d="M' + x1 + ',' + (y1 - 1) + ' C' + x1 + ',' + top + ' ' + x2 + ',' + top + ' ' + x2 + ',' + (y2 - 5) + '"/>';
+            h += '<path class="ah f-' + fam + '" d="M' + (x2 - 4) + ',' + (y2 - 8) + ' L' + (x2 + 4) + ',' + (y2 - 8) + ' L' + x2 + ',' + (y2 - 1) + 'Z"/>';
+          } else {
+            h += '<path class="f-' + fam + '" stroke-dasharray="4 3" d="M' + x1 + ',' + (y1 - 1) + ' C' + x1 + ',' + top + ' ' + x2 + ',' + top + ' ' + x2 + ',' + (y2 - 1) + '"/>';
+            const mx = (x1 + x2) / 2, my = 0.125 * (y1 + y2) + 0.75 * top;
+            h += '<circle class="eqc f-' + fam + '" cx="' + mx + '" cy="' + my + '" r="7"/><text class="f-' + fam + '" x="' + mx + '" y="' + (my + 0.5) + '">=</text>';
+          }
+        });
+      });
+    });
+    svg.innerHTML = h;
+    st.appendChild(svg);
+  });
+}
+
+/* ---------- audio ---------- */
+let curAudio = null, SH = null;
+function stopAudio() {
+  if (curAudio) { try { curAudio.pause(); } catch (e) {} curAudio = null; }
+  if (window.speechSynthesis) try { speechSynthesis.cancel(); } catch (e) {}
+  $$('.exc button.on').forEach(b => b.classList.remove('on'));
+}
+const CAN_OPUS = (() => { try { return !!new Audio().canPlayType('audio/ogg; codecs=opus'); } catch (e) { return false; } })();
+function speak(txt, slow, res) {
+  if (!(window.speechSynthesis && txt)) { res(0); return; }
+  const u = new SpeechSynthesisUtterance(txt); u.lang = 'en-US'; u.rate = slow ? 0.75 : 0.95;
+  const t0 = Date.now(); u.onend = () => res((Date.now() - t0) / 1000); u.onerror = () => res(0);
+  speechSynthesis.speak(u);
+}
+function playKey(k, txt, slow) {
+  return new Promise(res => {
+    stopAudio();
+    const b64 = k && AU[k];
+    if (!b64 || !CAN_OPUS) { speak(txt, slow, res); return; }   // no Kokoro clip or no Opus support → browser voice
+    const a = new Audio('data:audio/ogg;base64,' + b64);
+    curAudio = a;
+    a.onended = () => { if (curAudio === a) curAudio = null; res(a.duration || 2); };
+    a.onerror = () => { if (curAudio === a) speak(txt, slow, res); else res(0); };
+    a.play().catch(err => { if (err && err.name === 'NotSupportedError' && curAudio === a) speak(txt, slow, res); else res(0); });
+  });
+}
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function stopShadow() {
+  if (SH) { SH.stop = true; SH = null; }
+  stopAudio();
+  $$('.ex.sh-on,.ex.sh-wait').forEach(e => e.classList.remove('sh-on', 'sh-wait'));
+  $$('.shmsg').forEach(e => e.remove());
+  const b = $('[data-act="shadow"]', canvas); if (b) { b.classList.remove('on'); b.textContent = '🎧 섀도잉'; }
+}
+async function shadow(btn) {
+  if (SH) { stopShadow(); return; }
+  const me = SH = {stop:false};
+  btn.classList.add('on'); btn.textContent = '■ 멈춤';
+  const exs = $$('.ex', canvas);
+  for (const ex of exs) {
+    if (me.stop) break;
+    ex.classList.add('sh-on');
+    for (const slow of [true, false]) {
+      if (me.stop) break;
+      const d = await playKey(slow ? ex.dataset.a1 : ex.dataset.a0, ex.dataset.txt, slow);
+      if (me.stop) break;
+      const gap = Math.max(1500, d * 1000 + 500);
+      ex.classList.add('sh-wait');
+      const bar = $('.shbar i', ex); const msg = document.createElement('span'); msg.className = 'shmsg';
+      msg.textContent = slow ? '🗣 따라 말하기 (천천히)' : '🗣 따라 말하기 (보통 속도)'; ex.appendChild(msg);
+      if (bar) { bar.style.transition = 'none'; bar.style.width = '0'; void bar.offsetWidth; bar.style.transition = 'width ' + gap + 'ms linear'; bar.style.width = '100%'; }
+      await wait(gap);
+      msg.remove(); ex.classList.remove('sh-wait');
+    }
+    ex.classList.remove('sh-on');
+  }
+  if (SH === me) stopShadow();
+}
+
+/* ---------- viz ---------- */
+let REG = [];
+function vNote(v) { return v.n ? '<div class="vnote">' + inl(v.n) + '</div>' : ''; }
+function vHead(v) { return v.h ? '<div class="vh">' + inl(v.h) + '</div>' : ''; }
+function goAttr(u) { return u && IDX[u] != null ? ' data-act="go" data-go="' + esc(u) + '"' : ''; }
+function uLab(u) { const it = ITEMS[u]; if (it) return it.kind === 'fs' ? 'FS' + it.fsno : 'U' + String(it.no).padStart(2, '0'); const c = CHS[u]; if (c) return 'CH' + String(c.no).padStart(2, '0'); return u; }
+const VIZ = {
+  blocks: v => vHead(v) + sent(v.s, 'big') + vNote(v),
+  morph: v => {
+    const r = REG.push(v) - 1;
+    return vHead(v) + '<div class="mstage" data-reg="' + r + '"></div>' +
+      '<ol class="msteps">' + v.steps.map((s, i) => '<li data-act="mstep" data-i="' + i + '"><b>' + (i + 1) + '</b>' + inl(s[1] || '') + '</li>').join('') + '</ol>' +
+      '<div class="mctl"><button class="btn sm" data-act="mprev">◀ 이전</button><button class="btn sm pri" data-act="mnext">다음 단계 ▶</button><button class="btn sm" data-act="mplay">↺ 처음부터 재생</button></div>' + vNote(v);
+  },
+  compare: v => vHead(v) + '<div class="cmp" style="grid-template-columns:repeat(' + (v.cols || v.cards.length) + ',1fr)">' + v.cards.map(c =>
+    '<div class="cc' + (c.ok === true ? ' ok' : c.ok === false ? ' no' : '') + '">' + (c.ok === true ? '<span class="mk">✔</span>' : c.ok === false ? '<span class="mk">✘</span>' : '') +
+    (c.h ? '<h4>' + inl(c.h) + '</h4>' : '') + (c.s ? sent(c.s) : '') + (c.n ? '<div class="cn">' + inl(c.n) + '</div>' : '') + '</div>').join('') + '</div>' + vNote(v),
+  table: v => vHead(v) + '<table class="vt"><thead><tr>' + v.head.map((h, i) => '<th' + (v.center && i ? ' class="c"' : '') + '>' + inl(h) + '</th>').join('') + '</tr></thead><tbody>' +
+    v.rows.map(r => '<tr>' + r.map((c, i) => '<td' + (v.center && i ? ' class="c"' : '') + '>' + cell(c) + '</td>').join('') + '</tr>').join('') + '</tbody></table>' + vNote(v),
+  rows: v => vHead(v) + '<div class="rws">' + v.rows.map(r => '<div class="rw' + (r[3] ? ' lnk' : '') + '"' + goAttr(r[3]) + '><span class="rf">' + formula(r[0]) + '</span>' + sent(r[1]) +
+    '<span>' + (r[2] ? '<span class="rn">' + inl(r[2]) + '</span>' : '') + (r[3] ? (r[2] ? '<br>' : '') + '<span class="ru">' + uLab(r[3]) + ' →</span>' : '') + '</span></div>').join('') + '</div>' + vNote(v),
+  slots: v => vHead(v) + '<div class="slots">' + v.slots.map(s => {
+    const U = s.r.toUpperCase();
+    return '<div class="slot' + (s.dim ? ' dim' : '') + '"><div class="sh f-' + (FAM[U] || 'X') + '" style="--rc:var(--' + (FAM[U] || 'X') + ')">' + esc(s.r) + '<small>' + esc(s.h || ROLE_KO[U] || '') + '</small></div>' +
+      '<div class="fills">' + (s.fill || []).map(f => { const a = Array.isArray(f) ? f : [f]; const no = a[0].startsWith('✘');
+        return '<div class="fill' + (a[1] ? ' lnk' : '') + (no ? ' no' : '') + '"' + goAttr(a[1]) + '>' + inl(no ? a[0].slice(1).trim() : a[0]) + (a[1] ? '<small>' + uLab(a[1]) + '</small>' : '') + '</div>'; }).join('') + '</div></div>';
+  }).join('') + '</div>' + vNote(v),
+  flow: v => vHead(v) + flowNode(v) + vNote(v),
+  meter: v => vHead(v) + '<div class="mtr">' + v.items.map(m => '<div class="mrow"><span class="mw">' + inl(m[0]) + '</span><span class="mtrack"><i style="width:' + m[1] + '%"></i><span>' + inl(m[2] || '') + '</span></span></div>').join('') +
+    (v.lo || v.hi ? '<div class="mlh"><span>' + esc(v.lo || '') + '</span><span>' + esc(v.hi || '') + '</span></div>' : '') + '</div>' + vNote(v),
+  pair: v => vHead(v) + '<div class="pr">' + v.rows.map(r => {
+    const d = x => x === 1 ? 'on' : x === 0.5 ? 'half' : x === 2 ? 'on' : 'off';
+    return '<span class="pe">' + inl(r[0]) + '</span><span class="pd"><span class="' + d(r[1]) + '">A</span><span class="' + d(r[2]) + '">B</span></span><span class="pv">' + inl(r[3] || '') + '</span><span class="pk">' + inl(r[4] || '') + '</span>';
+  }).join('') + '</div>' + vNote(v),
+  bars: v => vHead(v) + '<div class="bars">' + v.groups.map(g => {
+    const mx = Math.max(...g.bars.map(b => b[1]));
+    return '<div class="bg"><div class="bb">' + g.bars.map(b => '<div class="bar' + (b[2] ? ' hl' : '') + '" style="height:' + (b[1] / mx * 100) + '%"><small>' + esc(b[0]) + '</small></div>').join('') + '</div><div class="cap">' + inl(g.cap) + '</div></div>';
+  }).join('') + '</div>' + vNote(v),
+  groups: v => vHead(v) + '<div class="grs">' + v.rows.map(r => '<div class="gr"><span class="gl">' + inl(r.l) + '</span><span class="gg">' + r.g.map(g =>
+    '<span class="gset"><span class="dts">' + Array.from({length:g[0]}, () => '<i' + (g[2] === 0 ? ' class="off"' : '') + '></i>').join('') + '</span><small>' + inl(g[1]) + '</small></span>').join('') + '</span></div>').join('') + '</div>' + vNote(v),
+  emotion: v => vHead(v) + '<div class="emo"><div class="eb">' + esc(v.src) + '</div><div class="ea">' + esc(v.verb) + '</div><div class="eb">' + esc(v.dst) + '</div>' +
+    '<div class="ew ing">' + esc(v.ing) + '<small>감정을 주는 쪽 → v-ing</small></div><div></div><div class="ew pp">' + esc(v.pp) + '<small>감정을 느끼는 쪽 → p.p.</small></div></div>' + vNote(v),
+  prep: v => vHead(v) + '<div class="preps">' + v.items.map(p => {
+    const g = {from:'⟵|⟶', for:'⇄', as:'=', of:'−', to:'→', with:'+'}[p[0]] || '·';
+    return '<div class="prep' + (p[2] ? ' lnk' : '') + '"' + goAttr(p[2]) + '><div class="pa"><span>A</span><em>' + g + '</em><span class="b2">B</span></div><div class="pw">V A ' + esc(p[0]) + ' B</div><div class="pk">' + inl(p[1]) + '</div></div>';
+  }).join('') + '</div>' + vNote(v),
+  chips: v => vHead(v) + '<div class="chs">' + v.rows.map(r => '<div class="chr">' + r.parts.map((p, i) => (i ? '<span class="plus">+</span>' : '') + '<span class="chp"><b>' + esc(p[0]) + '</b><small>' + esc(p[1]) + '</small></span>').join('') +
+    (r.cap ? '<span class="ccap">' + inl(r.cap) + '</span>' : '') + '</div>').join('') + '</div>' + vNote(v),
+  tiles: v => vHead(v) + '<div class="tiles"' + (v.min ? ' style="grid-template-columns:repeat(auto-fill,minmax(' + v.min + ',1fr))"' : '') + '>' + v.tiles.map(t => '<div class="tile2' + (t[2] ? ' lnk' : '') + '"' + goAttr(t[2]) + '><h5>' + inl(t[0]) + (t[2] && ITEMS[t[2]] ? '<small>' + uLab(t[2]) + '</small>' : '') + '</h5><p>' + inl(t[1]) + '</p></div>').join('') + '</div>' + vNote(v),
+  scale: v => vHead(v) + v.items.map(s => '<div class="sclw"><div class="scl ' + (s.ok ? 'ok' : 'bad') + '"><div class="beam" style="transform:rotate(' + (s.ok ? 0 : -7) + 'deg)"><span class="pan">' + esc(s.l) + '</span><span class="mid">' + esc(s.m) + '</span><span class="pan">' + esc(s.r) + '</span></div><div class="ful"></div><div class="cap">' + (s.ok ? '✔ ' : '✘ ') + inl(s.cap || '') + '</div></div></div>').join('') + vNote(v),
+  trend: v => vHead(v) + '<svg class="tr" viewBox="0 0 420 150" width="100%" style="max-width:440px;display:block;margin:0 auto"><path class="ax" d="M50,10 L50,120 L410,120"/><path class="ax" d="M44,18 L50,8 L56,18"/><path class="ax" d="M400,114 L410,120 L400,126"/>' +
+    '<path class="ln" d="M60,112 C150,100 250,60 395,20"/><circle cx="395" cy="20" r="5" fill="var(--accent)"/><text x="230" y="140" text-anchor="middle">' + esc(v.x) + '</text>' +
+    '<text x="14" y="65" transform="rotate(-90 14 65)" text-anchor="middle">' + esc(v.y) + '</text></svg>' + (v.cap ? '<div class="vnote" style="text-align:center">' + inl(v.cap) + '</div>' : '') + vNote(v),
+  timeline: v => vHead(v) + timeline(v) + vNote(v),
+};
+function cell(c) {
+  if (c == null) return '';
+  c = String(c);
+  if (c === 'O') return '<span class="yes">✔</span>';
+  if (c === 'X') return '<span class="no">✘</span>';
+  if (c.indexOf('[') >= 0) return sent(c, '', {nolab:true});
+  return inl(c);
+}
+function flowNode(v) {
+  if (v.a != null) return '<div class="fa">' + inl(v.a) + (v.s ? sent(v.s) : '') + '</div>';
+  return '<div class="flow"><div class="fq">' + inl(v.q) + '</div><div class="fbr"><div class="fb"><span class="fl">' + esc(v.yl || '예') + '</span>' + flowNode(v.yes) +
+    '</div><div class="fb"><span class="fl">' + esc(v.nl || '아니오') + '</span>' + flowNode(v.no) + '</div></div></div>';
+}
+function timeline(v) {
+  const W = 470, LW = v.lw || 104, x0 = LW + 12, x1 = W - 14, RH = 42, top = v.nowl ? 30 : 16;
+  const rows = v.rows || [];
+  const X = p => x0 + (x1 - x0) * p / 100;
+  const H = top + rows.length * RH + 34;
+  const col = c => 'var(--' + (c || 'accent') + ')';
+  let s = '<svg class="tl" viewBox="0 0 ' + W + ' ' + H + '">';
+  const axY = top + rows.length * RH + 6;
+  rows.forEach((r, i) => { const y = top + i * RH + RH - 12; s += '<line class="grid" x1="' + x0 + '" x2="' + x1 + '" y1="' + y + '" y2="' + y + '"/>'; });
+  if (v.now != null) s += '<line class="now" x1="' + X(v.now) + '" x2="' + X(v.now) + '" y1="' + (top - 8) + '" y2="' + axY + '"/>';
+  rows.forEach((r, i) => {
+    const y = top + i * RH + RH - 12;
+    s += '<text class="rl" x="' + (LW) + '" y="' + (y + 4) + '" text-anchor="end">' + esc(r.l || '') + '</text>';
+    (r.it || []).forEach(it => {
+      const c = col(it.c); const xa = X(it.x), xb = it.x2 != null ? X(it.x2) : xa;
+      const tx = (xa + xb) / 2;
+      if (it.k === 'dot') s += '<circle cx="' + xa + '" cy="' + y + '" r="6.5" fill="' + c + '"/>';
+      else if (it.k === 'ring') s += '<circle cx="' + xa + '" cy="' + y + '" r="7" fill="var(--panel)" stroke="' + c + '" stroke-width="3"/>';
+      else if (it.k === 'x') s += '<path d="M' + (xa - 6) + ',' + (y - 6) + ' L' + (xa + 6) + ',' + (y + 6) + ' M' + (xa + 6) + ',' + (y - 6) + ' L' + (xa - 6) + ',' + (y + 6) + '" stroke="' + c + '" stroke-width="3"/>';
+      else if (it.k === 'star') s += '<text x="' + xa + '" y="' + (y + 5) + '" text-anchor="middle" style="font-size:16px;fill:' + c + '">★</text>';
+      else if (it.k === 'span') s += '<rect x="' + Math.min(xa, xb) + '" y="' + (y - 5) + '" width="' + Math.abs(xb - xa) + '" height="10" rx="5" fill="' + c + '" opacity=".85"/>';
+      else if (it.k === 'wave') { let d = 'M' + xa + ',' + y; const n = Math.max(2, Math.round(Math.abs(xb - xa) / 12)); for (let j = 1; j <= n; j++) { const xx = xa + (xb - xa) * j / n; d += ' Q' + (xx - (xb - xa) / n / 2) + ',' + (y + (j % 2 ? -8 : 8)) + ' ' + xx + ',' + y; } s += '<path d="' + d + '" fill="none" stroke="' + c + '" stroke-width="2.6"/>'; }
+      else if (it.k === 'arrow' || it.k === 'back') {
+        const from = it.k === 'arrow' ? xa : xb, to = it.k === 'arrow' ? xb : xa, dir = to > from ? 1 : -1;
+        s += '<line x1="' + from + '" y1="' + y + '" x2="' + (to - dir * 6) + '" y2="' + y + '" stroke="' + c + '" stroke-width="3"' + (it.k === 'back' ? ' stroke-dasharray="5 4"' : '') + '/>';
+        s += '<path d="M' + to + ',' + y + ' L' + (to - dir * 10) + ',' + (y - 6) + ' L' + (to - dir * 10) + ',' + (y + 6) + 'Z" fill="' + c + '"/>';
+      }
+      if (it.t) s += '<text class="it-t" x="' + tx + '" y="' + (y - 11) + '" style="fill:' + c + '">' + esc(it.t) + '</text>';
+    });
+  });
+  s += '<line class="ax" x1="' + x0 + '" x2="' + x1 + '" y1="' + axY + '" y2="' + axY + '"/><path d="M' + (x1 - 8) + ',' + (axY - 5) + ' L' + x1 + ',' + axY + ' L' + (x1 - 8) + ',' + (axY + 5) + '" fill="none" stroke="var(--muted)" stroke-width="1.5"/>';
+  (v.axis || [[6, '과거'], [50, '지금'], [94, '미래']]).forEach(a => { s += '<text class="axl" x="' + X(a[0]) + '" y="' + (axY + 17) + '">' + esc(a[1]) + '</text>'; });
+  if (v.now != null && v.nowl) s += '<text class="nowl" x="' + X(v.now) + '" y="' + (top - 14) + '">' + esc(v.nowl) + '</text>';
+  return s + '</svg>';
+}
+function vizHTML(v) {
+  if (!v) return '';
+  const list = Array.isArray(v) ? v : [v];
+  return list.map(x => '<div class="viz v-' + x.t + '">' + (VIZ[x.t] ? VIZ[x.t](x) : '') + '</div>').join('');
+}
+
+/* ---------- morph ---------- */
+function morphShow(stage, i, animate) {
+  const v = REG[+stage.dataset.reg]; if (!v) return;
+  i = Math.max(0, Math.min(v.steps.length - 1, i));
+  const html = rMk(v.steps[i][0], {words:true});
+  const viz = stage.closest('.viz');
+  $$('.msteps li', viz).forEach((li, j) => li.classList.toggle('on', j === i));
+  stage.dataset.i = i;
+  if (!animate || !stage.innerHTML) { stage.innerHTML = html; stage.classList.toggle('lk', hasLinks(v.steps[i][0])); stage.classList.add('sent'); drawLinks(viz); return; }
+  $$('svg.lk', stage).forEach(x => x.remove());
+  const base = stage.getBoundingClientRect();
+  const old = new Map();
+  $$('[data-k]', stage).forEach(el => old.set(el.dataset.k, {r:el.getBoundingClientRect(), el}));
+  const newKeys = new Set();
+  const tmp = document.createElement('div'); tmp.innerHTML = html;
+  $$('[data-k]', tmp).forEach(el => newKeys.add(el.dataset.k));
+  const ghosts = [];
+  old.forEach((o, k) => {
+    if (newKeys.has(k)) return;
+    const par = o.el.parentElement && o.el.parentElement.closest('[data-k]');
+    if (par && !newKeys.has(par.dataset.k) && stage.contains(par)) return;
+    const g = o.el.cloneNode(true); g.classList.add('ghost'); g.removeAttribute('data-k'); $$('[data-k]', g).forEach(x => x.removeAttribute('data-k'));
+    g.style.left = ((o.r.left - base.left) / SCALE) + 'px'; g.style.top = ((o.r.top - base.top) / SCALE) + 'px';
+    ghosts.push(g);
+  });
+  stage.innerHTML = html;
+  stage.classList.toggle('lk', hasLinks(v.steps[i][0]));
+  ghosts.forEach(g => { stage.appendChild(g); setTimeout(() => g.remove(), 650); });
+  const applied = new Map();
+  $$('[data-k]', stage).forEach(el => {
+    if (el.classList.contains('ghost')) return;
+    const o = old.get(el.dataset.k);
+    if (!o) { el.classList.add('enter'); return; }
+    const r = el.getBoundingClientRect();
+    let dx = (o.r.left - r.left) / SCALE, dy = (o.r.top - r.top) / SCALE;
+    const anc = el.parentElement && el.parentElement.closest('[data-k]');
+    if (anc && applied.has(anc)) { const p = applied.get(anc); dx -= p[0]; dy -= p[1]; }
+    applied.set(el, [dx + (anc && applied.has(anc) ? applied.get(anc)[0] : 0), dy + (anc && applied.has(anc) ? applied.get(anc)[1] : 0)]);
+    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) return;
+    el.animate([{transform:'translate(' + dx + 'px,' + dy + 'px)'}, {transform:'none'}], {duration:750, easing:'cubic-bezier(.2,.75,.2,1)'});
+  });
+  clearTimeout(stage._t); stage._t = setTimeout(() => drawLinks(viz), 780);
+}
+function morphPlay(stage) {
+  const v = REG[+stage.dataset.reg]; if (!v) return;
+  clearTimeout(stage._p);
+  morphShow(stage, 0, false);
+  let i = 0;
+  const step = () => { i++; if (i >= v.steps.length) return; morphShow(stage, i, true); stage._p = setTimeout(step, 1900); };
+  stage._p = setTimeout(step, 1100);
+}
+
+/* ---------- renderers ---------- */
+const pc = p => (PARTS[p] || {}).color || 'var(--accent)';
+function statusOf(id) { return PROG[id] || ''; }
+function chapLine(it) {
+  const c = CHS[it.ch];
+  return '<div class="chl" style="--pc:' + pc(c.part) + '" title="' + esc('CH' + String(c.no).padStart(2, '0') + ' ' + c.title) + '">' + c.items.map((x, i) =>
+    (i ? '<span class="ln"></span>' : '') + '<button class="st' + (x.kind === 'fs' ? ' fs' : '') + (x.id === it.id ? ' cur' : '') + (statusOf(x.id) ? ' ' + statusOf(x.id) : '') + '" data-act="go" data-go="' + x.id + '" title="' + esc(itemName(x)) + '">' + (x.kind === 'fs' ? '+' : x.no) + '</button>').join('') + '</div>';
+}
+function threadBadges(id) {
+  return (THR_OF[id] || []).map(t => '<button class="tb" style="--tc:' + t.color + '" data-act="thread" data-th="' + t.id + '" title="지도에서 이 연결고리 보기">🧵 ' + esc(t.name) + '</button>').join('');
+}
+function linkChips(it) {
+  const cur = IDX[it.id];
+  return (it.links || []).filter(u => IDX[u] != null).map(u => {
+    const x = ITEMS[u] || CHS[u];
+    const back = IDX[u] < cur;
+    const nm = ITEMS[u] ? uLab(u) + ' ' + x.title : 'CH' + String(x.no).padStart(2, '0') + ' ' + x.title;
+    return '<button class="lchip" data-act="go" data-go="' + u + '" title="' + (back ? '앞에서 배운 내용' : '뒤에서 이어지는 내용') + '">' + (back ? '<i>← </i>' : '') + esc(nm) + (back ? '' : '<i> →</i>') + '</button>';
+  }).join('');
+}
+function renderItem(it) {
+  const p = PARTS[it.part], c = CHS[it.ch];
+  const st = statusOf(it.id);
+  let ex = '<ol class="exs">' + it.ex.map((e, i) => '<li class="ex" data-i="' + i + '" data-a0="' + esc(e.a[0] || '') + '" data-a1="' + esc(e.a[1] || '') + '" data-txt="' + esc(e.tts) + '">' +
+    '<span class="exn">' + (i + 1) + '</span>' + sent(e.s) +
+    '<span class="exc"><button data-act="play" data-slow="0" title="듣기 (' + (i + 1) + ')">🔊</button><button data-act="play" data-slow="1" title="느리게 듣기 (Shift+' + (i + 1) + ')">🐢</button><button data-act="ko" title="해석">해석</button></span>' +
+    '<div class="ko">' + inl(e.ko) + '</div><div class="shbar"><i></i></div></li>').join('') + '</ol>';
+  return '<section class="slide item" style="--pc:' + p.color + '">' +
+    '<header class="u-head"><div><div class="crumb">PART ' + p.no + ' · ' + esc(p.title) + ' › <b>CHAPTER ' + String(c.no).padStart(2, '0') + '</b> ' + esc(c.title) + '</div>' +
+    '<div class="u-title"><span class="u-no' + (it.kind === 'fs' ? ' fs' : '') + '">' + (it.kind === 'fs' ? 'Further Study' : itemCode(it)) + '</span><h2' + (it.title.length > 22 ? ' class="xlong"' : it.title.length > 14 ? ' class="long"' : '') + '>' + esc(it.title) + '</h2><span class="u-sub">' + inl(it.sub || '') + '</span></div></div>' +
+    '<div class="u-side">' + chapLine(it) + '<div class="thr">' + threadBadges(it.id) + '</div></div></header>' +
+    '<div class="u-body"><div class="col-l fit" data-min="12.5" style="font-size:19px">' + (it.f ? '<div class="formula">' + formula(it.f) + '</div>' : '') +
+    '<ul class="pts">' + (it.pts || []).map(x => '<li>' + inl(x) + '</li>').join('') + '</ul>' + vizHTML(it.viz) + '</div>' +
+    '<div class="col-r fit" data-min="13" style="font-size:19px"><div class="ex-h">예문 <span class="sp"></span><button class="btn sm" data-act="shadow" title="섀도잉 (S): 느리게 → 따라 말하기 → 보통 속도 → 따라 말하기">🎧 섀도잉</button><button class="btn sm" data-act="koall" title="이 슬라이드 해석 모두">해석 모두</button></div>' + ex +
+    (it.tip ? '<div class="tip">' + inl(it.tip) + '</div>' : '') + '</div></div>' +
+    '<footer class="u-foot"><button class="btn" data-act="check" title="확인 문제 (Q)">✎ 확인 문제</button><button class="btn" data-act="build" title="문장 만들기 (B)">🧩 문장 만들기</button>' +
+    '<div class="links"><span class="lk-h">연결</span>' + linkChips(it) + '</div>' +
+    '<div class="pg"><button class="btn got' + (st === 'got' ? ' on' : '') + '" data-act="got" title="이해했어요 (G)">✓ 이해했어요</button><button class="btn rev' + (st === 'rev' ? ' on' : '') + '" data-act="rev" title="복습할래요 (R)">↻ 복습</button></div></footer></section>';
+}
+function stationLine(items, color) {
+  return '<div class="stline" style="--pc:' + color + '">' + items.map(x => '<button class="stn' + (x.kind === 'fs' ? ' fs' : '') + (statusOf(x.id) ? ' ' + statusOf(x.id) : '') + '" data-act="go" data-go="' + x.id + '"><span class="dot">' + (x.kind === 'fs' ? 'FS' : x.no) + '</span><span class="nm">' + esc(x.title) + '</span></button>').join('') + '</div>';
+}
+function renderChapter(c) {
+  const p = PARTS[c.part];
+  return '<section class="slide chap" style="--pc:' + p.color + '"><div class="crumb">PART ' + p.no + ' · ' + esc(p.title) + '</div>' +
+    '<div class="ch-top"><span class="ch-no">CHAPTER ' + String(c.no).padStart(2, '0') + '</span><h1>' + esc(c.title) + '</h1><span class="sp" style="flex:1"></span><div class="thr">' + chThreads(c) + '</div></div>' +
+    '<div class="ch-body"><div class="fit" data-min="12" style="font-size:22px">' + (c.big ? '<div class="big">' + inl(c.big) + '</div>' : '') + '<ul class="pts">' + (c.pts || []).map(x => '<li>' + inl(x) + '</li>').join('') + '</ul></div>' +
+    '<div class="fit" data-min="11.5" style="display:flex;flex-direction:column;gap:.6em;font-size:23px">' + vizHTML(c.viz) + '</div></div>' + stationLine(c.items, p.color) + '</section>';
+}
+function chThreads(c) {
+  const seen = new Set(); let h = '';
+  c.items.forEach(it => (THR_OF[it.id] || []).forEach(t => { if (seen.has(t.id)) return; seen.add(t.id); h += '<button class="tb" style="--tc:' + t.color + '" data-act="thread" data-th="' + t.id + '">🧵 ' + esc(t.name) + '</button>'; }));
+  return h;
+}
+function renderPart(p) {
+  return '<section class="slide part" style="--pc:' + p.color + '"><div class="p-hero"><span class="pn">PART ' + p.no + '</span><h1>' + esc(p.title) + '</h1><span class="en">' + esc(p.en || '') + '</span></div>' +
+    '<div class="p-wrap"><div class="fit" data-min="12" style="font-size:20px;display:flex;flex-direction:column;gap:.6em;max-height:100%">' + (p.big ? '<div class="big">' + inl(p.big) + '</div>' : '') +
+    '<ul class="pts">' + (p.pts || []).map(x => '<li>' + inl(x) + '</li>').join('') + '</ul>' + vizHTML(p.viz) + '</div>' +
+    '<div class="chcards">' + p.chapters.map(c => {
+      const n = c.items.length, g = c.items.filter(x => PROG[x.id] === 'got').length;
+      const units = c.items.filter(x => x.kind === 'unit');
+      return '<button class="chcard" data-act="go" data-go="' + c.id + '"><span class="n">CH' + String(c.no).padStart(2, '0') + '</span><span><span class="t">' + esc(c.title) + '</span><br><span class="u">Unit ' + units[0].no + '–' + units[units.length - 1].no + (n > units.length ? ' · Further Study ' + (n - units.length) : '') + '</span></span><span class="u">' + g + '/' + n + '</span><span class="bar"><i style="width:' + (g / n * 100) + '%"></i></span></button>';
+    }).join('') + '</div></div></section>';
+}
+function renderTitle() {
+  return '<section class="slide"><div class="ttl-wrap"><div class="crumb">영어 구문·문법 101 · 수능 대비</div><h1>영어 구문 지도 101</h1>' +
+    '<div class="sub">5 Parts · 16 Chapters · 101 Units + 15 Further Study — 모든 문장을 <b>색깔 블록</b>으로 보고, 단원끼리 <b>연결</b>해서 이해한다</div>' +
+    '<div class="demo">' + sent('[S Every sentence] [V has] [O a skeleton] [M inside].') + '</div>' +
+    '<div class="sub" style="font-size:17px">모든 문장 = 뼈대(<b style="color:var(--S)">S</b>·<b style="color:var(--V)">V</b>·<b style="color:var(--O)">O</b>·<b style="color:var(--C)">C</b>) + 살(<b style="color:var(--M)">M</b>). 이 다섯 색이 101개 단원 내내 똑같이 쓰입니다.</div>' +
+    '<div class="acts"><button class="btn pri" data-act="go" data-go="P1">▶ 시작하기</button><button class="btn" data-act="go" data-go="map">🗺 구문 지도</button><button class="btn" data-act="go" data-go="threads">🧵 연결고리 9가지</button><button class="btn" data-act="go" data-go="howto">❔ 보는 법</button><button class="btn" data-act="go" data-go="board">📊 진도판</button></div>' +
+    '<div class="sub" style="font-size:13.5px">예문은 모두 Kokoro TTS 음성(보통 속도 + 느린 속도)이 들어 있어 인터넷 없이 재생됩니다. 진도는 이 브라우저에 저장됩니다.</div></div></section>';
+}
+function renderHowto() {
+  const L = [['[S Minji]', 'S 주어', '문장의 주인공 (~은/는/이/가)'], ['[V likes]', 'V 동사', '동작·상태 (~하다/이다)'], ['[O music]', 'O 목적어', '동작의 대상 (~을/를)'],
+    ['[IO me] [DO a gift]', 'I.O. / D.O.', '간접목적어(~에게) / 직접목적어(~을)'], ['[C happy]', 'C 보어', '주어를 설명 (S = C)'], ['[OC happy]', 'O.C. 목적격보어', '목적어를 설명 (O = O.C.)'],
+    ['[M every day]', 'M 수식어', '빼도 문장이 성립하는 꾸밈말'], ['[A in Seoul]', 'A 필수 부사어', '빼면 문장이 불완전한 장소·방향'], ['[O that [s he] [v left]]', '소문자 s·v·o', '절(clause) 안의 성분'],
+    ['[G that]', '(생략)', '생략된 말 — 소리로는 안 읽음'], ['@n(a book) [M>n to read]', '→ 화살표', '수식어가 꾸미는 말을 가리킴'], ['[S#s He] [V is] [C=s tall]', '= 연결', '같은 대상 (S = C, O = O.C.)']];
+  return '<section class="slide"><div class="map-top"><h1>보는 법</h1><span class="crumb">색은 문장 속 <b>역할</b>, 아래 작은 글자는 역할 이름</span></div>' +
+    '<div class="lg">' + L.map(l => '<div class="li">' + sent(l[0]) + '<div><b>' + esc(l[1]) + '</b><br>' + esc(l[2]) + '</div></div>').join('') + '</div>' +
+    '<div style="display:grid;grid-template-columns:1.25fr 1fr;gap:22px;margin-top:14px">' +
+    '<div class="card" style="padding:12px 16px;font-size:14.5px;line-height:1.55"><b>한 단원(Unit) 슬라이드</b><br>' +
+    '① 왼쪽: 공식 · 핵심 2–3줄 · <b>그림</b>(변환 애니메이션은 「다음 단계 ▶」)<br>② 오른쪽: 예문 3개 — 🔊 보통 속도 · 🐢 느리게 · 해석 · 🎧 <b>섀도잉</b>(느리게 → 따라 말하기 → 보통 → 따라 말하기)<br>' +
+    '③ 아래: ✎ 확인 문제 · 🧩 문장 만들기(블록 순서 맞추기) · <b>연결</b> 칩(← 앞에서 배운 것 / 뒤에서 이어질 것 →) · ✓ 이해했어요 / ↻ 복습<br>④ 오른쪽 위: 같은 Chapter의 정거장, 🧵 연결고리(누르면 지도에서 강조)</div>' +
+    '<div class="card" style="padding:12px 16px"><b style="font-size:14.5px">단축키</b><div class="keys" style="margin-top:6px"><span><kbd>←</kbd><kbd>→</kbd> 이전/다음</span><span><kbd>M</kbd> 구문 지도</span><span><kbd>T</kbd> 목차</span><span><kbd>K</kbd> 해석 모두</span>' +
+    '<span><kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> 예문 듣기</span><span><kbd>⇧</kbd>+<kbd>1</kbd> 느리게</span><span><kbd>S</kbd> 섀도잉</span><span><kbd>N</kbd> 그림 다음 단계</span><span><kbd>Q</kbd> 확인 문제</span><span><kbd>B</kbd> 문장 만들기</span><span><kbd>G</kbd> 이해했어요</span><span><kbd>R</kbd> 복습</span>' +
+    '<span><kbd>Esc</kbd> 닫기/멈춤</span><span>숫자 입력창: <b>41</b> ↵</span></div></div></div></section>';
+}
+let ACTIVE_TH = null;
+function renderMap() {
+  const W = 1212, x0 = 200, x1 = 1194, rowH = 112, y0 = 50;
+  const POS = {};
+  let lines = '', stations = '', labels = '';
+  D.parts.forEach((p, pi) => {
+    const y = y0 + pi * rowH;
+    const its = []; p.chapters.forEach(c => c.items.forEach(it => its.push(it)));
+    const step = Math.min(118, (x1 - x0) / (its.length - 1));
+    its.forEach((it, j) => POS[it.id] = {x:x0 + j * step, y});
+    labels += '<g class="sta" data-act="go" data-go="' + p.id + '"><text class="plab" x="12" y="' + (y - 4) + '" style="fill:' + p.color + ';text-anchor:start">PART ' + p.no + '</text><text class="plab2" x="12" y="' + (y + 13) + '" style="text-anchor:start">' + esc(p.title) + '</text></g>';
+    p.chapters.forEach((c, ci) => {
+      const a = POS[c.items[0].id], b = POS[c.items[c.items.length - 1].id];
+      lines += '<path class="pl" stroke="' + p.color + '" d="M' + (a.x - 6) + ',' + y + ' L' + (b.x + 6) + ',' + y + '"' + (ci % 2 ? ' opacity=".72"' : '') + '/>';
+      const up = ci % 2 === 0;
+      labels += '<text class="chlab sta" data-act="go" data-go="' + c.id + '" x="' + ((a.x + b.x) / 2) + '" y="' + (up ? y - 22 : y + 32) + '" text-anchor="middle">CH' + String(c.no).padStart(2, '0') + ' ' + esc(c.title) + '</text>';
+    });
+  });
+  const th = ACTIVE_TH && THREADS[ACTIVE_TH];
+  const inTh = new Set(th ? th.units : []);
+  ORDER.forEach(it => {
+    const P = POS[it.id], s = statusOf(it.id), color = PARTS[it.part].color;
+    const dim = th && !inTh.has(it.id) ? ' dim' : '';
+    const r = th && inTh.has(it.id) ? 15 : 12.5;
+    const stroke = th && inTh.has(it.id) ? th.color : color;
+    stations += '<g class="sta ' + s + dim + '" data-act="go" data-go="' + it.id + '"><title>' + esc(itemName(it)) + '</title>' +
+      (it.kind === 'fs' ? '<rect x="' + (P.x - r + 2) + '" y="' + (P.y - r + 2) + '" width="' + (2 * r - 4) + '" height="' + (2 * r - 4) + '" rx="4" stroke="' + stroke + '" transform="rotate(45 ' + P.x + ' ' + P.y + ')"/>' :
+        '<circle cx="' + P.x + '" cy="' + P.y + '" r="' + r + '" stroke="' + stroke + '"/>') +
+      '<text x="' + P.x + '" y="' + P.y + '">' + (it.kind === 'fs' ? '+' : it.no) + '</text></g>';
+  });
+  let thp = '';
+  if (th) {
+    const pts = th.units.filter(u => POS[u]).map(u => POS[u]);
+    let d = '';
+    pts.forEach((p, i) => {
+      if (!i) { d += 'M' + p.x + ',' + p.y; return; }
+      const q = pts[i - 1];
+      if (q.y === p.y) d += ' Q' + ((q.x + p.x) / 2) + ',' + (p.y - 34 - Math.min(30, Math.abs(p.x - q.x) / 8)) + ' ' + p.x + ',' + p.y;
+      else d += ' C' + q.x + ',' + ((q.y + p.y) / 2) + ' ' + p.x + ',' + ((q.y + p.y) / 2) + ' ' + p.x + ',' + p.y;
+    });
+    thp = '<path class="thp" stroke="' + th.color + '" d="' + d + '"/>';
+  }
+  const H = y0 + 4 * rowH + 40;
+  return '<section class="slide"><div class="map-top"><h1>🗺 구문 지도</h1>' + D.threads.map(t => '<button class="thb' + (ACTIVE_TH === t.id ? ' on' : '') + '" style="--tc:' + t.color + '" data-act="mapth" data-th="' + t.id + '">' + esc(t.name) + '</button>').join('') +
+    '<button class="thb' + (!ACTIVE_TH ? ' on' : '') + '" style="--tc:var(--muted)" data-act="mapth" data-th="">전체</button></div>' +
+    '<div class="thstory" style="--tc:' + (th ? th.color : 'var(--muted)') + '">' + (th ? '<b>🧵 ' + esc(th.name) + '</b> — ' + inl(th.story) : '각 줄 = PART, 정거장 = Unit(◇ = Further Study). 위 연결고리 버튼을 누르면 단원 사이의 연결이 점선으로 나타납니다. 정거장을 누르면 그 단원으로 이동합니다.') + '</div>' +
+    '<svg class="metro" viewBox="0 0 ' + W + ' ' + H + '">' + lines + (th ? '<g class="dim">' + labels + '</g>' : labels) + thp + stations + '</svg>' +
+    '<div class="mleg"><span><i style="background:var(--good);border-color:var(--good)"></i>이해했어요</span><span><i style="background:var(--rev);border-color:var(--rev)"></i>복습</span><span><i></i>아직</span><span>◇ Further Study</span></div></section>';
+}
+function renderThreads() {
+  return '<section class="slide"><div class="map-top"><h1>🧵 연결고리 9가지</h1><span class="crumb">한 문법이 여러 단원에 걸쳐 모양을 바꿔 다시 나온다 — 이 흐름을 알면 101개가 9개의 이야기로 줄어든다</span></div>' +
+    '<div class="thl fit" data-min="11" style="font-size:17px">' + D.threads.map(t => '<div class="thrw" style="--tc:' + t.color + '"><span class="tn" data-act="thread" data-th="' + t.id + '">' + esc(t.name) + ' 🗺</span><span class="ts">' + inl(t.story) + '</span>' +
+      '<span class="tu">' + t.units.filter(u => ITEMS[u]).map((u, i) => (i ? '<span class="ar">›</span>' : '') + '<button data-act="go" data-go="' + u + '" title="' + esc(itemName(ITEMS[u])) + '">' + uLab(u) + '</button>').join('') + '</span></div>').join('') + '</div></section>';
+}
+function renderBoard() {
+  const n = ORDER.length, g = ORDER.filter(x => PROG[x.id] === 'got').length, r = ORDER.filter(x => PROG[x.id] === 'rev').length;
+  const revs = ORDER.filter(x => PROG[x.id] === 'rev');
+  return '<section class="slide"><div class="map-top"><h1>📊 진도판</h1><span class="crumb">✓ 이해했어요 / ↻ 복습 표시는 이 브라우저에 저장됩니다.</span></div>' +
+    '<div class="bsum"><span>이해 <b style="color:var(--good)">' + g + '</b></span><span>복습 <b style="color:var(--rev)">' + r + '</b></span><span>아직 <b>' + (n - g - r) + '</b></span>' +
+    '<span class="meterbar"><i style="width:' + (g / n * 100) + '%;background:var(--good)"></i><i style="width:' + (r / n * 100) + '%;background:var(--rev)"></i></span>' +
+    (revs.length ? '<button class="btn sm" data-act="go" data-go="' + revs[0].id + '">↻ 복습 시작 (' + revs.length + ')</button>' : '') + '<button class="btn sm" data-act="reset">초기화</button></div>' +
+    '<div class="brd">' + D.chapters.map(c => '<div class="bch"><h5>CH' + String(c.no).padStart(2, '0') + ' ' + esc(c.title) + '</h5><div class="bt2">' +
+      c.items.map(x => '<button class="' + (x.kind === 'fs' ? 'fs ' : '') + statusOf(x.id) + '" data-act="go" data-go="' + x.id + '" title="' + esc(itemName(x)) + '">' + (x.kind === 'fs' ? '+' : x.no) + '</button>').join('') + '</div></div>').join('') + '</div></section>';
+}
+
+/* ---------- fit ---------- */
+function fit(root) {
+  $$('.fit', root).forEach(el => {
+    if (!el.dataset.fs) el.dataset.fs = parseFloat(el.style.fontSize || getComputedStyle(el).fontSize);
+    let fs = +el.dataset.fs;
+    el.style.fontSize = fs + 'px';
+    const min = parseFloat(el.dataset.min || 11);
+    let guard = 0;
+    while (el.scrollHeight > el.clientHeight + 1 && fs > min && guard++ < 40) { fs -= 0.5; el.style.fontSize = fs + 'px'; }
+    el.classList.toggle('overflow', el.scrollHeight > el.clientHeight + 1);
+  });
+}
+function relayout() { fit(canvas); drawLinks(canvas); }
+
+/* ---------- show ---------- */
+let cur = 0;
+function render(i) {
+  const s = SL[i]; REG = [];
+  switch (s.type) {
+    case 'title': return renderTitle();
+    case 'howto': return renderHowto();
+    case 'map': return renderMap();
+    case 'threads': return renderThreads();
+    case 'part': return renderPart(s.ref);
+    case 'chapter': return renderChapter(s.ref);
+    case 'item': return renderItem(s.ref);
+    case 'board': return renderBoard();
+  }
+  return '';
+}
+function show(i, noHash) {
+  stopShadow(); closeModal();
+  i = Math.max(0, Math.min(SL.length - 1, i));
+  cur = i;
+  canvas.innerHTML = render(i);
+  $$('.mstage', canvas).forEach(st => morphShow(st, 0, false));
+  relayout();
+  $('#cnt').textContent = (i + 1) + ' / ' + SL.length;
+  $('#ttl').textContent = SL[i].name;
+  $('#bar').style.width = ((i + 1) / SL.length * 100) + '%';
+  if (!noHash) { try { history.replaceState(null, '', '#' + SL[i].id); } catch (e) { location.hash = SL[i].id; } }
+  store.set('last', SL[i].id);
+  if ($('#drawer').classList.contains('open')) buildDrawer();
+}
+function rescale() {
+  const st = $('#stage');
+  SCALE = Math.min(st.clientWidth / 1280, st.clientHeight / 720);
+  canvas.style.transform = 'translate(-50%,-50%) scale(' + SCALE + ')';
+  requestAnimationFrame(() => drawLinks(canvas));
+}
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('on'), 1500); }
+
+/* ---------- modal: check & build ---------- */
+function openModal(html) { $('#mc').innerHTML = html; $('#modal').classList.add('open'); relayModal(); }
+function closeModal() { $('#modal').classList.remove('open'); $('#mc').innerHTML = ''; }
+function relayModal() { requestAnimationFrame(() => { const sc = SCALE; SCALE = 1; drawLinks($('#mc')); SCALE = sc; }); }
+function curItem() { const s = SL[cur]; return s.type === 'item' ? s.ref : null; }
+function openCheck() {
+  const it = curItem(); if (!it) return;
+  openModal('<h3>✎ 확인 문제 — ' + esc(itemName(it)) + '</h3>' + it.chk.map((q, qi) => '<div class="q" data-q="' + qi + '"><div class="qq">' + (it.chk.length > 1 ? (qi + 1) + '. ' : '') + inl(q.q) + '</div>' + (q.s ? sent(q.s) : '') +
+    '<div class="opts">' + q.o.map((o, oi) => '<button class="opt" data-act="ans" data-q="' + qi + '" data-o="' + oi + '">' + String.fromCharCode(9312 + oi) + ' ' + inl(o) + '</button>').join('') + '</div><div class="why">' + inl(q.w || '') + '</div></div>').join(''));
+}
+function answer(btn) {
+  const it = curItem(); const qi = +btn.dataset.q, oi = +btn.dataset.o; const q = it.chk[qi];
+  const box = btn.closest('.q'); if (box.classList.contains('done')) return;
+  box.classList.add('done');
+  $$('.opt', box).forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add('right'); });
+  if (oi !== q.a) btn.classList.add('wrong');
+  const why = $('.why', box); why.innerHTML = (oi === q.a ? '<b style="color:var(--good)">정답!</b> ' : '<b style="color:var(--bad)">아쉬워요.</b> 정답은 ' + String.fromCharCode(9312 + q.a) + '. ') + inl(q.w || '');
+}
+/* drill pieces: top-level blocks, opened up until there are at least 5 pieces */
+function drillTiles(nodes) {
+  const P = /^[,.;:?!—–-]+$/;
+  const units = [];
+  const addWords = (txt, role, lab, list) => txt.replace(/\*/g, '').split(/\s+/).filter(Boolean).forEach(tk => {
+    if (P.test(tk) && list.length) list[list.length - 1].tail = (list[list.length - 1].tail || '') + tk;
+    else list.push({kind:'frag', role, lab, text:tk});
+  });
+  nodes.forEach(n => {
+    if (n.t === 'txt') addWords(n.v, 'X', '', units);
+    else if (!(n.t === 'blk' && n.role.toUpperCase() === 'G')) units.push({kind:'node', node:n});
+  });
+  const nw = u => (u.kind === 'frag' ? u.text : tidy(plain([u.node]))).split(/\s+/).filter(Boolean).length;
+  for (let guard = 0; units.length < 5 && guard < 12; guard++) {
+    let best = -1, bw = 1;
+    units.forEach((u, i) => { const w = nw(u); if (w > bw) { bw = w; best = i; } });
+    if (best < 0) break;
+    const u = units[best];
+    let parts = [];
+    if (u.kind === 'node') {
+      const n = u.node, U = n.t === 'blk' ? n.role.toUpperCase() : 'X';
+      const lab = n.t === 'blk' ? (n.lab != null ? n.lab : (n.role !== U ? (ROLE[U] || '').toLowerCase() : ROLE[U])) : '';
+      if (n.kids.some(k => k.t !== 'txt')) {
+        n.kids.forEach(k => {
+          if (k.t === 'txt') { const t = k.v.replace(/\*/g, '').trim(); if (t && !P.test(t)) parts.push({kind:'frag', role:U, lab, text:t}); else if (t && parts.length) parts[parts.length - 1].tail = (parts[parts.length - 1].tail || '') + t; }
+          else if (!(k.t === 'blk' && k.role.toUpperCase() === 'G')) parts.push({kind:'node', node:k});
+        });
+      } else {
+        const ws = tidy(plain(n.kids)).split(/\s+/), mid = Math.max(1, Math.floor(ws.length / 2));
+        parts = [{kind:'frag', role:U, lab, text:ws.slice(0, mid).join(' ')}, {kind:'frag', role:U, lab, text:ws.slice(mid).join(' ')}];
+      }
+    } else {
+      const ws = u.text.split(/\s+/), mid = Math.max(1, Math.floor(ws.length / 2));
+      parts = [{kind:'frag', role:u.role, lab:u.lab, text:ws.slice(0, mid).join(' ')}, {kind:'frag', role:u.role, lab:u.lab, text:ws.slice(mid).join(' ')}];
+    }
+    if (!parts.length) break;
+    parts[parts.length - 1].tail = (parts[parts.length - 1].tail || '') + (u.tail || '');
+    units.splice(best, 1, ...parts);
+  }
+  return units;
+}
+let DR = null;
+function openBuild() {
+  const it = curItem(); if (!it) return;
+  const e = it.ex[it.drill || 0];
+  const tiles = drillTiles(parseMk(e.s)).map(u => {
+    if (u.kind === 'node') return {html:rNodes([u.node], {hl:false, words:false, cnt:{}, nolab:false}), txt:tidy(plain([u.node])), tail:u.tail || ''};
+    const fam = FAM[u.role] || 'X';
+    return {html:'<span class="b f-' + fam + (fam === 'X' && !u.lab ? ' x' : '') + '"><span class="bt">' + esc(u.text) + '</span>' + (u.lab ? '<span class="bl">' + esc(u.lab) + '</span>' : '') + '</span>', txt:u.text, tail:u.tail || ''};
+  });
+  tiles.forEach((t, i) => { t.i = i; t.key = (t.txt + t.tail).toLowerCase(); });
+  let pool = tiles.slice();
+  for (let k = 0; k < 20; k++) { pool.sort(() => Math.random() - 0.5); if (pool.some((t, i) => t.i !== i) || pool.length < 2) break; }
+  DR = {it, e, tiles, pool:pool.map(t => t.i), ans:[]};
+  openModal('<h3>🧩 문장 만들기 — ' + esc(itemName(it)) + '</h3><div class="dr-k"><small>뜻</small>' + inl(e.ko) + '</div>' +
+    '<div class="dr-ans" id="dra"></div><div class="dr-pool" id="drp"></div>' +
+    '<div class="dr-ctl"><button class="btn pri" data-act="drcheck">확인</button><button class="btn" data-act="drreset">다시</button><button class="btn" data-act="drshow">정답 보기</button><button class="btn" data-act="drplay">🔊 듣기</button>' +
+    '<label style="font-size:14px;margin-left:auto"><input type="checkbox" id="drlab"> 역할 라벨 숨기기 (어렵게)</label></div><div class="dr-msg" id="drm">블록을 눌러 순서대로 놓으세요. 놓은 블록을 다시 누르면 빠집니다.</div>');
+  drawDrill();
+}
+function drawDrill() {
+  const tile = i => { const t = DR.tiles[i]; return '<button class="tile" data-act="drtile" data-i="' + i + '">' + t.html + (t.tail ? '<span>' + esc(t.tail) + '</span>' : '') + '</button>'; };
+  $('#dra').innerHTML = DR.ans.map(tile).join('');
+  $('#drp').innerHTML = DR.pool.map(tile).join('');
+  const hide = $('#drlab') && $('#drlab').checked;
+  $('#dra').classList.toggle('hide-lab', hide); $('#drp').classList.toggle('hide-lab', hide);
+  $('#dra').classList.remove('ok');
+}
+function drTile(btn) {
+  const i = +btn.dataset.i;
+  const inAns = btn.parentElement.id === 'dra';
+  if (inAns) { DR.ans = DR.ans.filter(x => x !== i); DR.pool.push(i); }
+  else { DR.pool = DR.pool.filter(x => x !== i); DR.ans.push(i); }
+  drawDrill();
+  if (!DR.pool.length) drCheck();
+}
+function drCheck() {
+  const m = $('#drm');
+  const want = DR.tiles.map(t => t.key), got = DR.ans.map(i => DR.tiles[i].key);
+  if (got.length < want.length) { m.className = 'dr-msg'; m.textContent = '아직 ' + (want.length - got.length) + '개 남았어요.'; return; }
+  const bad = got.findIndex((k, i) => k !== want[i]);
+  if (bad < 0) {
+    m.className = 'dr-msg ok'; m.textContent = '🎉 정답! 소리 내어 따라 읽어 보세요.'; $('#dra').classList.add('ok');
+    playKey(DR.e.a[0], DR.e.tts);
+  } else {
+    m.className = 'dr-msg no'; m.textContent = (bad + 1) + '번째 블록부터 다시 생각해 보세요. (S → V 뼈대부터!)';
+    const b = $$('#dra .tile')[bad]; if (b) b.classList.add('bad');
+  }
+}
+
+/* ---------- drawer ---------- */
+function buildDrawer() {
+  const q = ($('#dq').value || '').trim().toLowerCase();
+  let h = '';
+  const match = it => !q || (itemName(it) + ' ' + (it.sub || '') + ' ' + it.title).toLowerCase().includes(q) || (it.no && String(it.no) === q);
+  D.parts.forEach(p => {
+    let ph = '';
+    p.chapters.forEach(c => {
+      const its = c.items.filter(match);
+      if (!its.length && q) return;
+      ph += '<div class="dc" data-act="go" data-go="' + c.id + '">CH' + String(c.no).padStart(2, '0') + ' ' + esc(c.title) + '</div>';
+      its.forEach(it => { ph += '<div class="di' + (SL[cur].id === it.id ? ' cur' : '') + '" data-act="go" data-go="' + it.id + '"><span class="s ' + statusOf(it.id) + '"></span><span class="n">' + (it.kind === 'fs' ? 'FS' + it.fsno : 'U' + String(it.no).padStart(2, '0')) + '</span>' + esc(it.title) + '</div>'; });
+    });
+    if (ph) h += '<div class="dp" style="--pc:' + p.color + '" data-act="go" data-go="' + p.id + '">PART ' + p.no + ' ' + esc(p.title) + '</div>' + ph;
+  });
+  $('#dl').innerHTML = h || '<div style="padding:12px;color:var(--muted)">검색 결과가 없습니다.</div>';
+}
+function toggleDrawer(force) {
+  const d = $('#drawer'); const open = force != null ? force : !d.classList.contains('open');
+  d.classList.toggle('open', open);
+  if (open) { buildDrawer(); setTimeout(() => { const c = $('#dl .di.cur'); if (c) c.scrollIntoView({block:'center'}); }, 30); }
+}
+
+/* ---------- progress ---------- */
+function mark(kind) {
+  const it = curItem(); if (!it) return;
+  PROG[it.id] = PROG[it.id] === kind ? '' : kind;
+  if (!PROG[it.id]) delete PROG[it.id];
+  saveProg();
+  const g = $('.pg .got', canvas), r = $('.pg .rev', canvas);
+  if (g) g.classList.toggle('on', PROG[it.id] === 'got');
+  if (r) r.classList.toggle('on', PROG[it.id] === 'rev');
+  const st = $('.chl .st.cur', canvas); if (st) { st.classList.remove('got', 'rev'); if (PROG[it.id]) st.classList.add(PROG[it.id]); }
+  toast(PROG[it.id] === 'got' ? '✓ 이해했어요로 표시' : PROG[it.id] === 'rev' ? '↻ 복습 목록에 추가' : '표시 해제');
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', ev => {
+  const nb = ev.target.closest('[data-nav]');
+  if (nb) {
+    const a = nb.dataset.nav;
+    if (a === 'prev') show(cur - 1); else if (a === 'next') show(cur + 1);
+    else if (a === 'map') { ACTIVE_TH = null; show(IDX.map); } else if (a === 'board') show(IDX.board);
+    else if (a === 'toc') toggleDrawer();
+    else if (a === 'ko') { document.body.classList.toggle('allko'); $('#kobtn').classList.toggle('on', document.body.classList.contains('allko')); relayout(); }
+    else if (a === 'theme') { const r = document.documentElement; const dark = r.dataset.theme ? r.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; r.dataset.theme = dark ? 'light' : 'dark'; store.set('theme', r.dataset.theme); requestAnimationFrame(() => drawLinks(canvas)); }
+    return;
+  }
+  const el = ev.target.closest('[data-act]');
+  if (!el) { if ($('#modal').classList.contains('open') && ev.target.id === 'modal') closeModal(); return; }
+  const a = el.dataset.act;
+  if (a === 'go') { const i = IDX[el.dataset.go]; if (i != null) { toggleDrawer(false); show(i); } }
+  else if (a === 'play') { const ex = el.closest('.ex'); const slow = el.dataset.slow === '1'; el.classList.add('on'); playKey(slow ? ex.dataset.a1 : ex.dataset.a0, ex.dataset.txt, slow).then(() => el.classList.remove('on')); }
+  else if (a === 'ko') { el.closest('.ex').classList.toggle('kon'); el.classList.toggle('on'); relayout(); }
+  else if (a === 'koall') { const exs = $$('.ex', canvas); const on = !exs.every(e => e.classList.contains('kon')); exs.forEach(e => { e.classList.toggle('kon', on); const b = $('[data-act="ko"]', e); if (b) b.classList.toggle('on', on); }); relayout(); }
+  else if (a === 'shadow') shadow(el);
+  else if (a === 'check') openCheck();
+  else if (a === 'build') openBuild();
+  else if (a === 'ans') answer(el);
+  else if (a === 'close') closeModal();
+  else if (a === 'got') mark('got');
+  else if (a === 'rev') mark('rev');
+  else if (a === 'thread') { ACTIVE_TH = el.dataset.th; show(IDX.map); }
+  else if (a === 'mapth') { ACTIVE_TH = el.dataset.th || null; show(IDX.map); }
+  else if (a === 'mnext' || a === 'mprev' || a === 'mplay' || a === 'mstep') {
+    const st = $('.mstage', el.closest('.viz')); if (!st) return; clearTimeout(st._p);
+    const i = +st.dataset.i || 0;
+    if (a === 'mnext') morphShow(st, i + 1 >= REG[+st.dataset.reg].steps.length ? 0 : i + 1, i + 1 < REG[+st.dataset.reg].steps.length);
+    else if (a === 'mprev') morphShow(st, i - 1, true);
+    else if (a === 'mplay') morphPlay(st);
+    else morphShow(st, +el.dataset.i, true);
+  }
+  else if (a === 'drtile') drTile(el);
+  else if (a === 'drcheck') drCheck();
+  else if (a === 'drreset') { DR.pool = DR.tiles.map(t => t.i).sort(() => Math.random() - 0.5); DR.ans = []; drawDrill(); $('#drm').className = 'dr-msg'; $('#drm').textContent = '처음부터 다시!'; }
+  else if (a === 'drshow') { DR.ans = DR.tiles.map(t => t.i); DR.pool = []; drawDrill(); drCheck(); }
+  else if (a === 'drplay') playKey(DR.e.a[0], DR.e.tts);
+  else if (a === 'reset') { if (confirm('진도 표시를 모두 지울까요?')) { PROG = {}; saveProg(); show(cur); } }
+});
+document.addEventListener('change', ev => { if (ev.target.id === 'drlab') drawDrill(); });
+$('#dq').addEventListener('input', buildDrawer);
+$('#goto').addEventListener('keydown', ev => {
+  if (ev.key !== 'Enter') return;
+  const v = ev.target.value.trim().toUpperCase().replace(/\s+/g, '');
+  let id = null;
+  if (/^\d+$/.test(v)) id = 'U' + String(+v).padStart(2, '0');
+  else if (/^U\d+$/.test(v)) id = 'U' + String(+v.slice(1)).padStart(2, '0');
+  else if (/^FS\d+$/.test(v)) id = 'FS' + String(+v.slice(2)).padStart(2, '0');
+  else if (/^(CH|C)\d+$/.test(v)) id = 'C' + String(+v.replace(/\D/g, '')).padStart(2, '0');
+  else if (/^P\d$/.test(v)) id = v;
+  if (id && IDX[id] != null) { show(IDX[id]); ev.target.value = ''; ev.target.blur(); } else toast('찾을 수 없어요: ' + ev.target.value);
+});
+document.addEventListener('keydown', ev => {
+  if (ev.target && ev.target.closest && ev.target.closest('input,textarea')) { if (ev.key === 'Escape') ev.target.blur(); return; }
+  if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+  const k = ev.key;
+  if (k === 'Escape') { if ($('#modal').classList.contains('open')) closeModal(); else if ($('#drawer').classList.contains('open')) toggleDrawer(false); else stopShadow(); return; }
+  if ($('#modal').classList.contains('open')) return;
+  if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { ev.preventDefault(); show(cur + 1); }
+  else if (k === 'ArrowLeft' || k === 'PageUp') { ev.preventDefault(); show(cur - 1); }
+  else if (k === 'Home') show(0); else if (k === 'End') show(SL.length - 1);
+  else if (k === 'm' || k === 'M') { ACTIVE_TH = null; show(IDX.map); }
+  else if (k === 't' || k === 'T') toggleDrawer();
+  else if (k === 'k' || k === 'K') $('[data-nav="ko"]').click();
+  else if (k === 'q' || k === 'Q') openCheck();
+  else if (k === 'b' || k === 'B') openBuild();
+  else if (k === 'g' || k === 'G') mark('got');
+  else if (k === 'r' || k === 'R') mark('rev');
+  else if (k === 's' || k === 'S') { const b = $('[data-act="shadow"]', canvas); if (b) shadow(b); }
+  else if (k === 'n' || k === 'N') { const b = $('[data-act="mnext"]', canvas); if (b) b.click(); }
+  else if (/^[1-3!@#]$/.test(k)) {
+    const idx = '123'.indexOf(k) >= 0 ? '123'.indexOf(k) : '!@#'.indexOf(k);
+    const ex = $$('.ex', canvas)[idx]; if (ex) { const slow = ev.shiftKey || '!@#'.indexOf(k) >= 0; playKey(slow ? ex.dataset.a1 : ex.dataset.a0, ex.dataset.txt, slow); }
+  }
+});
+let tx0 = null;
+canvas.addEventListener('touchstart', e => { tx0 = e.touches[0].clientX; }, {passive:true});
+canvas.addEventListener('touchend', e => { if (tx0 == null) return; const dx = e.changedTouches[0].clientX - tx0; if (Math.abs(dx) > 70) show(cur + (dx < 0 ? 1 : -1)); tx0 = null; }, {passive:true});
+window.addEventListener('resize', rescale);
+window.addEventListener('hashchange', () => { const id = location.hash.slice(1); if (IDX[id] != null && IDX[id] !== cur) show(IDX[id], true); });
+
+/* ---------- boot ---------- */
+const th = store.get('theme', null); if (th) document.documentElement.dataset.theme = th;
+rescale();
+const h0 = location.hash.slice(1);
+show(IDX[h0] != null ? IDX[h0] : (IDX[store.get('last', '')] != null ? IDX[store.get('last', '')] : 0));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(relayout);
+window.GM = {SL, IDX, show, D, fit, ITEMS, get cur() { return cur; }, AU};
+})();
+</script>
+</body>
+</html>
