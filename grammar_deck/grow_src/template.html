@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>문장이 자란다</title>
+<style>
+/*__CSS__*/
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="stage"><div id="canvas"></div></div>
+<div id="nav">
+  <button class="nb" id="nPrev" title="이전 (←)">◀</button>
+  <span class="cnt" id="nCnt">1 / 1</span>
+  <button class="nb" id="nNext" title="다음 (→, Space)">▶</button>
+  <span class="ttl" id="nTtl"></span>
+  <button class="nb" id="nMap" title="지도 (M)">🗺 지도</button>
+  <button class="nb" id="nArc" title="attention 곡선 켜기/끄기 (A)">⌒ 곡선</button>
+  <button class="nb" id="nKo" title="한국어 거울 켜기/끄기 (K)">⇅ 거울</button>
+  <button class="nb" id="nLab" title="품사 라벨 켜기/끄기 (L)">🏷 라벨</button>
+  <button class="nb" id="nTheme" title="밝게/어둡게 (T)">🌓</button>
+  <button class="nb" id="nFull" title="전체 화면 (F)">⛶</button>
+  <input id="nGo" placeholder="Step #" title="Step 번호(1–45)를 입력하고 Enter">
+</div>
+<pre id="stout" hidden></pre>
+<script>
+'use strict';
+/*__JS__*/
+</script>
+</body>
+</html>

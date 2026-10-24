@@ -1,0 +1,903 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Everything is inline. Only YouTube's privacy-mode player may load (at home, via start_deck.bat);
+     on a company PC opened as a file, the video chips show the transcript line instead. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; frame-src https://www.youtube-nocookie.com; media-src data: blob:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>영어는 왜 쓰인 대로 읽히지 않을까</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f5f3ee; --surface: #ffffff; --surface-2: #eeebe4; --ink: #1c1b18; --ink-2: #55524a;
+  --muted: #85817a; --line: #e2ded4;
+  /* three vocabulary layers: data colors (validated) + text-safe inks */
+  --lg: #2a78d6; --lf: #eb6834; --ll: #1baf7a;
+  --g-ink: #1d5fae; --g-bg: #e6f0fc;
+  --f-ink: #b4441a; --f-bg: #fdeee6;
+  --l-ink: #0b7a52; --l-bg: #e2f5ee;
+  /* slide accents */
+  --in: #4f46e5; --in-bg: #eceefe;
+  --pr: #be185d; --pr-bg: #fbe8f0;
+  --mo: #0f766e; --mo-bg: #e3f3f0;
+  --pn: #b45309; --pn-bg: #fbefe1;
+  --vo: #6d28d9; --vo-bg: #f1eafd;
+  --gr: #15803d; --gr-bg: #e4f4e8;
+  --kr: #b91c1c; --kr-bg: #fde8e8;
+  --ok: #15803d; --ok-bg: #e4f4e8;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 10px 28px rgba(0,0,0,.07);
+  --accent: var(--in); --accent-bg: var(--in-bg);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #151514; --surface: #1f1f1d; --surface-2: #282826; --ink: #f0efec; --ink-2: #c3c2b7;
+    --muted: #8f8d84; --line: #36352f;
+    --lg: #3987e5; --lf: #d95926; --ll: #199e70;
+    --g-ink: #8ab8f2; --g-bg: #15243a;
+    --f-ink: #f39a72; --f-bg: #3a2016;
+    --l-ink: #4fd1a1; --l-bg: #10302a;
+    --in: #a5b4fc; --in-bg: #1f2142;
+    --pr: #f472b6; --pr-bg: #3a1a2b;
+    --mo: #2dd4bf; --mo-bg: #11302c;
+    --pn: #f5a524; --pn-bg: #33240f;
+    --vo: #c4b5fd; --vo-bg: #2a1f45;
+    --gr: #4ade80; --gr-bg: #12301d;
+    --kr: #f87171; --kr-bg: #3b1414;
+    --ok: #4ade80; --ok-bg: #12301d;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #151514; --surface: #1f1f1d; --surface-2: #282826; --ink: #f0efec; --ink-2: #c3c2b7;
+  --muted: #8f8d84; --line: #36352f;
+  --lg: #3987e5; --lf: #d95926; --ll: #199e70;
+  --g-ink: #8ab8f2; --g-bg: #15243a;
+  --f-ink: #f39a72; --f-bg: #3a2016;
+  --l-ink: #4fd1a1; --l-bg: #10302a;
+  --in: #a5b4fc; --in-bg: #1f2142;
+  --pr: #f472b6; --pr-bg: #3a1a2b;
+  --mo: #2dd4bf; --mo-bg: #11302c;
+  --pn: #f5a524; --pn-bg: #33240f;
+  --vo: #c4b5fd; --vo-bg: #2a1f45;
+  --gr: #4ade80; --gr-bg: #12301d;
+  --kr: #f87171; --kr-bg: #3b1414;
+  --ok: #4ade80; --ok-bg: #12301d;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.35);
+}
+
+* { box-sizing: border-box; }
+/* scale with whichever of width/height is tighter, so a slide fits like a projected page */
+html { font-size: clamp(13px, min(1.05vw, 1.85vh), 20px); }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg); color: var(--ink); overflow: hidden; word-break: keep-all; overflow-wrap: anywhere;
+  font-family: "Segoe UI Variable Text", "Segoe UI", "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+.en { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; }
+.ipa { font-family: "Segoe UI", "Lucida Sans Unicode", "Arial Unicode MS", system-ui, sans-serif; color: var(--ink-2); white-space: nowrap; }
+.oe { font-family: Georgia, "Palatino Linotype", "Times New Roman", serif; }
+
+/* ---------- stage ---------- */
+.deck { position: fixed; inset: 0; }
+.slide {
+  position: absolute; inset: 0; opacity: 0; visibility: hidden;
+  transition: opacity .25s ease, visibility 0s linear .25s;
+}
+.slide.active { opacity: 1; visibility: visible; transition: opacity .25s ease; }
+.a-in { --accent: var(--in); --accent-bg: var(--in-bg); }
+.a-g { --accent: var(--g-ink); --accent-bg: var(--g-bg); }
+.a-f { --accent: var(--f-ink); --accent-bg: var(--f-bg); }
+.a-l { --accent: var(--l-ink); --accent-bg: var(--l-bg); }
+.a-pr { --accent: var(--pr); --accent-bg: var(--pr-bg); }
+.a-mo { --accent: var(--mo); --accent-bg: var(--mo-bg); }
+.a-pn { --accent: var(--pn); --accent-bg: var(--pn-bg); }
+.a-vo { --accent: var(--vo); --accent-bg: var(--vo-bg); }
+.a-gr { --accent: var(--gr); --accent-bg: var(--gr-bg); }
+
+.split {
+  height: 100%; display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  gap: clamp(20px, 2.6vw, 52px);
+  padding: clamp(16px, 3vh, 40px) clamp(16px, 3.2vw, 64px) 66px;
+}
+.split.wide-l { grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); }
+.full { height: 100%; display: flex; flex-direction: column; justify-content: center; padding: clamp(16px, 3vh, 40px) clamp(16px, 3.2vw, 64px) 66px; overflow-y: auto; scrollbar-width: thin; }
+.col-text { overflow-y: auto; min-height: 0; padding-right: 6px; scrollbar-width: thin; align-self: center; max-height: 100%; }
+.col-media { min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; overflow-y: auto; scrollbar-width: thin; }
+
+/* ---------- text column ---------- */
+.kicker { margin: 0 0 .45rem; font-size: .8rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: .35rem .7rem; align-items: center; }
+.tag { display: inline-block; padding: .15rem .6rem; border-radius: 999px; font-weight: 700; letter-spacing: .02em; background: var(--accent-bg); color: var(--accent); }
+h1, h2 { letter-spacing: -.015em; margin: 0; line-height: 1.2; }
+h1 { font-size: 3.1rem; font-weight: 800; }
+h2 { font-size: 1.75rem; font-weight: 800; }
+h3 { margin: 0 0 .3rem; font-size: .78rem; letter-spacing: .06em; color: var(--accent); }
+h2 + :not(.sub) { margin-top: .6rem; }
+.sub { margin: .3rem 0 .75rem; color: var(--ink-2); font-size: .98rem; }
+.lead { font-size: .98rem; color: var(--ink-2); margin: 0 0 .7rem; }
+.lead b { color: var(--ink); }
+.points { margin: 0 0 .7rem; padding: 0; list-style: none; counter-reset: pt; display: grid; gap: .42rem; }
+.points > li { position: relative; padding-left: 1.9rem; counter-increment: pt; font-size: .9rem; }
+.points > li::before {
+  content: counter(pt); position: absolute; left: 0; top: .12rem; width: 1.35rem; height: 1.35rem; border-radius: 50%;
+  display: grid; place-items: center; font-size: .7rem; font-weight: 700; background: var(--accent); color: var(--surface);
+}
+.points b { color: var(--ink); }
+.gl { display: block; font-size: .78rem; color: var(--muted); margin-top: .05rem; }
+.box { border-radius: 12px; padding: .5rem .85rem; margin: 0 0 .65rem; }
+.box p { margin: 0; font-size: .86rem; }
+.box p + p { margin-top: .3rem; }
+.trap { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--kr); }
+.trap h3 { color: var(--kr); }
+.bridge { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--ok); }
+.bridge h3 { color: var(--ok); }
+.note { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); }
+.note h3 { color: var(--ink-2); }
+.key { background: var(--accent-bg); }
+.key b { color: var(--accent); }
+.small { font-size: .84rem; }
+.muted { color: var(--muted); }
+.hl { color: var(--accent); font-weight: 700; }
+.bul { margin: 0 0 .65rem; padding-left: 1.15rem; display: grid; gap: .28rem; font-size: .9rem; }
+.bul li::marker { color: var(--accent); }
+.cite { font-size: .72rem; color: var(--muted); }
+.w { font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; font-weight: 700; }
+.x { color: var(--kr); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.sil { color: var(--muted); opacity: .75; text-decoration: underline dotted; }
+.lay { display: inline-block; padding: 0 .4rem; border-radius: 6px; font-weight: 700; font-size: .85em; }
+.lay.G { background: var(--g-bg); color: var(--g-ink); }
+.lay.F { background: var(--f-bg); color: var(--f-ink); }
+.lay.L { background: var(--l-bg); color: var(--l-ink); }
+.lay.P { background: var(--pr-bg); color: var(--pr); }
+.lay.N { background: var(--surface-2); color: var(--ink-2); }
+
+.go, .at {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .02rem .5rem; font-size: .72rem;
+  font-weight: 700; cursor: pointer; color: var(--accent); white-space: nowrap; vertical-align: .05em; font-variant-numeric: tabular-nums;
+}
+.go:hover, .go:focus-visible, .at:hover, .at:focus-visible { background: var(--accent); color: var(--surface); border-color: var(--accent); outline: none; }
+
+/* speak buttons */
+.say {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .08rem .55rem .08rem .4rem;
+  font-size: .82rem; cursor: pointer; color: var(--ink); display: inline-flex; align-items: center; gap: .3rem; line-height: 1.35;
+}
+.say::before { content: ""; width: 0; height: 0; border-style: solid; border-width: .3rem 0 .3rem .5rem; border-color: transparent transparent transparent var(--accent); }
+.say:hover, .say:focus-visible { border-color: var(--accent); outline: none; }
+.say.playing { background: var(--accent-bg); border-color: var(--accent); }
+.say small { color: var(--muted); font-size: .72rem; }
+.says { display: flex; flex-wrap: wrap; gap: .3rem; }
+
+/* ---------- media column: player ---------- */
+.player {
+  position: relative; background: #000; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); flex: none;
+  width: min(100%, calc(40vh * 16 / 9)); aspect-ratio: 16 / 9;
+}
+.player.small { width: min(100%, calc(30vh * 16 / 9)); }
+.player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.facade { position: absolute; inset: 0; border: 0; padding: 0; margin: 0; cursor: pointer; background: #000; }
+.facade img { width: 100%; height: 100%; object-fit: cover; display: block; opacity: .9; transition: opacity .2s; }
+.facade:hover img, .facade:focus-visible img { opacity: 1; }
+.facade .play {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: flex; align-items: center; gap: .55rem; padding: .6rem 1.05rem .6rem .85rem; border-radius: 999px;
+  background: rgba(15, 15, 15, .84); color: #fff; font-weight: 600; font-size: .88rem; white-space: nowrap;
+}
+.facade .play svg { width: 1.15rem; height: 1.15rem; }
+.facade .who { position: absolute; left: .6rem; bottom: .5rem; padding: .1rem .5rem; border-radius: 6px; background: rgba(15,15,15,.8); color: #fff; font-size: .72rem; }
+.facade:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+.chapters { display: flex; flex-wrap: wrap; gap: .3rem; justify-content: center; max-width: 100%; }
+.chapters button {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .18rem .6rem .18rem .25rem;
+  font-size: .74rem; cursor: pointer; color: var(--ink-2); display: inline-flex; align-items: center; gap: .3rem;
+}
+.chapters button:hover, .chapters button:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.chapters button.on { border-color: var(--accent); background: var(--accent-bg); color: var(--accent); }
+.chapters b { color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; }
+.vk { display: inline-grid; place-items: center; width: 1.15rem; height: 1.15rem; border-radius: 50%; font-style: normal; font-size: .62rem; font-weight: 800; background: var(--ink-2); color: var(--surface); }
+.vk.lugh { background: var(--muted); }
+.src { margin: 0; font-size: .74rem; color: var(--muted); text-align: center; max-width: 100%; }
+.moment {
+  width: 100%; max-width: 38rem; margin: 0; font-size: .84rem; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 10px; padding: .45rem .75rem;
+}
+.moment[hidden] { display: none; }
+.moment b { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: .35rem; }
+.moment q { font-style: italic; }
+.moment .view { display: block; font-size: .74rem; color: var(--kr); margin-top: .2rem; font-style: normal; }
+.filewarn { display: none; }
+.is-file .filewarn {
+  display: block; max-width: 36rem; margin: 0; font-size: .74rem; text-align: center; color: var(--ink-2);
+  background: var(--surface); border: 1px dashed var(--muted); border-radius: 10px; padding: .3rem .8rem;
+}
+.filewarn code { font-family: Consolas, ui-monospace, monospace; font-size: .95em; }
+
+/* ---------- shared widgets ---------- */
+.panel { width: 100%; max-width: 40rem; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: .75rem 1rem; box-shadow: var(--shadow); }
+.panel h3 { margin-bottom: .45rem; }
+.panel .cap { margin: .45rem 0 0; font-size: .74rem; color: var(--muted); }
+.pbtn {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .22rem .75rem;
+  font-size: .8rem; font-weight: 600; cursor: pointer; color: var(--ink-2); display: inline-flex; align-items: center; gap: .35rem;
+}
+.pbtn:hover, .pbtn:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.pbtn:disabled { opacity: .4; cursor: default; }
+.pbtn.on { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.row { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: .25rem .75rem; font-size: .8rem; font-weight: 700; cursor: pointer; color: var(--ink-2); }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button.on { background: var(--accent); color: var(--surface); }
+.seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+kbd {
+  font-family: Consolas, ui-monospace, monospace; font-size: .8em; padding: .05rem .4rem; border-radius: 5px;
+  border: 1px solid var(--line); border-bottom-width: 2px; background: var(--surface); color: var(--ink-2);
+}
+table.t { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .84rem; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+table.t th, table.t td { padding: .35rem .6rem; text-align: left; vertical-align: top; border-top: 1px solid var(--line); }
+table.t tr:first-child th, table.t tr:first-child td { border-top: 0; }
+table.t thead th { background: var(--surface-2); font-size: .74rem; color: var(--ink-2); letter-spacing: .03em; }
+table.t tbody th { white-space: nowrap; color: var(--ink-2); font-size: .8rem; }
+table.t td.c, table.t th.c { text-align: center; }
+.cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; }
+.cards.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.cards.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: .55rem .8rem; display: flex; flex-direction: column; gap: .2rem; }
+.card .ic { font-size: .68rem; font-weight: 800; letter-spacing: .05em; color: var(--accent); }
+.card .t { font-weight: 800; font-size: .94rem; line-height: 1.3; }
+.card .t .en { display: block; font-weight: 600; font-size: .74rem; color: var(--muted); }
+.card p { margin: 0; font-size: .8rem; color: var(--ink-2); }
+.card .ex { font-size: .78rem; color: var(--ink); background: var(--surface-2); border-radius: 8px; padding: .2rem .45rem; margin-top: auto; }
+.card .go { align-self: flex-start; margin-top: auto; }
+.card.top { border-top: 4px solid var(--accent); }
+.card.G { border-top: 4px solid var(--lg); }
+.card.F { border-top: 4px solid var(--lf); }
+.card.L { border-top: 4px solid var(--ll); }
+
+/* ---------- 1 · title ---------- */
+.hero h1 { font-size: 3.3rem; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .5rem; margin: .2rem 0 .8rem; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .45rem .65rem; }
+.stat b { display: block; font-size: 1.25rem; color: var(--accent); line-height: 1.2; }
+.stat span { font-size: .72rem; color: var(--ink-2); }
+.keys { display: flex; flex-wrap: wrap; gap: .4rem .9rem; font-size: .76rem; color: var(--muted); margin: 0; }
+.fossil { width: 100%; max-width: 34rem; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 1rem 1.1rem; box-shadow: var(--shadow); }
+.fossil .cap { font-size: .78rem; color: var(--muted); margin: 0 0 .5rem; }
+.fword { display: flex; justify-content: center; gap: .3rem; margin: .2rem 0 .6rem; }
+.fword button {
+  border: 0; background: none; cursor: pointer; padding: .1rem .25rem .25rem; border-radius: 10px; font: 800 3.6rem/1 "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; color: var(--ink);
+  border-bottom: 6px solid var(--line);
+}
+.fword button.c-lost { border-bottom-color: var(--lg); }
+.fword button.c-gvs { border-bottom-color: var(--pr); }
+.fword button.c-scribe { border-bottom-color: var(--lf); }
+.fword button.on { background: var(--accent-bg); }
+.fword button:focus-visible { outline: 2px solid var(--accent); }
+.fword button .sil { opacity: 1; }
+.finfo { min-height: 4.6rem; font-size: .86rem; background: var(--surface-2); border-radius: 12px; padding: .5rem .75rem; margin: 0; }
+.finfo b { color: var(--accent); }
+.flegend { display: flex; flex-wrap: wrap; gap: .3rem .8rem; font-size: .72rem; color: var(--ink-2); margin-top: .5rem; }
+.flegend i { display: inline-block; width: .9rem; height: .3rem; border-radius: 2px; vertical-align: middle; margin-right: .25rem; }
+.vids { width: 100%; max-width: 34rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .35rem .7rem; font-size: .76rem; color: var(--ink-2); }
+.vids div { display: flex; align-items: center; gap: .35rem; }
+
+/* ---------- 2 · warm-up ---------- */
+.duo { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: .6rem; margin: 0 0 .65rem; }
+.duo .panel { padding: .6rem .8rem; }
+.hangul { display: grid; grid-template-columns: auto auto; gap: .2rem .8rem; font-size: 1.05rem; align-items: baseline; }
+.hangul .r { color: var(--ink-2); font-size: .9rem; }
+.ough { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .3rem; }
+.ough .say { justify-content: space-between; }
+.ough .say b { font-weight: 700; }
+.ough .say b u { text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 2px; }
+
+/* ---------- 3 · designed vs accumulated ---------- */
+.shapes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .35rem; }
+.shape { text-align: center; background: var(--surface-2); border-radius: 10px; padding: .35rem .2rem; }
+.shape b { display: block; font-size: 1.8rem; line-height: 1.2; color: var(--accent); }
+.shape span { font-size: .68rem; color: var(--ink-2); line-height: 1.25; display: block; }
+.alpha { display: flex; align-items: center; justify-content: center; gap: .45rem; flex-wrap: wrap; font-size: .82rem; color: var(--ink-2); }
+.alpha b { font-size: 1.6rem; color: var(--ink); font-family: Georgia, serif; }
+.alpha i { font-style: normal; color: var(--muted); }
+
+/* ---------- 4 · timeline ---------- */
+.tl { position: relative; width: 100%; margin: .4rem 0 .2rem; }
+.tl-row { position: relative; height: 2.35rem; margin-bottom: .35rem; }
+.tl-row .lab { position: absolute; left: 0; top: 0; width: 6.6rem; height: 100%; display: flex; flex-direction: column; justify-content: center; font-size: .72rem; font-weight: 700; color: var(--ink-2); line-height: 1.2; }
+.tl-row .lab small { font-weight: 400; font-size: .64rem; }
+.tl-track { position: absolute; left: 7rem; right: 0; top: 0; bottom: 0; }
+.band {
+  position: absolute; top: .15rem; bottom: .15rem; border-radius: 8px; display: flex; align-items: center; padding: 0 .45rem; font-size: .74rem; font-weight: 700;
+  overflow: hidden; white-space: nowrap; border: 0; cursor: pointer; text-align: left; color: var(--ink);
+}
+.band:hover, .band:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.band.G { background: var(--g-bg); box-shadow: inset 4px 0 0 var(--lg); }
+.band.Gn { background: repeating-linear-gradient(135deg, var(--g-bg) 0 6px, transparent 6px 10px); box-shadow: inset 4px 0 0 var(--lg); top: .55rem; bottom: .55rem; }
+.band.F { background: var(--f-bg); box-shadow: inset 4px 0 0 var(--lf); }
+.band.L { background: var(--l-bg); box-shadow: inset 4px 0 0 var(--ll); }
+.band.N { background: var(--surface-2); box-shadow: inset 4px 0 0 var(--muted); }
+.band.P { background: var(--pr-bg); box-shadow: inset 4px 0 0 var(--pr); }
+.band.E { background: var(--surface); border: 1px solid var(--line); }
+.mark { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px solid var(--ink-2); }
+.mark span { position: absolute; left: .3rem; top: 50%; transform: translateY(-50%); font-size: .68rem; white-space: nowrap; color: var(--ink); background: var(--bg); padding: 0 .2rem; border-radius: 4px; line-height: 1.25; }
+.mark span b { display: block; font-variant-numeric: tabular-nums; color: var(--accent); }
+.mark.kr { border-left-color: var(--kr); }
+.mark.kr span b { color: var(--kr); }
+.mark.left span { left: auto; right: .3rem; text-align: right; }
+.mark .long { font-style: normal; }
+.axis { position: relative; height: 1.2rem; margin-left: 7rem; border-top: 1px solid var(--line); }
+.axis span { position: absolute; top: .15rem; transform: translateX(-50%); font-size: .66rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tl-legend { display: flex; flex-wrap: wrap; gap: .3rem .9rem; font-size: .74rem; color: var(--ink-2); margin: .3rem 0 0 7rem; }
+.tl-legend i { display: inline-block; width: .8rem; height: .8rem; border-radius: 3px; vertical-align: -.1rem; margin-right: .25rem; }
+
+/* ---------- era slides ---------- */
+.pairs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }
+.pair { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .35rem .55rem; font-size: .84rem; }
+.pair b { color: var(--g-ink); }
+.pair em { font-style: normal; color: var(--l-ink); font-weight: 700; }
+.pair span { display: block; font-size: .7rem; color: var(--muted); }
+.letters { display: flex; flex-wrap: wrap; gap: .4rem; }
+.letter { display: flex; align-items: center; gap: .4rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .2rem .55rem; font-size: .8rem; }
+.letter b { font-size: 1.35rem; font-family: Georgia, serif; color: var(--accent); }
+.sample { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .5rem .75rem; width: 100%; max-width: 40rem; }
+.sample .oe { font-size: 1.08rem; margin: 0 0 .15rem; }
+.sample .tr { font-size: .8rem; color: var(--ink-2); margin: 0 0 .35rem; }
+.oed { display: grid; gap: .35rem; }
+.oed .r { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) auto; gap: .5rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .35rem .6rem; }
+.oed .r .oe { font-size: 1.02rem; }
+.oed .r .ko { font-size: .86rem; }
+.oed .r.same { border-left: 4px solid var(--ok); }
+.oed .r.diff { border-left: 4px solid var(--kr); }
+.nom { background: var(--g-bg); color: var(--g-ink); border-radius: 4px; padding: 0 .15rem; font-weight: 700; }
+.acc { background: var(--f-bg); color: var(--f-ink); border-radius: 4px; padding: 0 .15rem; font-weight: 700; }
+.fossils { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .3rem .6rem; font-size: .82rem; }
+.fossils div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: .25rem .5rem; }
+.fossils b { color: var(--accent); }
+.scribe { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .3rem; }
+.scribe div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: .25rem .45rem; font-size: .8rem; text-align: center; }
+.scribe .oe { color: var(--ink-2); }
+.scribe b { color: var(--f-ink); }
+.meat { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .3rem; }
+.meat div { text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .3rem .2rem; font-size: .8rem; line-height: 1.35; }
+.meat .an { color: var(--g-ink); font-weight: 700; }
+.meat .mt { color: var(--f-ink); font-weight: 700; }
+.vs { font-size: .9rem; display: flex; gap: .4rem; align-items: center; flex-wrap: wrap; }
+
+/* ---------- 12 · vowel shift chart ---------- */
+.gvs { width: 100%; max-width: 31rem; }
+.gvs svg { width: 100%; height: auto; display: block; }
+.gvs .lbl { font: 600 15px "Segoe UI", system-ui, sans-serif; fill: var(--ink-2); }
+.gvs .ph { font: 700 17px "Segoe UI", system-ui, sans-serif; fill: var(--ink); }
+.gvs .word { font: 700 14px "Segoe UI", system-ui, sans-serif; fill: var(--pr); }
+.gvs .trap { fill: none; stroke: var(--line); stroke-width: 2; }
+.gvs .arr { fill: none; stroke: var(--pr); stroke-width: 2.4; }
+.gvs .dot { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.5; }
+.gvs .head { fill: var(--pr); }
+
+/* ---------- 13 · time machine ---------- */
+.tm-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .45rem; }
+.tm { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .45rem .6rem; display: flex; flex-direction: column; gap: .25rem; }
+.tm.on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-bg); }
+.tm .w { font-size: 1.15rem; }
+.tm .st { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .1rem .4rem; align-items: center; font-size: .76rem; }
+.tm .st .say { font-size: .72rem; padding: .02rem .45rem .02rem .35rem; }
+.tm .st .k { color: var(--ink-2); }
+.tm .st .k .ipa { font-size: .76rem; }
+.tm-note { min-height: 2.6rem; }
+.tm [data-both] { align-self: flex-start; }
+
+/* ---------- 18 · detective ---------- */
+.det-words { display: flex; flex-wrap: wrap; gap: .3rem; }
+.det-words button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: .2rem .7rem; cursor: pointer; font-weight: 700; font-size: .86rem; color: var(--ink-2); }
+.det-words button.on { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.det-words button.done::after { content: " ✓"; color: var(--ok); }
+.det-words button.on.done::after { color: var(--surface); }
+.det-big { display: flex; justify-content: center; align-items: flex-end; gap: .15rem; margin: .4rem 0; flex-wrap: wrap; }
+.det-big .p { font: 800 3.2rem/1.1 "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; padding: 0 .08rem .2rem; border: 0; background: none; color: var(--ink); border-bottom: 6px solid transparent; border-radius: 8px; }
+.det-big button.p { cursor: pointer; color: var(--accent); border-bottom-color: var(--accent); background: var(--accent-bg); animation: glow 1.8s ease-in-out infinite; }
+.det-big button.p.seen { animation: none; }
+.det-big button.p.on { outline: 2px solid var(--accent); }
+@keyframes glow { 50% { background: transparent; } }
+.det-card { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 12px; padding: .55rem .8rem; font-size: .86rem; min-height: 7.4rem; }
+.det-card .stamp { display: inline-flex; align-items: center; gap: .3rem; font-weight: 800; font-size: .76rem; padding: .1rem .55rem; border-radius: 999px; background: var(--accent-bg); color: var(--accent); margin-right: .4rem; }
+.det-card p { margin: .3rem 0 0; }
+.det-card .hook { background: var(--ok-bg); border-radius: 8px; padding: .25rem .5rem; margin-top: .4rem; }
+.det-card .hook b { color: var(--ok); }
+.causes { display: flex; flex-wrap: wrap; gap: .25rem .7rem; font-size: .72rem; color: var(--ink-2); }
+
+/* ---------- 21 · drill ---------- */
+.drill-word { font: 800 2.6rem/1.2 "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; text-align: center; margin: .3rem 0; }
+.drill-word mark { background: var(--accent-bg); color: var(--accent); border-radius: 6px; padding: 0 .1rem; }
+.opts { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; }
+.opts button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 12px; padding: .4rem .9rem; cursor: pointer; font-weight: 700; font-size: .95rem; min-width: 6rem; }
+.opts button:hover, .opts button:focus-visible { border-color: var(--accent); outline: none; }
+.opts button.right { border-color: var(--ok); background: var(--ok-bg); color: var(--ok); }
+.opts button.wrong { border-color: var(--kr); background: var(--kr-bg); color: var(--kr); }
+.syls { display: flex; justify-content: center; gap: .25rem; flex-wrap: wrap; }
+.syls button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 10px; padding: .25rem .6rem; cursor: pointer; font: 700 1.9rem/1.2 "Segoe UI", system-ui, sans-serif; }
+.syls button.right { border-color: var(--ok); background: var(--ok-bg); color: var(--ok); text-transform: uppercase; }
+.syls button.wrong { border-color: var(--kr); background: var(--kr-bg); color: var(--kr); }
+.fb { min-height: 3.6rem; font-size: .86rem; background: var(--surface-2); border-radius: 10px; padding: .45rem .7rem; margin: .5rem 0 0; }
+.fb b { color: var(--accent); }
+.scoreline { font-size: .82rem; color: var(--ink-2); font-weight: 700; }
+
+/* ---------- 22 · vocabulary chart ---------- */
+.vbars { display: grid; gap: .3rem; }
+.vbar { display: grid; grid-template-columns: 7.2rem minmax(0, 1fr) 3.2rem; align-items: center; gap: .5rem; font-size: .8rem; border-radius: 6px; }
+.vbar:hover, .vbar:focus-visible { background: var(--surface-2); outline: none; }
+.vbar .nm { color: var(--ink-2); line-height: 1.2; }
+.vbar .nm small { display: block; color: var(--muted); font-size: .68rem; }
+.vbar .tr { height: .95rem; background: transparent; border-radius: 0 4px 4px 0; position: relative; }
+.vbar .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; }
+.vbar .fill.G { background: var(--lg); } .vbar .fill.F { background: var(--lf); } .vbar .fill.L { background: var(--ll); } .vbar .fill.N { background: var(--muted); }
+.vbar .v { font-variant-numeric: tabular-nums; font-weight: 700; color: var(--ink); text-align: right; }
+.top40 { display: flex; flex-wrap: wrap; gap: .2rem; font-size: .76rem; }
+.top40 span { padding: 0 .35rem; border-radius: 5px; background: var(--g-bg); color: var(--g-ink); font-weight: 600; }
+.top40 span.n { background: var(--g-bg); color: var(--g-ink); outline: 1.5px dashed var(--lg); }
+.mirror { display: grid; grid-template-columns: 5.6rem repeat(3, minmax(0, 1fr)); font-size: .8rem; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.mirror > div { padding: .3rem .5rem; border-top: 1px solid var(--line); }
+.mirror > div:nth-child(-n+4) { border-top: 0; background: var(--surface-2); font-weight: 700; font-size: .72rem; color: var(--ink-2); }
+.mirror .rl { font-weight: 700; color: var(--ink-2); font-size: .74rem; }
+
+/* ---------- 23 · layer game ---------- */
+.lg-word { font: 800 2.5rem/1.2 "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif; text-align: center; margin: .2rem 0 .5rem; }
+.buckets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem; }
+.bucket { border: 1.5px solid var(--line); background: var(--surface); border-radius: 14px; padding: .45rem .6rem; cursor: pointer; text-align: left; display: flex; flex-direction: column; gap: .1rem; }
+.bucket b { font-size: .95rem; }
+.bucket span { font-size: .72rem; color: var(--ink-2); }
+.bucket.G { border-top: 5px solid var(--lg); } .bucket.F { border-top: 5px solid var(--lf); } .bucket.L { border-top: 5px solid var(--ll); }
+.bucket:hover, .bucket:focus-visible { box-shadow: 0 0 0 2px var(--accent-bg); outline: none; border-color: var(--accent); }
+.bucket.right { background: var(--ok-bg); border-color: var(--ok); }
+.bucket.wrong { background: var(--kr-bg); border-color: var(--kr); }
+.clues { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem; font-size: .76rem; }
+.clues div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: .35rem .55rem; }
+.clues div.G { border-top: 3px solid var(--lg); } .clues div.F { border-top: 3px solid var(--lf); } .clues div.L { border-top: 3px solid var(--ll); }
+.clues b { display: block; font-size: .74rem; }
+
+/* ---------- 24 · grammar flow ---------- */
+.flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .35rem; position: relative; }
+.flow div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .4rem .5rem; font-size: .76rem; position: relative; }
+.flow div b { display: block; font-size: .8rem; color: var(--accent); }
+.flow div em { display: block; font-style: normal; font-size: .68rem; color: var(--muted); }
+.flow div:not(:last-child)::after { content: "→"; position: absolute; right: -.62rem; top: 40%; color: var(--accent); font-weight: 800; z-index: 1; }
+
+/* ---------- 26 · plan ---------- */
+.steps5 { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .4rem; margin: 0 0 .7rem; }
+.steps5 div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .45rem .55rem; font-size: .78rem; }
+.steps5 div b { display: block; color: var(--accent); font-size: .86rem; }
+.weeks { display: grid; gap: .4rem; margin: 0 0 .6rem; }
+.wk { display: grid; grid-template-columns: 3.6rem minmax(0, 1fr); gap: .6rem; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .4rem .7rem; }
+.wk .n { font-weight: 800; color: var(--accent); font-size: .88rem; text-align: center; line-height: 1.1; }
+.wk .n small { display: block; font-size: .66rem; color: var(--muted); font-weight: 600; }
+.wk .what { font-size: .82rem; }
+.wk .what b { display: block; }
+.wk .what span { display: block; font-size: .76rem; color: var(--ink-2); }
+.checklist { display: grid; gap: .4rem; }
+.checklist label { display: grid; grid-template-columns: 1.3rem minmax(0, 1fr); gap: .45rem; align-items: start; font-size: .86rem; cursor: pointer; }
+.checklist input[type=checkbox] { width: 1.1rem; height: 1.1rem; margin: .2rem 0 0; accent-color: var(--ok); }
+.score { margin: .5rem 0 0; font-size: .86rem; font-weight: 800; color: var(--ok); }
+.xlink { font-size: .78rem; font-weight: 700; color: var(--accent); }
+.xlink.off { color: var(--muted); font-weight: 600; text-decoration: none; cursor: default; }
+
+/* ---------- 27 · summary ---------- */
+.sumtab { display: grid; grid-template-columns: 4.6rem minmax(0, 1fr) minmax(0, 1fr); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--surface); font-size: .82rem; margin: 0 0 .6rem; }
+.sumtab > div { padding: .4rem .6rem; border-top: 1px solid var(--line); }
+.sumtab > div:nth-child(-n+3) { border-top: 0; background: var(--surface-2); font-weight: 700; font-size: .74rem; color: var(--ink-2); }
+.sumtab .t { font-weight: 800; color: var(--accent); }
+.refs { margin: 0; padding-left: 1.1rem; display: grid; gap: .25rem; font-size: .74rem; color: var(--ink-2); }
+.refs i { color: var(--ink); }
+
+/* ---------- chrome ---------- */
+.progress { position: fixed; left: 0; top: 0; height: 3px; background: var(--accent); width: 0; transition: width .3s ease, background .3s; z-index: 20; }
+.bar-bottom {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 52px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(12px, 3vw, 48px); font-size: .8rem; color: var(--muted); z-index: 20; pointer-events: none;
+}
+.bar-bottom > * { pointer-events: auto; }
+.ctrls { display: flex; align-items: center; gap: .35rem; }
+.ctrls button {
+  width: 2.1rem; height: 2.1rem; border-radius: 50%; border: 1px solid var(--line); background: var(--surface);
+  display: grid; place-items: center; cursor: pointer; color: var(--ink-2);
+}
+.ctrls button:hover, .ctrls button:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.ctrls button:disabled { opacity: .35; cursor: default; }
+.ctrls svg { width: 1rem; height: 1rem; }
+.count { min-width: 3.4rem; text-align: center; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+
+/* ---------- narrow screens: stack and scroll ---------- */
+@media (max-width: 860px), (max-aspect-ratio: 1/1) {
+  html { font-size: 15px; }
+  .slide { overflow-y: auto; }
+  .split, .split.wide-l { display: block; height: auto; min-height: 100%; padding: 22px 16px 80px; }
+  .full { display: block; height: auto; min-height: 100%; padding: 22px 16px 80px; }
+  .col-text { overflow: visible; max-height: none; padding-right: 0; }
+  .col-media { margin-top: 1.1rem; overflow: visible; }
+  .player, .player.small { width: 100%; }
+  .cards, .cards.three, .stats, .tm-grid, .steps5, .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cards.two, .duo, .buckets, .clues, .fossils { grid-template-columns: 1fr; }
+  .pairs, .scribe { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .meat { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .flow div::after { display: none; }
+  .tl-row .lab { position: static; width: auto; height: auto; margin-bottom: .1rem; }
+  .tl-row { height: auto; }
+  .tl-track { position: relative; left: 0; height: 2.2rem; }
+  .axis, .tl-legend { margin-left: 0; }
+  .mark span { font-size: .6rem; }
+  .mark .long { display: none; }
+  .mark.flip span { left: auto; right: .3rem; text-align: right; }
+  .bar-bottom { background: var(--bg); border-top: 1px solid var(--line); }
+  #label { display: none; }
+  h1, .hero h1 { font-size: 2.3rem; }
+  h2 { font-size: 1.45rem; }
+  .fword button { font-size: 2.8rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slide, .progress { transition: none; }
+  .det-big button.p { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<main class="deck" id="deck">
+
+<!-- ================= 1 · TITLE ================= -->
+<section class="slide a-in hero" data-label="영어는 왜 쓰인 대로 읽히지 않을까">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">영어의 역사 × 한국인의 영어 공부</span><span class="en">A short history of English for Korean learners</span></p>
+      <h1>영어는 왜<br>쓰인 대로<br>읽히지 않을까?</h1>
+      <p class="sub">1,500년 영어의 역사로 보는 철자 · 발음 · 어휘 · 문법</p>
+      <p class="lead">한글은 처음 보는 단어도 바로 읽습니다. 영어는 같은 <b class="w">ough</b>가 일곱 가지로 읽힙니다.
+        영어가 엉터리라서가 아니라, 철자 속에 <b>여러 시대의 소리와 사람들의 손길이 화석처럼 겹쳐</b> 있기 때문입니다.
+        그 지층을 알면 <b>무엇을, 어떻게</b> 외워야 할지가 보입니다.</p>
+      <div class="stats">
+        <div class="stat"><b>1,500년</b><span>고대 영어(450년경)부터 지금까지</span></div>
+        <div class="stat"><b>26 : 44</b><span>알파벳 글자 수 : 영어 소리 수</span></div>
+        <div class="stat"><b>3층</b><span>게르만 · 프랑스 · 라틴/그리스 어휘</span></div>
+        <div class="stat"><b>4개</b><span>실습 도구 (소리·철자·어휘·강세)</span></div>
+      </div>
+      <p class="keys"><span><kbd>←</kbd> <kbd>→</kbd> 이동</span><span><kbd>F</kbd> 전체 화면</span><span><kbd>T</kbd> 다크 모드</span><span><kbd>Home</kbd> 처음으로</span></p>
+    </div>
+    <div class="col-media">
+      <div class="fossil">
+        <p class="cap">단어 하나에 담긴 1,000년: 글자를 눌러 보세요</p>
+        <div class="fword" id="fossil" role="group" aria-label="knight의 글자">
+          <button type="button" class="c-lost" data-i="0"><span class="sil">k</span></button>
+          <button type="button" data-i="1">n</button>
+          <button type="button" class="c-gvs" data-i="2">i</button>
+          <button type="button" class="c-scribe" data-i="3"><span class="sil">gh</span></button>
+          <button type="button" data-i="4">t</button>
+        </div>
+        <p class="finfo" id="fossilInfo" aria-live="polite"><b>knight</b> /naɪt/ = 나잇. 그런데 철자는 <b>k-n-i-gh-t</b>. 1400년 무렵에는 정말 <b>[크니히트]</b>라고 읽었습니다. 소리는 바뀌고, 글자는 남았습니다.</p>
+        <div class="flegend"><span><i style="background:var(--lg)"></i>사라진 게르만 소리</span><span><i style="background:var(--lf)"></i>노르만 서기의 철자</span><span><i style="background:var(--pr)"></i>대모음추이</span></div>
+      </div>
+      <div class="vids" aria-label="참고 영상">
+        <div><i class="vk">R</i>RobWords · 22분 전체 역사</div>
+        <div><i class="vk">N</i>English with Nab · 11분 요약</div>
+        <div><i class="vk">G</i>engVid Gill · 어휘의 출신</div>
+        <div><i class="vk lugh">L</i>Fortress of Lugh · 잉글랜드 사람들의 기원</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 2 · WARM-UP ================= -->
+<section class="slide a-in" data-label="워밍업: 소리 내어 읽기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">워밍업</span><span class="en">Read these out loud</span></p>
+      <h2>소리 내어 읽어 보세요</h2>
+      <p class="sub">한글 다섯 단어, 영어 일곱 단어. 어느 쪽이 더 쉬운가요?</p>
+      <div class="duo">
+        <div class="panel">
+          <h3>한글</h3>
+          <div class="hangul">
+            <span>바다 · 하늘</span><span class="r">쓰인 대로</span>
+            <span>닭이</span><span class="r">[달기]</span>
+            <span>값이</span><span class="r">[갑씨]</span>
+            <span>신라</span><span class="r">[실라]</span>
+          </div>
+          <p class="cap">한글에도 규칙이 있지만, 규칙이 몇 개 안 되고 예외가 거의 없습니다.</p>
+        </div>
+        <div class="panel">
+          <h3>영어: 같은 철자 ough, 소리 7가지</h3>
+          <div class="ough">
+            <button type="button" class="say" data-say="ough-though"><b class="en">th<u>ough</u></b><small class="ipa">/oʊ/</small></button>
+            <button type="button" class="say" data-say="ough-through"><b class="en">thr<u>ough</u></b><small class="ipa">/uː/</small></button>
+            <button type="button" class="say" data-say="ough-tough"><b class="en">t<u>ough</u></b><small class="ipa">/ʌf/</small></button>
+            <button type="button" class="say" data-say="ough-cough"><b class="en">c<u>ough</u></b><small class="ipa">/ɔːf/</small></button>
+            <button type="button" class="say" data-say="ough-bough"><b class="en">b<u>ough</u></b><small class="ipa">/aʊ/</small></button>
+            <button type="button" class="say" data-say="ough-thought"><b class="en">th<u>ough</u>t</b><small class="ipa">/ɔː/</small></button>
+            <button type="button" class="say" data-say="ough-thorough"><b class="en">thor<u>ough</u></b><small class="ipa">/oʊ/ · /ə/</small></button>
+          </div>
+        </div>
+      </div>
+      <aside class="box key">
+        <p><b>왜 이렇게 됐을까?</b> 오늘의 답을 미리 세 줄로:</p>
+        <p>① 영어 철자는 대략 <b>1400~1700년</b> 사이에 굳었다. ② 그런데 <b>소리는 그 뒤에도 계속 변했다.</b> ③ 여러 언어에서 단어를 빌리면서 <b>그 언어의 철자도 함께</b> 가져왔다.</p>
+      </aside>
+      <p class="small muted">그래서 영어 철자는 '발음 기호'가 아니라 <b>역사 기록</b>에 가깝습니다. 기록을 읽는 법을 배우면 됩니다.</p>
+    </div>
+    <div class="col-media">
+      <div class="player" data-v="nab"></div>
+      <div class="chapters">
+        <button type="button" data-v="nab" data-t="0:00" data-q="Have you ever wondered why English is so full of strange spellings, borrowed words and odd grammar rules? In this video we'll explore the fascinating history of the English language."><i class="vk">N</i><b>0:00</b>이상한 철자, 빌린 단어, 이상한 문법</button>
+        <button type="button" data-v="rob" data-t="15:14" data-q="…meaning they sometimes represented pronunciations that were already out of use. And we still have those dodgy spellings today. The way we write out long vowel sounds is an absolute mess."><i class="vk">R</i><b>15:14</b>"absolute mess"</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 3 · DESIGNED VS ACCUMULATED ================= -->
+<section class="slide a-in" data-label="한글은 설계됐고 영어는 쌓였다">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">한글 vs 알파벳</span><span class="en">Designed vs. accumulated</span></p>
+      <h2>한글은 <span class="hl">설계</span>됐고, 영어 철자는 <span class="hl">쌓였다</span></h2>
+      <table class="t" style="margin:.6rem 0 .65rem">
+        <thead><tr><th></th><th>한글</th><th>영어 알파벳</th></tr></thead>
+        <tbody>
+          <tr><th>시작</th><td>1443년 세종이 소리를 분석해 <b>새로 만듦</b> (1446 반포)</td><td>라틴어용 로마 알파벳을 <b>빌려 씀</b> (7세기 무렵부터)</td></tr>
+          <tr><th>모양</th><td>자음 = 발음 기관 모양, 획을 더하면 소리가 세짐 (ㄱ→ㅋ)</td><td>모양과 소리는 무관. 없는 소리는 th, sh, ng처럼 <b>두 글자로 땜질</b></td></tr>
+          <tr><th>수</th><td>24자 (처음 28자) ↔ 소리가 거의 1:1</td><td><b>26자 ↔ 약 44소리</b>. 모음 글자 5개로 모음 소리 약 20개 (영국 표준 발음 기준)</td></tr>
+          <tr><th>변화</th><td>소리가 바뀌면 표기 규칙도 정비 (1933 통일안, 1988 맞춤법)</td><td>철자는 1400~1700년 무렵 굳고, <b>소리는 계속 변함</b></td></tr>
+          <tr><th>결과</th><td>처음 보는 단어도 바로 읽는다</td><td>처음 보는 단어는 <b>추측</b>해야 한다</td></tr>
+        </tbody>
+      </table>
+      <aside class="box bridge">
+        <h3>정직한 비교: 한글도 100% 소리대로는 아니다</h3>
+        <p>한글 맞춤법 제1항: "표준어를 <b>소리대로 적되, 어법에 맞도록</b> 함을 원칙으로 한다." <b>닭이</b>를 [달기]로 적지 않는 건 '닭'이라는 <b>뜻의 모양</b>을 지키기 위해서입니다. 영어도 같은 일을 합니다. 다만 거기에 <b>1,500년의 역사</b>가 더해졌을 뿐입니다.</p>
+      </aside>
+      <aside class="box trap">
+        <h3>원어민 아이도 어렵다</h3>
+        <p>유럽 13개 언어의 초등 1학년을 비교한 연구에서, 영어권 아이들이 읽기를 익히는 속도가 가장 느렸습니다. <span class="en">“The rate of development in English is more than twice as slow as in the shallow orthographies.”</span> <span class="cite">Seymour, Aro &amp; Erskine (2003)</span> 어렵게 느끼는 건 당신 탓이 아닙니다.</p>
+      </aside>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>한글: 소리 나는 모양을 그렸다 (훈민정음 해례)</h3>
+        <div class="shapes">
+          <div class="shape"><b>ㄱ</b><span>혀뿌리가 목구멍을 막는 모양</span></div>
+          <div class="shape"><b>ㄴ</b><span>혀끝이 윗잇몸에 닿는 모양</span></div>
+          <div class="shape"><b>ㅁ</b><span>입 모양</span></div>
+          <div class="shape"><b>ㅅ</b><span>이 모양</span></div>
+          <div class="shape"><b>ㅇ</b><span>목구멍 모양</span></div>
+        </div>
+        <p class="cap">기본자에 획을 더해 ㄱ→ㅋ, ㄴ→ㄷ→ㅌ, ㅅ→ㅈ→ㅊ. 모양만 봐도 소리의 관계가 보입니다.</p>
+      </div>
+      <div class="panel">
+        <h3>알파벳: 그림이 3,000년 동안 굴러 왔다</h3>
+        <div class="alpha"><span>소머리 그림</span><i>→</i><b>𐤀</b><span>페니키아</span><i>→</i><b>Α</b><span>그리스</span><i>→</i><b>A</b><span>로마</span><i>→</i><b>A</b><span>영어</span></div>
+        <p class="cap">A는 '소(aleph)'를 그린 글자였습니다. 글자 모양과 영어 소리 사이에는 아무 관계가 없습니다. 게다가 라틴어에는 /θ/ /ð/ /ʃ/ 같은 영어 소리가 없어서, 영어는 처음부터 '맞지 않는 옷'을 입고 출발했습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 4 · TIMELINE ================= -->
+<section class="slide a-in" data-label="1,500년 지도">
+  <div class="full">
+    <p class="kicker"><span class="tag">전체 지도</span><span class="en">1,500 years of English on one line</span></p>
+    <h2>1,500년을 한 줄로: 세 겹의 어휘, 두 번의 큰 '고정'</h2>
+    <p class="sub">띠를 누르면 그 시대 슬라이드로 갑니다. 같은 시기 한국에서는 훈민정음이 만들어졌습니다.</p>
+    <div class="tl" id="timeline">
+      <div class="tl-row"><span class="lab">영어의 시대</span><div class="tl-track">
+        <button type="button" class="band E" data-go="6" style="left:3.1%;width:39.9%">고대 영어 Old English · 450–1100</button>
+        <button type="button" class="band E" data-go="10" style="left:43%;width:24.5%">중세 영어 Middle · 1100–1500</button>
+        <button type="button" class="band E" data-go="14" style="left:67.5%;width:12.3%">초기 근대</button>
+        <button type="button" class="band E" data-go="15" style="left:79.8%;width:20.2%">근대·현대</button>
+      </div></div>
+      <div class="tl-row"><span class="lab">어휘의 층<small class="muted">누가 단어를 줬나</small></span><div class="tl-track">
+        <button type="button" class="band G" data-go="6" style="left:3.1%;width:39.9%">게르만: 앵글로색슨</button>
+        <button type="button" class="band Gn" data-go="8" style="left:24.1%;width:16.8%">+ 바이킹 노르드어</button>
+        <button type="button" class="band F" data-go="9" style="left:40.9%;width:26.6%">프랑스어: 노르만 정복</button>
+        <button type="button" class="band L" data-go="14" style="left:67.5%;width:12.3%">라틴·그리스어</button>
+        <button type="button" class="band N" data-go="15" style="left:79.8%;width:20.2%">전 세계 차용어</button>
+      </div></div>
+      <div class="tl-row"><span class="lab">소리·철자</span><div class="tl-track">
+        <button type="button" class="band P" data-go="12" style="left:61.3%;width:18.5%">대모음추이 1400–1700</button>
+        <span class="mark flip" style="left:83.1%"><span><b>1755</b>존슨 사전<i class="long">: 철자 확정</i></span></span>
+      </div></div>
+      <div class="tl-row"><span class="lab">사건</span><div class="tl-track">
+        <span class="mark" style="left:3%"><span><b>449</b>앵글로색슨</span></span>
+        <span class="mark" style="left:24.1%"><span><b>793</b>바이킹 습격</span></span>
+        <span class="mark" style="left:40.9%"><span><b>1066</b>노르만 정복</span></span>
+        <span class="mark" style="left:59%"><span><b>1362</b>의회에 영어</span></span>
+        <span class="mark" style="left:66%"><span><b>1476</b>인쇄기</span></span>
+        <span class="mark" style="left:74.3%"><span><b>1611</b>킹제임스 성경</span></span>
+      </div></div>
+      <div class="tl-row"><span class="lab">한국</span><div class="tl-track">
+        <span class="mark kr" style="left:64%"><span><b>1443</b>훈민정음 창제<i class="long">: 소리를 분석해 새 문자를 설계</i></span></span>
+      </div></div>
+      <div class="axis"><span style="left:0%">400</span><span style="left:18.4%">700</span><span style="left:36.8%">1000</span><span style="left:55.2%">1300</span><span style="left:73.6%">1600</span><span style="left:92%">1900</span></div>
+      <div class="tl-legend"><span><i style="background:var(--lg)"></i>게르만어 층 (고대 영어 + 노르드어)</span><span><i style="background:var(--lf)"></i>프랑스어 층</span><span><i style="background:var(--ll)"></i>라틴·그리스어 층</span><span><i style="background:var(--pr)"></i>소리 변화</span></div>
+    </div>
+    <div class="cards" style="margin-top:.6rem">
+      <div class="card top"><span class="ic">철자 SPELLING</span><p>노르만 서기 → 인쇄공 → 르네상스 학자 → 사전. <b>네 번의 손길</b>이 철자를 만들었다.</p></div>
+      <div class="card top"><span class="ic">발음 PRONUNCIATION</span><p>철자가 굳는 동안 <b>대모음추이</b>가 일어나 모음 글자의 값이 통째로 바뀌었다.</p></div>
+      <div class="card top"><span class="ic">어휘 VOCABULARY</span><p>게르만 → 프랑스 → 라틴·그리스. 한국어의 <b>고유어/한자어</b>처럼 층이 쌓였다.</p></div>
+      <div class="card top"><span class="ic">문법 GRAMMAR</span><p>어미(조사)가 닳아 없어지고 <b>어순 · 전치사 · 조동사</b>가 그 일을 넘겨받았다.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 5 · ROOTS ================= -->
+<section class="slide a-g" data-label="뿌리: 인도유럽어 → 게르만어">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">BC 4000년경 ~ AD 400년</span><span class="en">Proto-Indo-European → Proto-Germanic</span></p>
+      <h2>뿌리: 영어는 힌디어·러시아어의 먼 친척</h2>
+      <ol class="points">
+        <li><b>인도유럽조어</b> <span class="en">(Proto-Indo-European)</span>: 흑해 근처 사람들의 말. 영어·독일어·라틴어·러시아어·페르시아어·힌디어가 모두 여기서 갈라졌다. mother, brother, sun, star 같은 단어가 이때부터 있었다.
+          <span class="gl">한국어는 이 가족이 아니다. 어순·소리·문법이 모두 멀어서, 서로에게 가장 배우기 어려운 언어 그룹에 속한다 (미국 국무부 FSI: 영어 화자에게 한국어는 약 2,200시간 등급).</span></li>
+        <li><b>게르만조어</b> <span class="en">(Proto-Germanic)</span>로 갈라지며 자음이 한꺼번에 바뀌었다 (그림의 법칙 <span class="en">Grimm's law</span>): <b>p → f</b>, <b>k → h</b>, <b>t → θ(th)</b>.
+          <span class="gl">라틴어 pater, 영어 father. 라틴어 caput, 영어 head.</span></li>
+        <li>그 결과 영어에는 <b>'사촌 단어 쌍'</b>이 생겼다. 일상어는 게르만 쪽, 학술어는 나중에 빌린 라틴 쪽.</li>
+      </ol>
+      <div class="pairs">
+        <div class="pair"><b>father</b> · <em>paternal</em><span>p → f · 아버지의</span></div>
+        <div class="pair"><b>foot</b> · <em>pedal, pedestrian</em><span>p → f · 발</span></div>
+        <div class="pair"><b>fish</b> · <em>Pisces</em><span>p → f · 물고기자리</span></div>
+        <div class="pair"><b>heart</b> · <em>cardiac</em><span>k → h · 심장의</span></div>
+        <div class="pair"><b>hound</b> · <em>canine</em><span>k → h · 개의</span></div>
+        <div class="pair"><b>three</b> · <em>trio, triple</em><span>t → th · 셋</span></div>
+      </div>
+      <aside class="box bridge" style="margin-top:.6rem"><h3>공부 팁</h3><p>어려운 학술 단어(<span class="en">cardiac, pedestrian</span>)를 만나면 <b>게르만 사촌</b>(heart, foot)을 찾아보세요. 뜻이 바로 잡힙니다.</p></aside>
+    </div>
+    <div class="col-media">
+      <div class="player" data-v="rob"></div>
+      <div class="chapters">
+        <button type="button" data-v="rob" data-t="0:17" data-q="Their Proto-Indo-European language is the ancestor English shares with languages as geographically far apart as India and Iceland, and as diverse as Latin, Russian, Persian and Sanskrit."><i class="vk">R</i><b>0:17</b>인도에서 아이슬란드까지</button>
+        <button type="button" data-v="rob" data-t="0:34" data-q="It's in this ancient mother-language — theorised by linguists — that words we still have now appear in their earliest forms. Words like “mother” and “brother”, “sun” and “star”."><i class="vk">R</i><b>0:34</b>mother, brother, sun, star</button>
+        <button type="button" data-v="rob" data-t="1:40" data-q="…evolving into what we nowadays call Proto-Germanic. And in Proto-Germanic, words that had previously been pronounced with a “puh” sound started to be pronounced with a “fuh” sound."><i class="vk">R</i><b>1:40</b>p → f</button>
+        <button type="button" data-v="rob" data-t="2:00" data-q="Meaning this became this – an early form of our word “father”. “Kuh” sounds turned into “huh” sounds too, meaning this became this – an early form of our word “head”."><i class="vk">R</i><b>2:00</b>k → h: head</button>
+        <button type="button" data-v="rob" data-t="2:22" data-q="From them, we get our words “blood” and “bone”, “ground” and “gate”, “soul” and “sea”. Again: earthy, universal concepts."><i class="vk">R</i><b>2:22</b>blood, bone, sea</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 6 · OLD ENGLISH ================= -->
+<section class="slide a-g" data-label="고대 영어 (450–1100)">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">450 – 1100</span><span class="en">Old English (Anglo-Saxon)</span></p>
+      <h2>고대 영어: 앵글로색슨이 바다를 건너오다</h2>
+      <ul class="bul">
+        <li>5세기, 지금의 덴마크·독일 북부에서 <b>앵글족·색슨족·주트족</b>이 브리튼섬으로 이주. Angle-land → <b>England</b>.</li>
+        <li>원래 살던 켈트인의 말은 영어에 <b>거의 흔적이 없다</b>: 강·지명 정도 (Thames, London, Kent, Avon = '강'). 지배층만 바뀐 게 아니라 <b>대규모 이주</b>였기 때문이다 (2022년 <i>Nature</i> 유전자 연구).</li>
+        <li>룬 문자를 쓰다가 7세기경 로마 알파벳으로. 라틴어에 없는 소리용 글자를 더했다:</li>
+      </ul>
+      <div class="letters" style="margin:0 0 .6rem 1.1rem">
+        <span class="letter"><b class="oe">þ</b>thorn /θ/</span><span class="letter"><b class="oe">ð</b>eth /ð/</span><span class="letter"><b class="oe">æ</b>ash /æ/</span><span class="letter"><b class="oe">ƿ</b>wynn /w/</span>
+        <span class="small muted" style="align-self:center">→ 나중에 사라지고 th, w로 땜질</span>
+      </div>
+      <ul class="bul">
+        <li>고대 영어 단어의 <b>약 85%는 사라졌다</b>. 하지만 살아남은 것은 핵심 중의 핵심이다. 지금 가장 많이 쓰는 단어 40개 중 38개가 고대 영어 출신 (the, be, to, of, and, have, I, it, you, do…).</li>
+      </ul>
+      <aside class="box key"><p><b>핵심</b>: 영어의 '뼈대'(기본 단어, 대명사, be·have·do, 전치사)는 지금도 고대 영어다. 그래서 가장 자주 쓰는 단어일수록 <b>짧고 불규칙</b>하다.</p></aside>
+    </div>
+    <div class="col-media">
+      <div class="sample">
+        <h3>들어 보기: 주기도문 첫 줄 (1000년경, AI 재구성)</h3>
+        <p class="oe">Fæder ūre, þū þe eart on heofonum, sī þīn nama ġehālgod.</p>
+        <p class="tr en">Our Father, who art in heaven, hallowed be thy name.</p>
+        <div class="says"><button type="button" class="say" data-say="oe-prayer">고대 영어 (재구성)</button><button type="button" class="say" data-say="now-prayer">현대 영어</button></div>
+      </div>
+      <div class="player small" data-v="rob"></div>
+      <div class="chapters">
+        <button type="button" data-v="rob" data-t="3:57" data-q="The area under the combined control of these Jutes, Angles and Saxons — these Anglo-Saxons — becomes known as Angleland – or to you and me, England."><i class="vk">R</i><b>3:57</b>Angleland → England</button>
+        <button type="button" data-v="rob" data-t="5:51" data-q="Now, Old English is a beautiful language but to the Modern English speaker it's just gibberish… around 85% of the vocab from Old English is no longer in use today."><i class="vk">R</i><b>5:51</b>85%가 사라짐</button>
+        <button type="button" data-v="rob" data-t="6:45" data-q="…we are using their Old English in every sentence that we utter. The words I am saying now all come from Old English."><i class="vk">R</i><b>6:45</b>모든 문장에 고대 영어</button>
+        <button type="button" data-v="nab" data-t="1:40" data-q="Here's a glimpse of what Old English looked like. If it looks completely foreign, that's because it is."><i class="vk">N</i><b>1:40</b>고대 영어 모습</button>
+        <button type="button" data-v="lugh" data-t="23:44" data-q="They were the glorious sons of Wihtgils, son of Witta, son of Weacta, son of Woden. In this genealogy may hide a clue to an ancient Germanic myth."><i class="vk lugh">L</i><b>23:44</b>Woden의 후손 (Wednesday)</button>
+        <button type="button" data-v="lugh" data-t="28:14" data-q="The language, of course, changed and to such an extent that there is hardly any Brythonic influence on English with only a limited number of borrowed words. All of this strongly suggests that a mass migration event was responsible for these changes."><i class="vk lugh">L</i><b>28:14</b>켈트어 흔적이 거의 없다</button>
+        <button type="button" data-v="lugh" data-t="30:21" data-q="Upwards of 76% of the ancestry of those in eastern England tested was derived from this North Sea immigration. (Gretzinger et al., Nature 2022)"><i class="vk lugh">L</i><b>30:21</b>유전자 연구 76%</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 7 · OLD ENGLISH GRAMMAR ================= -->
+<section class="slide a-g" data-label="고대 영어 문법 = 한국어처럼 조사">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">고대 영어 문법</span><span class="en">Case endings worked like Korean particles</span></p>
+      <h2>고대 영어는 한국어처럼 <span class="hl">'조사'</span>로 말했다</h2>
+      <p class="lead">고대 영어는 단어 끝(어미)과 관사로 <b>누가 했고 누가 당했는지</b>를 표시했습니다. 한국어의 <b>이/가, 을/를</b>과 같은 역할입니다. 그래서 순서를 바꿔도 뜻이 같았습니다.</p>
+      <div class="oed">
+        <div class="r same"><span class="oe"><span class="nom">se hunta</span> ofslōh <span class="acc">þone beran</span>.</span><span class="ko">사냥꾼<span class="nom">이</span> 곰<span class="acc">을</span> 죽였다.</span><button type="button" class="say" data-say="oe-hunta1">듣기</button></div>
+        <div class="r same"><span class="oe"><span class="acc">þone beran</span> ofslōh <span class="nom">se hunta</span>.</span><span class="ko">곰<span class="acc">을</span> 사냥꾼<span class="nom">이</span> 죽였다. <b>(같은 뜻)</b></span><button type="button" class="say" data-say="oe-hunta2">듣기</button></div>
+        <div class="r diff"><span class="oe"><span class="nom">se bera</span> ofslōh <span class="acc">þone huntan</span>.</span><span class="ko">곰<span class="nom">이</span> 사냥꾼<span class="acc">을</span> 죽였다. <b>(어미가 바뀜)</b></span><button type="button" class="say" data-say="oe-hunta3">듣기</button></div>
+      </div>
+      <p class="small" style="margin:.5rem 0"><span class="nom">se / -a</span> = 주어 표시 (이/가), <span class="acc">þone / -an</span> = 목적어 표시 (을/를). 현대 영어 <span class="en"><b>The hunter killed the bear.</b></span>는 순서를 바꾸면 뜻이 뒤집힙니다. <button type="button" class="say" data-say="now-hunter">현대 영어</button></p>
+      <ul class="bul">
+        <li><b>격 4개</b> (주격·대격·속격·여격), <b>성 3개</b>: sunne(해)는 여성, mōna(달)는 남성, wīf(아내)는 <b>중성</b>.</li>
+        <li><b>쌍수</b> 대명사: wit = '우리 둘', git = '너희 둘'.</li>
+      </ul>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>지금도 남은 고대 영어 문법의 화석</h3>
+        <div class="fossils">
+          <div><b>he / him / his</b><br>대명사에만 남은 격</div>
+          <div><b>who / whom / whose</b><br>격 변화의 마지막 흔적</div>
+          <div><b>the king's</b><br>소유격 어미 -es → 's</div>
+          <div><b>feet, teeth, mice</b><br>모음을 바꾸는 복수</div>
+          <div><b>oxen, children</b><br>-en 복수의 생존자</div>
+          <div><b>sing–sang–sung</b><br>모음을 바꾸는 과거형</div>
+        </div>
+        <p class="cap">규칙에서 벗어난 형태는 대부분 <b>가장 자주 쓰는 단어</b>입니다. 너무 자주 써서 '규칙화'에서 살아남았습니다.</p>
+      </div>
+      <div class="player small" data-v="rob"></div>
+      <div class="chapters">
+        <button type="button" data-v="rob" data-t="6:13" data-q="And Old English's grammar? Oh boy, is it different. It has a complicated system of word endings based around four grammatical cases… And it has three grammatical genders: masculine, feminine and neuter."><i class="vk">R</i><b>6:13</b>격 4개, 성 3개</button>
+        <button type="button" data-v="rob" data-t="6:31" data-q="You know we have singular and plural pronouns? Well, Old English had a third type: dual pronouns that you use when referring to two people."><i class="vk">R</i><b>6:31</b>쌍수 대명사</button>
+        <button type="button" data-v="rob" data-t="7:10" data-q="A lot of our weird plurals are direct holdovers from Old English grammar. We have “feet” and “mice” instead of “foots” and “mouses” as a result of the weird way Anglo-Saxons changed vowel sounds in some plurals."><i class="vk">R</i><b>7:10</b>feet, mice</button>
+        <button type="button" data-v="rob" data-t="7:29" data-q="“Oxen” is the last vestige of the Old English N plurals and “wolf” becomes “wolves” because of the way the Anglo-Saxons would pronounce an F like a V sometimes."><i class="vk">R</i><b>7:29</b>oxen, wolves</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 8 · VIKINGS ================= -->
+<section class="slide a-g" data-label="바이킹 (793–1066)">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">793 – 1066</span><span class="en">The Vikings and Old Norse</span></p>
+      <h2>바이킹: 형제 언어가 한 마을에서 섞이다</h2>
+      <ul class="bul">
+        <li>793년 수도원 습격으로 시작해, 9세기에는 잉글랜드 북동부 절반이 바이킹 땅(<b>데인로</b> <span class="en">Danelaw</span>)이 됐다.</li>
+        <li>고대 노르드어와 고대 영어는 <b>어간은 비슷하고 어미가 다른</b> 사촌 언어. 서로 대충 알아들었다.</li>
+        <li>섞여 살면서 단어의 <b>어미를 흐리게</b> 말해도 통했다 → 어미 소멸이 빨라졌을 것이라는 가설 (확실하지는 않음).</li>
+        <li>보통은 '어려운 단어'를 빌리는데, 이때는 <b>가장 기본적인 단어</b>까지 빌렸다:</li>
+      </ul>
+      <p class="w" style="margin:0 0 .5rem 1.1rem;line-height:1.7"><span class="lay G">they</span> <span class="lay G">them</span> <span class="lay G">their</span> <span class="lay G">are</span> <span class="lay G">take</span> <span class="lay G">get</span> <span class="lay G">give</span> <span class="lay G">egg</span> <span class="lay G">sky</span> <span class="lay G">skin</span> <span class="lay G">window</span> <span class="lay G">knife</span> <span class="lay G">husband</span> <span class="lay G">law</span> <span class="lay G">ugly</span> <span class="lay G">call</span></p>
+      <aside class="box key"><p><b class="en">“Take them as they are.”</b> 이 문장은 거의 전부 바이킹의 말이다. 대명사(they)를 빌리는 일은 언어 역사에서 매우 드물다. 그만큼 깊이 섞였다는 뜻이다.</p></aside>
+      <aside class="box bridge"><h3>sk = 바이킹, sh = 영어</h3><p>같은 뿌리에서 온 쌍둥이: <b>skirt</b>(노르드어) / <b>shirt</b>(영어). 영어에서는 sk가 sh로 변했지만 노르드어는 sk를 지켰다. <button type="button" class="say" data-say="skirt">skirt</button> <button type="button" class="say" data-say="shirt">shirt</button> → sky, skill, skull, skin이 보이면 바이킹 출신일 가능성이 높다.</p></aside>
+    </div>
+    <div class="col-media">
+      <div class="player" data-v="rob"></div>
+      <div class="chapters">
+        <button type="button" data-v="rob" data-t="8:31" data-q="An area that became known as the Danelaw. And in this area, the North Germanic language of the Vikings, Old Norse, came into conflict with the West Germanic language of the Anglo-Saxons, Old English."><i class="vk">R</i><b>8:31</b>데인로</button>
+        <button type="button" data-v="rob" data-t="9:05" data-q="The Norsemen also gave us such essential elements of our language as the verb “to take”, our pronouns “they”, “them” and “their”, and a word as basic as “are”. Meaning “take them as they are” is almost entirely Scandinavian."><i class="vk">R</i><b>9:05</b>take them as they are</button>
+        <button type="button" data-v="rob" data-t="9:37" data-q="Rubbing up against Old Norse may have been what finally finished off English grammatical gender. But no one's really sure about that one. It's a mystery."><i class="vk">R</i><b>9:37</b>문법 성이 사라진 이유?</button>
+        <button type="button" data-v="nab" data-t="3:24" data-q="Words like sky, originally ský in Old Norse, replaced the Old English word… Even everyday terms like window, derived from the Old Norse vindauga, literally ‘wind eye’, found their place in the English language."><i class="vk">N</i><b>3:24</b>window = 바람의 눈</button>
+        <button type="button" data-v="lugh" data-t="49:06" data-q="This was possible because of the vast similarities between them. The languages were still very similar at that time and to some basic extent were mutually understandable."><i class="vk lugh">L</i><b>49:06</b>서로 알아들었다</button>
+        <button type="button" data-v="lugh" data-t="49:18" data-q="Words like sky, aloft, berserk, anger, wrong, quarrel, until, thrust, sly, seat, lift, knife, kid, hug, haggle, and many, many more."><i class="vk lugh">L</i><b>49:18</b>sky, anger, hug…</button>
+        <button type="button" data-v="lugh" data-t="49:58" data-q="And it was not just words that were adopted, but there are arguments that grammar was also affected."><i class="vk lugh">L</i><b>49:58</b>문법에도 영향?</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!--__PART2__-->
+
+</main>
+
+<div class="bar-bottom">
+  <span id="label"></span>
+  <div class="ctrls">
+    <button type="button" id="theme" aria-label="다크 모드 전환 (T)" title="다크 모드 (T)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+    <button type="button" id="full" aria-label="전체 화면 (F)" title="전체 화면 (F)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
+    <button type="button" id="prev" aria-label="이전 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <span class="count" id="count"></span>
+    <button type="button" id="next" aria-label="다음 슬라이드"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg></button>
+  </div>
+</div>
+
+<script>
+const DATA = /*__DATA__*/;
+const AUDIO = /*__AUDIO__*/;
+</script>
+<script>
+/*__JS__*/
+</script>
+</body>
+</html>

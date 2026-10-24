@@ -1,0 +1,1664 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>문장이 자란다</title>
+<style>
+:root{
+  --bg:#f7f5f0; --panel:#ffffff; --soft:#f0ece3; --ink:#1c2128; --muted:#5f6772; --line:#e2ddd2;
+  --accent:#0f766e; --accent-ink:#ffffff; --good:#15803d; --bad:#b91c1c; --warn:#c2410c; --rev:#d97706;
+  --S:#2563eb; --V:#dc2626; --H:#7c3aed; --N:#db2777; --O:#15803d; --C:#ea580c; --M:#64748b; --Q:#0891b2; --K:#b45309; --G:#94a3b8; --X:#334155;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.06);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#13161b; --panel:#1b1f26; --soft:#232832; --ink:#e8eaee; --muted:#9aa3ae; --line:#2e3440;
+    --accent:#2dd4bf; --accent-ink:#06201d; --good:#4ade80; --bad:#f87171; --warn:#fb923c; --rev:#fbbf24;
+    --S:#60a5fa; --V:#f87171; --H:#a78bfa; --N:#f472b6; --O:#4ade80; --C:#fb923c; --M:#94a3b8; --Q:#22d3ee; --K:#fbbf24; --G:#64748b; --X:#cbd5e1;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#13161b; --panel:#1b1f26; --soft:#232832; --ink:#e8eaee; --muted:#9aa3ae; --line:#2e3440;
+  --accent:#2dd4bf; --accent-ink:#06201d; --good:#4ade80; --bad:#f87171; --warn:#fb923c; --rev:#fbbf24;
+  --S:#60a5fa; --V:#f87171; --H:#a78bfa; --N:#f472b6; --O:#4ade80; --C:#fb923c; --M:#94a3b8; --Q:#22d3ee; --K:#fbbf24; --G:#64748b; --X:#cbd5e1;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 18px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);overflow:hidden;
+  font-family:"Segoe UI","Malgun Gothic","맑은 고딕","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+kbd{font:700 .78em/1 inherit;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 5px;background:var(--soft);color:var(--muted)}
+a{color:var(--accent)}
+#stage{position:fixed;left:0;right:0;top:0;bottom:46px;overflow:hidden}
+#canvas{width:1280px;height:720px;position:absolute;left:50%;top:50%;background:var(--bg);transform-origin:center center;transform:translate(-50%,-50%)}
+#bar{position:fixed;left:0;top:0;height:3px;background:var(--accent);transition:width .25s;z-index:5}
+#nav{position:fixed;left:0;right:0;bottom:0;height:46px;display:flex;align-items:center;gap:6px;padding:0 10px;
+  background:var(--panel);border-top:1px solid var(--line);font-size:14px;z-index:6}
+#nav .nb{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:5px 10px;line-height:1.2;white-space:nowrap}
+#nav .nb:hover{border-color:var(--accent)}
+#nav .nb.off{opacity:.5;text-decoration:line-through}
+#nav .cnt{min-width:70px;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted)}
+#nav .ttl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);padding:0 8px}
+#nav input{width:78px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:8px;padding:5px 8px;font:inherit}
+
+/* ---------- frame ---------- */
+.slide{position:absolute;inset:0;padding:16px 32px 12px;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:6px 11px;font-size:14px;line-height:1.2;box-shadow:var(--shadow)}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.sm{padding:3px 9px;font-size:12.5px;box-shadow:none}
+.btn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.no{color:var(--bad);font-weight:900}.yes{color:var(--good);font-weight:900}
+.g-head{border-bottom:2px solid var(--line);padding-bottom:8px;flex:0 0 auto}
+.kick{font-size:12.5px;font-weight:800;color:var(--accent);letter-spacing:.04em}
+.g-head h2{margin:2px 0 0;font-size:28px;line-height:1.2;letter-spacing:-.01em}
+.g-head p{margin:4px 0 0;color:var(--muted);font-size:15px;line-height:1.45}
+
+/* ---------- step header ---------- */
+.s-head{display:flex;align-items:flex-end;gap:16px;border-bottom:2px solid var(--line);padding-bottom:8px;flex:0 0 auto}
+.s-head .hl{flex:1;min-width:0}
+.rpill{display:inline-block;font-size:12.5px;font-weight:800;color:var(--panel);background:var(--rc);border-radius:999px;padding:3px 11px}
+.sno{font-size:12.5px;font-weight:800;color:var(--muted);margin-left:8px}
+.s-head h2{margin:5px 0 0;font-size:27px;line-height:1.2;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rdots{display:flex;gap:4px;align-items:center}
+.rdots button{width:27px;height:27px;border-radius:50%;border:2px solid var(--rc);background:var(--panel);font-size:11px;font-weight:800;padding:0}
+.rdots button.done{background:color-mix(in srgb,var(--rc) 22%,var(--panel))}
+.rdots button.cur{background:var(--rc);color:var(--panel)}
+.prev{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted);min-height:26px;white-space:nowrap;overflow:hidden;flex:0 0 auto}
+.prev .pv{color:var(--ink);font-weight:650}
+.prev .sl{cursor:pointer;text-decoration:underline;color:var(--muted)}
+.prev .seed{font-weight:800;color:var(--good)}
+.dch{display:inline-flex;gap:5px;overflow:hidden}
+.dc{font-size:12.5px;font-weight:700;border-radius:999px;padding:2px 9px;border:1px solid var(--line);background:var(--soft);white-space:nowrap}
+.dc.add{color:var(--good);border-color:color-mix(in srgb,var(--good) 45%,var(--line));background:color-mix(in srgb,var(--good) 9%,var(--panel))}
+.dc.chg{color:var(--warn);border-color:color-mix(in srgb,var(--warn) 45%,var(--line));background:color-mix(in srgb,var(--warn) 9%,var(--panel))}
+.dc.mv{color:var(--H);border-color:color-mix(in srgb,var(--H) 45%,var(--line));background:color-mix(in srgb,var(--H) 9%,var(--panel))}
+.dc.del{color:var(--muted);text-decoration:line-through}
+
+/* ---------- stage ---------- */
+.stg{position:relative;flex:0 0 300px;padding:0 16px;overflow:hidden}
+.stg-ctl{position:absolute;right:10px;top:8px;display:flex;gap:5px;z-index:4}
+.stage-in{position:relative;height:100%;display:flow-root}
+.host{position:relative;margin-top:var(--atop,104px);text-align:center;white-space:nowrap}
+.korow{display:flex;justify-content:center;gap:.45em;margin-top:var(--kgap,48px);font-size:20px;white-space:nowrap;transition:opacity .4s}
+.korow.later{opacity:0}
+svg.arcs,svg.mlines,.alabs{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+svg.arcs path.arc{fill:none;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw .65s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+svg.arcs path.w3{stroke-width:4.4;opacity:.95}
+svg.arcs path.w2{stroke-width:2.6;opacity:.75}
+svg.arcs path.w1{stroke-width:1.6;opacity:.6}
+svg.arcs circle{animation:fadein .4s ease both}
+svg.mlines path{fill:none;stroke-width:2;opacity:.55;animation:fadein .5s ease both}
+.alab{position:absolute;transform:translate(-50%,-50%);font-size:12px;font-weight:800;padding:1px 8px;border-radius:999px;background:var(--panel);
+  border:1.5px solid var(--rc);color:var(--rc);white-space:nowrap;animation:fadein .4s ease both;line-height:1.35}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.no-arcs svg.arcs,.no-arcs .alabs{display:none}
+.no-mirror .korow,.no-mirror svg.mlines{visibility:hidden}
+.kc{font-weight:650;padding:.15em .5em;border-radius:.45em;background:color-mix(in srgb,var(--rc) 10%,var(--panel));border:1.5px solid color-mix(in srgb,var(--rc) 50%,var(--line))}
+.kc.dim{opacity:.55;border-style:dashed}
+
+/* ---------- blocks ---------- */
+.sent{display:inline-block;white-space:nowrap;line-height:1.2;font-weight:600;letter-spacing:-.005em;text-align:left}
+.b{display:inline-flex;flex-direction:column;align-items:stretch;margin:0 .06em;--rc:var(--X);position:relative;vertical-align:baseline}
+.r-S{--rc:var(--S)}.r-V{--rc:var(--V)}.r-H{--rc:var(--H)}.r-N{--rc:var(--N)}.r-O{--rc:var(--O)}.r-C{--rc:var(--C)}
+.r-M{--rc:var(--M)}.r-Q{--rc:var(--Q)}.r-K{--rc:var(--K)}.r-G{--rc:var(--G)}.r-X{--rc:var(--X)}
+.b>.bt{padding:.04em .26em .06em;border-radius:.26em;background:color-mix(in srgb,var(--rc) 12%,var(--panel));border-bottom:.1em solid var(--rc)}
+.b>.bl{font-size:max(10.5px,.28em);font-weight:800;color:var(--rc);text-align:center;letter-spacing:.02em;line-height:1.15;padding-top:.28em;white-space:nowrap}
+.b.in>.bt{background:color-mix(in srgb,var(--rc) 7%,transparent);border:1px dashed color-mix(in srgb,var(--rc) 55%,transparent);border-bottom:.08em solid var(--rc);padding:0 .16em}
+.b.in>.bl{font-size:max(9.5px,.24em)}
+.b.x>.bt{background:transparent;border:0;padding:0}
+.b.x>.bl{display:none}
+.b.gap>.bt{background:transparent;border:1px dashed var(--G);color:var(--muted);font-style:italic;font-weight:500}
+.nolab .b>.bl{display:none}
+.b.seat::before{content:"2";position:absolute;left:-.1em;top:-.5em;font-size:.3em;font-weight:900;width:1.6em;height:1.6em;line-height:1.6em;
+  text-align:center;border-radius:50%;background:var(--ink);color:var(--bg);z-index:2;font-style:normal}
+.b.mv{transition:transform .8s cubic-bezier(.2,.8,.2,1)}
+.b.new{animation:pop .7s cubic-bezier(.2,.9,.3,1.25) .3s both}
+.b.new>.bt,.b.wrap>.bt{animation:glow 1.8s ease .3s}
+.b.chg>.bt{animation:flash 1.6s ease .25s}
+@keyframes pop{0%{opacity:0;transform:translateY(-.5em) scale(.6)}100%{opacity:1;transform:none}}
+@keyframes glow{0%,45%{box-shadow:0 0 0 .14em color-mix(in srgb,var(--rc) 45%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes flash{0%{box-shadow:0 0 0 0 transparent}25%,55%{box-shadow:0 0 0 .16em color-mix(in srgb,var(--warn) 55%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+.ghost{position:absolute;pointer-events:none;margin:0;animation:gone .6s ease forwards;white-space:nowrap}
+@keyframes gone{to{opacity:0;transform:translateY(.7em) scale(.85)}}
+.oldtag{position:absolute;pointer-events:none;color:var(--warn);font-weight:700;white-space:nowrap;animation:rise 1.9s ease forwards}
+@keyframes rise{0%{opacity:0;transform:translateY(.4em)}20%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translateY(-.8em)}}
+.noanim *{animation:none!important;transition:none!important}
+.noanim svg.arcs path.arc{stroke-dashoffset:0}
+.noanim .oldtag,.noanim .ghost{display:none}
+
+/* ---------- step bottom ---------- */
+.s-bot{flex:1;min-height:0;display:grid;grid-template-columns:1.45fr 1fr .95fr;gap:12px}
+.pane{padding:11px 15px;overflow:hidden;font-size:15.5px;line-height:1.5;min-height:0}
+.pane h3{margin:0 0 6px;font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.02em}
+.pane h3.mt{margin-top:12px}
+.why ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.why li{position:relative;padding-left:18px}
+.why li::before{content:"";position:absolute;left:3px;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--rc)}
+.why li.lit{background:color-mix(in srgb,var(--rc) 10%,transparent);border-radius:8px}
+.why li.dim{opacity:.4}
+.mind{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.mind span{background:var(--soft);border:1px solid var(--line);border-radius:7px;padding:1px 8px;font-size:14.5px}
+.mind i{color:var(--muted);font-style:normal;font-size:12px}
+.kos{font-size:15px;color:var(--ink)}
+.side{display:flex;flex-direction:column;gap:8px}
+.side .sp{flex:1}
+.seatbox{font-size:14.5px}
+.seatbox .w{display:inline-block;font-weight:800;border-radius:7px;padding:0 8px;background:color-mix(in srgb,var(--H) 12%,var(--panel));border:1.5px solid var(--H)}
+.rrule{font-size:14px;color:var(--muted);border-left:3px solid var(--rc);padding-left:9px}
+.ulinks{display:flex;flex-wrap:wrap;gap:5px}
+.ulink{font-size:12.5px;border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:2px 9px;text-decoration:none;color:var(--ink);white-space:nowrap}
+.ulink:hover{border-color:var(--accent)}
+.cmpc{border:1px solid var(--line);border-radius:10px;padding:6px 9px;font-size:14px;background:var(--bg)}
+.cmpc b{display:block;font-size:14.5px}
+.cmpc.ok{border-color:color-mix(in srgb,var(--good) 55%,var(--line))}
+.cmpc.meh{border-color:color-mix(in srgb,var(--rev) 55%,var(--line))}
+.cmpc small{color:var(--muted)}
+
+/* ---------- switch ---------- */
+.sw{display:flex;flex-direction:column;gap:7px}
+.swr .nm{font-size:12.5px;font-weight:800;color:var(--muted);margin-bottom:3px}
+.swr .opts{display:flex;flex-wrap:wrap;gap:4px}
+.opt{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:2px 10px;font-size:13.5px}
+.opt:hover{border-color:var(--rc,var(--accent))}
+.opt.on{background:var(--rc,var(--accent));color:var(--panel);border-color:var(--rc,var(--accent))}
+.swr .nt{font-size:12px;color:var(--muted);margin-top:2px}
+.swlog{font-size:13.5px;color:var(--muted);min-height:1.4em}
+.swlog b{color:var(--warn)}
+
+/* ---------- other slides ---------- */
+.cover{justify-content:center;gap:14px}
+.cover h1{font-size:62px;margin:2px 0 4px;letter-spacing:-.02em;line-height:1.05}
+.cover .cv-top p{margin:0;font-size:18px;color:var(--muted)}
+.cv-stage{flex:0 0 290px}
+.cv-pr{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.cv-pr .card{padding:12px 16px;border-top:4px solid var(--rc);display:flex;flex-direction:column;gap:4px;font-size:15px}
+.cv-pr b{font-size:17px}
+.cv-pr span{color:var(--muted)}
+.cv-foot{font-size:13.5px;color:var(--muted);text-align:center}
+.stg.mir{flex:0 0 226px}
+.mir .b>.bl{font-size:.4em}
+.note{padding:12px 18px;font-size:15.5px;line-height:1.55}
+.note b{color:var(--ink)}
+.row2{display:grid;gap:12px;flex:1;min-height:0}
+.p1l{padding:10px 14px;display:flex;flex-direction:column;gap:8px;min-height:0}
+.stg.mini{flex:0 0 190px;box-shadow:none;border:0;padding:0}
+table.hm{border-collapse:separate;border-spacing:4px;margin:0 auto;font-size:15px}
+table.hm th{font-weight:800;color:var(--muted);padding:2px 8px;font-size:13.5px}
+table.hm th.rq{text-align:right;cursor:pointer}
+table.hm td{width:62px;height:34px;text-align:center;border-radius:7px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer;
+  background:color-mix(in srgb,var(--accent) var(--p),var(--panel));color:var(--ink)}
+table.hm tr.on th.rq{color:var(--accent)}
+table.hm tr.on td{outline:2px solid var(--accent)}
+.hmcap{font-size:12.5px;color:var(--muted);text-align:center}
+.ev{display:flex;flex-direction:column;gap:10px;min-height:0}
+.ev .card{padding:10px 15px;font-size:15px;line-height:1.5}
+.ev .card b.t{display:block;font-size:16px;margin-bottom:2px}
+.ev small{color:var(--muted);font-size:12.5px;line-height:1.45}
+.p2t{display:grid;grid-template-columns:120px 1fr 1fr;gap:12px 14px;align-items:center;padding:12px 18px}
+.p2t .hd{font-size:12.5px;font-weight:800;color:var(--muted)}
+.p2t .wh{font-weight:800;font-size:14.5px}
+.cw{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.cw span{font-size:19px;padding:2px 8px;border-radius:7px;background:var(--soft);border:1px solid var(--line)}
+.cw span.wait{opacity:.45}
+.cw span.it{background:color-mix(in srgb,var(--accent) 16%,var(--panel));border:2px solid var(--accent);font-weight:800}
+.cw em{font-style:normal;font-size:12px;color:var(--muted);margin-left:6px}
+.meter{grid-column:2/-1;display:none}
+.mach{display:grid;grid-template-columns:1fr 330px;gap:12px;flex:0 0 auto}
+.machc{padding:8px 14px 10px;display:flex;flex-direction:column;gap:4px}
+.machc .stg{flex:0 0 150px;border:0;box-shadow:none;padding:0}
+.machb{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.machko{font-size:14.5px;color:var(--muted);text-align:center;min-height:1.4em}
+.rules{padding:10px 15px;font-size:14.5px;line-height:1.5}
+.rules ol{margin:4px 0 0;padding-left:20px}
+.rules li{margin-bottom:3px}
+table.grid{border-collapse:separate;border-spacing:0;width:100%;font-size:14.5px}
+table.grid th{font-size:12px;font-weight:800;color:var(--muted);text-align:left;padding:5px 8px;background:var(--soft);border-bottom:1px solid var(--line)}
+table.grid th.seatc{color:var(--H)}
+table.grid td{padding:3px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.grid td span{display:inline-block;border-radius:6px;padding:0 6px;background:color-mix(in srgb,var(--rc) 12%,var(--panel));border-bottom:2px solid var(--rc);font-weight:650}
+table.grid td.seatc{background:color-mix(in srgb,var(--H) 6%,transparent)}
+.gridc{padding:4px 8px;overflow:hidden}
+.stairs{flex:1;display:grid;grid-template-columns:repeat(8,1fr);gap:8px;align-items:start;min-height:0}
+.stair{display:flex;flex-direction:column;gap:4px}
+.stair .sh{border-top:4px solid var(--rc);background:var(--panel);border-radius:10px;padding:6px 8px;font-size:13.5px;font-weight:800;box-shadow:var(--shadow)}
+.stair .sh small{display:block;font-weight:600;color:var(--muted);font-size:11.5px}
+.sx{display:flex;gap:5px;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:4px 6px;font-size:11.5px;line-height:1.3;
+  border-left:3px solid var(--rc)}
+.sx:hover{border-color:var(--rc)}
+.sx i{font-style:normal;font-weight:800;color:var(--rc);min-width:16px}
+.sx span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px;color:var(--muted)}
+.legend .lg{display:inline-flex;align-items:center;gap:5px}
+.legend .lg i{width:14px;height:14px;border-radius:4px;background:color-mix(in srgb,var(--rc) 25%,var(--panel));border-bottom:3px solid var(--rc)}
+.links{display:flex;gap:8px;flex-wrap:wrap}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;flex:0 0 auto}
+.tab{border:1px solid var(--line);background:var(--soft);border-radius:999px;padding:4px 13px;font-size:13.5px}
+.tab.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.swp{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:1;min-height:0}
+.swp .pane{font-size:15px}
+.stg.ask-stg{flex:0 0 220px}
+.ask-ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:0 0 auto}
+.ask-ctl .lbl{font-size:13px;font-weight:800;color:var(--muted);margin-right:4px}
+.ask-ctl .sp{flex:1}
+.ask-ctl label{font-size:13.5px;display:flex;gap:5px;align-items:center;cursor:pointer}
+.ask-bot{flex:1;min-height:0;display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
+.qsteps{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.qsteps li{display:flex;gap:8px;align-items:flex-start;animation:fadein .5s ease both}
+.qsteps li b.n{flex:0 0 auto;display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:12px}
+.prompt{font-size:22px;font-weight:700;text-align:center;padding:16px}
+.prompt small{display:block;font-size:14px;color:var(--muted);font-weight:500;margin-top:6px}
+.dr-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px;color:var(--muted);flex:0 0 auto}
+.dr-top .sp{flex:1}
+.dr-prev{padding:8px 18px 10px;text-align:center;flex:0 0 auto}
+.dr-prev small{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px}
+.dr-ko{padding:12px 18px;font-size:26px;font-weight:700;text-align:center;flex:0 0 auto}
+.dr-ko small{display:block;font-size:13px;color:var(--muted);font-weight:500}
+.dzone{min-height:92px;border:2px dashed var(--line);border-radius:14px;padding:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;flex:0 0 auto}
+.dzone .ph{color:var(--muted);font-size:14px}
+.pool{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:56px;flex:0 0 auto}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:25px;font-weight:600;padding:5px 12px;border-radius:10px;--rc:var(--X);
+  border:1.5px solid color-mix(in srgb,var(--rc) 55%,var(--line));background:color-mix(in srgb,var(--rc) 10%,var(--panel));border-bottom:3px solid var(--rc)}
+.chip .nw{font-size:10px;font-weight:900;color:#fff;background:var(--good);border-radius:5px;padding:1px 4px}
+.chip.ok{box-shadow:0 0 0 3px var(--good)}
+.chip.bad{box-shadow:0 0 0 3px var(--bad)}
+.punct{font-size:24px;font-weight:700}
+.dr-ctl{display:flex;gap:8px;justify-content:center;flex:0 0 auto}
+.dr-fb{text-align:center;font-size:16px;min-height:1.5em;font-weight:700}
+.dr-fb.ok{color:var(--good)}.dr-fb.bad{color:var(--bad)}
+.cards{display:grid;gap:12px;flex:1;min-height:0}
+.cards .card{padding:12px 16px;font-size:14.5px;line-height:1.5;overflow:hidden}
+.cards .card h4{margin:0 0 5px;font-size:16.5px}
+.cards .card ul{margin:0;padding-left:18px}
+.cards .card li{margin-bottom:4px}
+.refs{font-size:12.5px;color:var(--muted)}
+.sumr{display:flex;flex-direction:column;gap:6px}
+.sumr button{display:flex;gap:10px;align-items:baseline;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:7px 12px;border-left:4px solid var(--rc);font-size:14.5px}
+.sumr button b{white-space:nowrap;min-width:150px}
+.sumr button:hover{border-color:var(--rc)}
+#stout{position:fixed;left:0;top:0;right:0;bottom:46px;overflow:auto;background:var(--panel);z-index:20;margin:0;padding:12px;font-size:12px}
+
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="stage"><div id="canvas"></div></div>
+<div id="nav">
+  <button class="nb" id="nPrev" title="이전 (←)">◀</button>
+  <span class="cnt" id="nCnt">1 / 1</span>
+  <button class="nb" id="nNext" title="다음 (→, Space)">▶</button>
+  <span class="ttl" id="nTtl"></span>
+  <button class="nb" id="nMap" title="지도 (M)">🗺 지도</button>
+  <button class="nb" id="nArc" title="attention 곡선 켜기/끄기 (A)">⌒ 곡선</button>
+  <button class="nb" id="nKo" title="한국어 거울 켜기/끄기 (K)">⇅ 거울</button>
+  <button class="nb" id="nLab" title="품사 라벨 켜기/끄기 (L)">🏷 라벨</button>
+  <button class="nb" id="nTheme" title="밝게/어둡게 (T)">🌓</button>
+  <button class="nb" id="nFull" title="전체 화면 (F)">⛶</button>
+  <input id="nGo" placeholder="Step #" title="Step 번호(1–45)를 입력하고 Enter">
+</div>
+<pre id="stout" hidden></pre>
+<script>
+'use strict';
+// ===== engine: markup → colour blocks, morph (FLIP), attention arcs, Korean mirror =====
+const Q_ = location.search + location.hash;
+const SELFTEST = /selftest/.test(Q_);
+const NOANIM = SELFTEST || /noanim/.test(Q_);
+if (NOANIM) document.documentElement.classList.add('noanim');
+const WARN = []; let CTX = '';
+function warn(m) { const s = (CTX ? CTX + ': ' : '') + m; if (!WARN.includes(s)) WARN.push(s); if (!SELFTEST) console.warn(s); }
+
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+function h(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+function svgEl(cls) { const e = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); e.setAttribute('class', cls); return e; }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+const md = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\*(.+?)\*/g, '<i>$1</i>')
+  .replace(/✗/g, '<span class="no">✗</span>').replace(/✓/g, '<span class="yes">✓</span>');
+
+let SCALE = 1, timers = [];
+function later(fn, ms) { const t = setTimeout(fn, ms); timers.push(t); return t; }
+function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+
+// ---------------------------------------------------------------- markup
+const ROLES = 'SVHNOCMQKGX';
+const LAB = {S: '주어 S', V: '동사 V', H: '조동사 Aux', N: '부정 not', O: '목적어 O', C: '보어 C', M: '수식어 M', Q: '의문사 Wh', K: '연결어', G: '생략 가능', X: ''};
+const LAB_IN = {s: '주어', v: '동사', h: '조동사', n: '부정', o: '목적어', c: '보어', m: '수식', q: '의문사', k: '연결', g: '생략', x: ''};
+const PCACHE = new Map();
+function parse(s) {
+  if (PCACHE.has(s)) return JSON.parse(PCACHE.get(s));
+  let i = 0;
+  const seq = end => {
+    const out = []; let buf = '';
+    while (i < s.length) {
+      const ch = s[i];
+      if (end && ch === end) { if (buf) out.push({t: 'txt', v: buf}); i++; return out; }
+      if (ch === '[') {
+        if (buf) { out.push({t: 'txt', v: buf}); buf = ''; }
+        const m = /^([A-Za-z])((?:#[A-Za-z0-9]+|\{[^}]*\})*) ?/.exec(s.slice(i + 1));
+        if (!m) throw new Error('bad block: ' + s);
+        i += 1 + m[0].length;
+        const n = {t: 'blk', role: m[1], id: null, lab: null};
+        (m[2].match(/#[A-Za-z0-9]+|\{[^}]*\}/g) || []).forEach(o => { if (o[0] === '#') n.id = o.slice(1); else n.lab = o.slice(1, -1); });
+        if (!ROLES.includes(n.role.toUpperCase())) throw new Error('unknown role ' + n.role + ': ' + s);
+        n.kids = seq(']');
+        out.push(n); continue;
+      }
+      if (ch === ']') throw new Error('stray ]: ' + s);
+      buf += ch; i++;
+    }
+    if (end) throw new Error('missing ' + end + ': ' + s);
+    if (buf) out.push({t: 'txt', v: buf});
+    return out;
+  };
+  const r = seq(null);
+  PCACHE.set(s, JSON.stringify(r));
+  return r;
+}
+function textOf(ns) { return ns.map(n => n.t === 'txt' ? n.v : (n.role.toUpperCase() === 'G' ? '' : textOf(n.kids))).join(''); }
+function plain(ns) { return textOf(ns).replace(/\s+/g, ' ').replace(/\s+([,.?!])/g, '$1').trim(); }
+function ownText(n) { return n.kids.filter(k => k.t === 'txt').map(k => k.v).join('').replace(/\s+/g, ' ').trim(); }
+function findBlk(ns, id) { for (const n of ns) { if (n.t !== 'blk') continue; if (n.id === id) return n; const r = findBlk(n.kids, id); if (r) return r; } return null; }
+function setText(ns, id, text) { const b = findBlk(ns, id); if (!b) { warn('setText: no block ' + id); return; } b.kids = [{t: 'txt', v: text}]; }
+function parseKm(s) { return s.split(';').map(x => x.trim()).filter(Boolean).map(x => { const j = x.lastIndexOf('|'); return [x.slice(0, j).trim(), x.slice(j + 1).trim().split(/\s+/)]; }); }
+function parseArcs(s) {
+  return s.split(';').map(x => x.trim()).filter(Boolean).map(x => {
+    const m = /^(\w+)-(\w+)\s+(\d)\s*(.*)$/.exec(x); if (!m) { warn('bad arc ' + x); return null; }
+    return [m[1], m[2], +m[3], m[4].trim()];
+  }).filter(Boolean);
+}
+function topKeyed(ns) { return ns.filter(n => n.t === 'blk' && n.id).map(n => ({k: n.id, R: n.role.toUpperCase()})); }
+function autoSeat(ns) { const t = topKeyed(ns); const x = t.find(b => b.R === 'H') || t.find(b => b.R === 'V'); return x ? x.k : null; }
+function autoArcs(ns) {
+  const t = topKeyed(ns), f = p => t.findIndex(p), out = [];
+  const iS = f(b => b.k === 's'), iH = f(b => b.R === 'H'), iV = f(b => b.R === 'V'), iQ = f(b => b.R === 'Q' && b.k !== 's'), iO = f(b => b.R === 'O' || b.R === 'C');
+  if (iH >= 0 && iS >= 0) out.push([t[iH].k, t[iS].k, 3, iH < iS ? '점프: 질문' : '일치']);
+  else if (iS >= 0 && iV >= 0) out.push([t[iS].k, t[iV].k, 3, '일치']);
+  if (iH >= 0 && iV >= 0) out.push([t[iH].k, t[iV].k, 2, '']);
+  if (iQ >= 0 && iV >= 0) out.push([t[iQ].k, t[iV].k, 2, '빈자리에서 옴']);
+  if (iV >= 0 && iO >= 0) out.push([t[iV].k, t[iO].k, 2, '']);
+  return out;
+}
+
+// ---------------------------------------------------------------- render
+function renderNodes(ns, opt) {
+  const frag = document.createDocumentFragment();
+  ns.forEach(n => {
+    if (n.t === 'txt') { frag.appendChild(document.createTextNode(n.v)); return; }
+    const R = n.role.toUpperCase(), inner = n.role !== R;
+    const b = h('span', 'b r-' + R + (inner ? ' in' : '') + (R === 'X' ? ' x' : '') + (R === 'G' ? ' gap' : ''));
+    b.dataset.r = R; if (n.id) b.dataset.k = n.id;
+    if (opt.seat && n.id === opt.seat) b.classList.add('seat');
+    const bt = h('span', 'bt');
+    if (R === 'G') bt.textContent = '(' + textOfAll(n.kids) + ')'; else bt.appendChild(renderNodes(n.kids, opt));
+    b.appendChild(bt);
+    const lab = n.lab != null ? n.lab : (inner ? LAB_IN[n.role] : LAB[R]);
+    if (lab) b.appendChild(h('span', 'bl', esc(lab)));
+    frag.appendChild(b);
+  });
+  return frag;
+}
+function textOfAll(ns) { return ns.map(n => n.t === 'txt' ? n.v : textOfAll(n.kids)).join('').trim(); }
+function sentEl(ns, opt = {}) { const s = h('div', 'sent'); s.appendChild(renderNodes(ns, opt)); return s; }
+
+// ---------------------------------------------------------------- FLIP morph
+function ownOf(e) { const bt = e.querySelector(':scope > .bt'); let t = ''; bt.childNodes.forEach(c => { if (c.nodeType === 3) t += c.nodeValue; }); return t.replace(/\s+/g, ' ').trim(); }
+function snap(host) {
+  const base = host.getBoundingClientRect(), m = {};
+  host.querySelectorAll('[data-k]').forEach(e => {
+    const r = e.getBoundingClientRect(), p = e.parentElement.closest('[data-k]');
+    m[e.dataset.k] = {x: (r.left - base.left) / SCALE, y: (r.top - base.top) / SCALE, own: ownOf(e), r: e.dataset.r, el: e, clone: e.cloneNode(true), anc: p ? p.dataset.k : null};
+  });
+  return m;
+}
+function flip(host, A, B, fs) {
+  const moved = [];
+  for (const k in B) {
+    const b = B[k], e = b.el, a = A[k];
+    if (!a) {
+      const kids = $$('[data-k]', e).some(c => A[c.dataset.k]);
+      e.classList.add(kids ? 'wrap' : 'new'); continue;
+    }
+    let dx = a.x - b.x, dy = a.y - b.y;
+    if (b.anc && A[b.anc] && B[b.anc]) { dx -= A[b.anc].x - B[b.anc].x; dy -= A[b.anc].y - B[b.anc].y; }
+    if (a.own.toLowerCase() !== b.own.toLowerCase() || a.r !== b.r) {
+      e.classList.add('chg');
+      if (a.own && a.own.toLowerCase() !== b.own.toLowerCase()) { const t = h('span', 'oldtag', '<s>' + esc(a.own) + '</s>'); t.style.left = b.x + 'px'; t.style.top = (b.y - fs * 0.62) + 'px'; t.style.fontSize = (fs * 0.42) + 'px'; host.appendChild(t); }
+    }
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) { e.style.transform = `translate(${dx}px,${dy}px)`; moved.push(e); }
+  }
+  for (const k in A) {
+    if (B[k]) continue;
+    const a = A[k];
+    if (a.anc && A[a.anc] && !B[a.anc]) continue;
+    const g = a.clone; g.classList.add('ghost'); g.style.left = a.x + 'px'; g.style.top = a.y + 'px'; g.style.fontSize = fs + 'px';
+    host.appendChild(g);
+  }
+  void host.offsetWidth;
+  moved.forEach(e => { e.classList.add('mv'); e.style.transform = ''; });
+}
+
+// ---------------------------------------------------------------- diff (for the "이전 문장" chips)
+function keyed(ns) {
+  const m = new Map();
+  const rec = (xs, parent) => xs.forEach(n => {
+    if (n.t !== 'blk') return;
+    if (n.id) m.set(n.id, {parent, own: ownText(n), full: plain([n]) || ownText(n)});
+    rec(n.kids, n.id || parent);
+  });
+  rec(ns, null); return m;
+}
+function hasSurvivor(k, M, other) {
+  for (const [kk, v] of M) { let p = v.parent; while (p) { if (p === k && other.has(kk)) return true; p = (M.get(p) || {}).parent; } }
+  return false;
+}
+function diff(a, b) {
+  const A = keyed(a), B = keyed(b), out = [];
+  B.forEach((v, k) => {
+    if (A.has(k)) return;
+    if (v.parent && !A.has(v.parent) && !hasSurvivor(v.parent, B, A)) return;
+    const t = hasSurvivor(k, B, A) ? v.own : v.full;
+    if (t) out.push({t: 'add', s: '+ ' + t});
+  });
+  B.forEach((v, k) => { const u = A.get(k); if (u && u.own.toLowerCase() !== v.own.toLowerCase()) out.push({t: 'chg', s: (u.own || '∅') + ' → ' + (v.own || '∅')}); });
+  const groups = new Map();
+  B.forEach((v, k) => { const u = A.get(k); if (!u || (u.parent || '') !== (v.parent || '')) return; const g = v.parent || ''; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(k); });
+  groups.forEach(keys => {
+    const aOrder = [...A.keys()].filter(k => keys.includes(k));
+    let cur = keys.slice();
+    for (let guard = 0; guard < 10; guard++) {
+      const ao = aOrder.filter(k => cur.includes(k));
+      if (ao.every((k, j) => cur[j] === k)) break;
+      let best = null, bd = 0;
+      cur.forEach((k, j) => { const d = j - ao.indexOf(k), ad = Math.abs(d); if (ad > Math.abs(bd) || (ad && ad === Math.abs(bd) && d < 0 && bd > 0)) { best = k; bd = d; } });
+      if (!best) break;
+      out.push({t: 'mv', s: (bd < 0 ? '↶ ' : '↷ ') + B.get(best).full + (bd < 0 ? ' 앞으로' : ' 뒤로')});
+      cur = cur.filter(k => k !== best);
+    }
+  });
+  A.forEach((v, k) => { if (B.has(k) || (v.parent && !B.has(v.parent))) return; out.push({t: 'del', s: '− ' + v.full}); });
+  return out;
+}
+function diffChips(a, b) { return diff(a, b).slice(0, 6).map(d => `<span class="dc ${d.t}">${esc(d.s)}</span>`).join(''); }
+
+// ---------------------------------------------------------------- drill chips
+function chipsOf(ns) {
+  const out = [];
+  const push = (text, R, k) => {
+    if (/^[,;:]$/.test(text) && out.length) { out[out.length - 1].text += text; return; }
+    if (/^[.?!]+$/.test(text)) return;
+    out.push({text, R, k});
+  };
+  const rec = (xs, R0, k0) => xs.forEach(n => {
+    if (n.t === 'txt') { n.v.trim().split(/\s+/).filter(Boolean).forEach(w => push(w, R0 || 'X', k0)); return; }
+    const R = n.role.toUpperCase(); if (R === 'G') return;
+    const RR = R === 'X' ? (R0 || 'X') : R;
+    if (n.kids.some(c => c.t === 'blk')) rec(n.kids, RR, n.id || k0);
+    else push(plain(n.kids), RR, n.id || k0);
+  });
+  rec(ns, null, null);
+  return out;
+}
+
+// ---------------------------------------------------------------- Stage
+class Stage {
+  constructor(root, o = {}) {
+    this.o = Object.assign({max: 46, min: 17, kmax: 20, amax: 86}, o);
+    this.el = h('div', 'stage-in');
+    if (o.atop != null) this.el.style.setProperty('--atop', o.atop + 'px');
+    if (o.kgap != null) this.el.style.setProperty('--kgap', o.kgap + 'px');
+    this.svgM = svgEl('mlines'); this.svgA = svgEl('arcs'); this.labs = h('div', 'alabs');
+    this.host = h('div', 'host'); this.ko = h('div', 'korow');
+    this.el.append(this.svgM, this.svgA, this.host, this.ko, this.labs);
+    root.appendChild(this.el);
+  }
+  render(ns, seat, fs) { this.host.innerHTML = ''; const s = sentEl(ns, {seat}); s.style.fontSize = fs + 'px'; this.host.appendChild(s); return s; }
+  fit(list) {
+    const W = this.host.clientWidth - 10; let fs = this.o.max;
+    list.filter(Boolean).forEach(ns => {
+      const s = this.render(ns, null, fs); const w = s.offsetWidth;
+      if (w > W) { fs = Math.max(this.o.min, Math.floor(fs * W / w)); s.style.fontSize = fs + 'px'; while (s.offsetWidth > W && fs > this.o.min) { fs--; s.style.fontSize = fs + 'px'; } }
+    });
+    return fs;
+  }
+  clear() { this.svgA.innerHTML = ''; this.svgM.innerHTML = ''; this.labs.innerHTML = ''; }
+  play(spec) {
+    this.spec = spec; this.clear(); this.ko.classList.remove('later');
+    const {nodes, from} = spec;
+    const fs = this.fs = this.fit([nodes, from]);
+    const anim = !NOANIM && spec.animate !== false;
+    if (!anim || !from) {
+      const s = this.render(nodes, spec.seat, fs); this.renderKo(spec);
+      if (anim && spec.build) {
+        const bs = $$(':scope > .b', s);
+        bs.forEach((b, j) => { b.classList.add('new'); b.style.animationDelay = (0.15 + j * 0.14).toFixed(2) + 's'; });
+        this.ko.classList.add('later');
+        later(() => { this.ko.classList.remove('later'); this.overlays(); }, 450 + bs.length * 140 + 450);
+      } else this.overlays();
+      return;
+    }
+    this.render(from, spec.fromSeat, fs); this.ko.innerHTML = '';
+    later(() => {
+      const A = snap(this.host); this.render(nodes, spec.seat, fs); const B = snap(this.host);
+      flip(this.host, A, B, fs); this.renderKo(spec); this.ko.classList.add('later');
+      later(() => { this.ko.classList.remove('later'); this.overlays(); }, 950);
+    }, spec.delay != null ? spec.delay : 650);
+  }
+  renderKo(spec) {
+    this.ko.innerHTML = '';
+    if (!spec.km) { this.ko.style.display = 'none'; return; }
+    this.ko.style.display = '';
+    const chunks = typeof spec.km === 'string' ? parseKm(spec.km) : spec.km;
+    chunks.forEach(([t, ids]) => {
+      const c = h('span', 'kc' + (t.startsWith('(') ? ' dim' : ''), esc(t)); c.dataset.ids = ids.join(' ');
+      const e = this.host.querySelector(`[data-k="${ids[0]}"]`);
+      if (!e) warn('mirror target missing: ' + ids[0]);
+      c.style.setProperty('--rc', `var(--${e ? e.dataset.r : 'X'})`);
+      this.ko.appendChild(c);
+    });
+    let fs = this.o.kmax; this.ko.style.fontSize = fs + 'px';
+    const W = this.el.clientWidth - 6, width = () => $$('.kc', this.ko).reduce((a, c) => a + c.offsetWidth, 0) + (chunks.length - 1) * fs * 0.45;
+    while (width() > W && fs > 12) { fs--; this.ko.style.fontSize = fs + 'px'; }
+  }
+  overlays() {
+    const sp = this.spec; this.clear();
+    if (sp.arcs) this.drawArcs(sp.arcs === 'auto' ? autoArcs(sp.nodes) : sp.arcs);
+    if (sp.km) this.drawMirror();
+  }
+  drawArcs(arcs) {
+    if (typeof arcs === 'string') arcs = parseArcs(arcs);
+    const base = this.el.getBoundingClientRect(), placed = []; let svg = '';
+    const pos = k => {
+      const b = this.host.querySelector(`[data-k="${k}"]`); if (!b) { warn('arc target missing: ' + k); return null; }
+      const r = b.querySelector(':scope > .bt').getBoundingClientRect();
+      return {x: (r.left + r.width / 2 - base.left) / SCALE, y: (r.top - base.top) / SCALE, R: b.dataset.r};
+    };
+    arcs.forEach(([a, b, w, lab], i) => {
+      const p = pos(a), q = pos(b); if (!p || !q) return;
+      const span = Math.abs(q.x - p.x), top = Math.min(p.y, q.y) - 3;
+      const hh = Math.min(this.o.amax, 22 + span * 0.3), cy = top - hh, col = `var(--${p.R})`, f = v => v.toFixed(1);
+      svg += `<path class="arc w${w}" pathLength="1" style="stroke:${col};animation-delay:${(i * 0.13).toFixed(2)}s" d="M${f(p.x)},${f(p.y - 3)} C${f(p.x)},${f(cy)} ${f(q.x)},${f(cy)} ${f(q.x)},${f(q.y - 3)}"/>`;
+      [p, q].forEach(z => { svg += `<circle cx="${f(z.x)}" cy="${f(z.y - 3)}" r="${w > 2 ? 3.6 : 2.6}" style="fill:${col}"/>`; });
+      if (lab) {
+        const L = h('span', 'alab', esc(lab)); L.style.setProperty('--rc', col);
+        L.style.left = ((p.x + q.x) / 2) + 'px'; L.style.top = Math.max(9, top - hh * 0.75) + 'px';
+        L.style.animationDelay = (i * 0.13 + 0.3).toFixed(2) + 's';
+        this.labs.appendChild(L); placed.push(L);
+      }
+    });
+    this.svgA.innerHTML = svg;
+    const boxes = [], ov = (a, b) => a.left < b.right + 3 && b.left < a.right + 3 && a.top < b.bottom + 1 && b.top < a.bottom + 1;
+    placed.forEach(L => {
+      let r = L.getBoundingClientRect(), n = 0;
+      while (boxes.some(b => ov(b, r)) && n < 6) { const t = parseFloat(L.style.top); L.style.top = (t > 26 ? t - 17 : t + 34) + 'px'; r = L.getBoundingClientRect(); n++; }
+      boxes.push(r);
+    });
+  }
+  drawMirror() {
+    const base = this.el.getBoundingClientRect(), s = this.host.querySelector('.sent'); if (!s) return;
+    const sb = (s.getBoundingClientRect().bottom - base.top) / SCALE + 3, f = v => v.toFixed(1); let svg = '';
+    $$('.kc', this.ko).forEach(c => {
+      const cr = c.getBoundingClientRect(), x2 = (cr.left + cr.width / 2 - base.left) / SCALE, y2 = (cr.top - base.top) / SCALE - 2;
+      c.dataset.ids.split(' ').forEach(k => {
+        const e = this.host.querySelector(`[data-k="${k}"]`); if (!e) { warn('mirror target missing: ' + k); return; }
+        const r = e.querySelector(':scope > .bt').getBoundingClientRect(), x1 = (r.left + r.width / 2 - base.left) / SCALE, my = (sb + y2) / 2;
+        svg += `<path style="stroke:var(--${e.dataset.r})" d="M${f(x1)},${f(sb)} C${f(x1)},${f(my)} ${f(x2)},${f(my)} ${f(x2)},${f(y2)}"/>`;
+      });
+    });
+    this.svgM.innerHTML = svg;
+  }
+}
+
+// ---------------------------------------------------------------- active stage (R replays, 🔊 speaks)
+let ACTIVE = null, SLIDEKEYS = null;
+function activate(stage, spec) { ACTIVE = {stage, spec}; stage.play(spec); }
+function replay() { if (ACTIVE) ACTIVE.stage.play(ACTIVE.spec); }
+function say(text) {
+  try {
+    if (!('speechSynthesis' in window) || !text) return;
+    const u = new SpeechSynthesisUtterance(text); u.lang = 'en-US'; u.rate = 0.9;
+    const vs = speechSynthesis.getVoices(); const v = vs.find(x => x.lang === 'en-US' && x.localService) || vs.find(x => /^en/.test(x.lang));
+    if (v) u.voice = v; speechSynthesis.cancel(); speechSynthesis.speak(u);
+  } catch (e) { /* no voice */ }
+}
+function stageCtl(drill) {
+  const c = h('div', 'stg-ctl');
+  c.innerHTML = (drill != null ? `<button class="btn sm" data-drill="${drill}" title="드릴로 이 문장 만들기 (D)">🧩 직접 만들기 <kbd>D</kbd></button>` : '') + '<button class="btn sm" data-a="replay" title="변신 다시 보기 (R)">↻ 다시 보기 <kbd>R</kbd></button>' +
+    ('speechSynthesis' in window ? '<button class="btn sm" data-a="say" title="듣기 (브라우저 음성)">🔊</button>' : '');
+  return c;
+}
+
+// ---------------------------------------------------------------- subject switch
+function swNodes(cfg, st) {
+  const ns = parse(cfg.base), subj = cfg.subj[st.si], key = subj[1];
+  setText(ns, cfg.sk || 's', subj[0]);
+  for (const id in cfg.dv || {}) setText(ns, id, cfg.dv[id][key] != null ? cfg.dv[id][key] : cfg.dv[id]._);
+  (cfg.rows || []).forEach((row, ri) => { const o = row.opts[st.ri[ri]]; for (const id in o[1]) setText(ns, id, key === 'pl' && o[1][id].pl ? o[1][id].pl : o[1][id]._); });
+  return ns;
+}
+function swKm(cfg, st) {
+  const ch = parseKm(cfg.km), sk = cfg.sk || 's', subj = cfg.subj[st.si];
+  ch.forEach(c => { if (c[1][0] === sk) c[0] = subj[2]; });
+  (cfg.rows || []).forEach((row, ri) => { const o = row.opts[st.ri[ri]]; ch.forEach(c => { if (o[2] && o[2][c[1][0]] != null) c[0] = o[2][c[1][0]]; }); });
+  return ch;
+}
+function switchWidget(root, cfg, stage, spec0, si0) {
+  const st = {si: si0 || 0, ri: (cfg.rows || []).map(() => 0)};
+  let cur = swNodes(cfg, st);
+  const wrap = h('div', 'sw'), log = h('div', 'swlog', '단어를 눌러 보세요 — 어떤 단어가 반응할까요?');
+  const row = (nm, note, labels, sel, pick) => {
+    const r = h('div', 'swr', `<div class="nm">${esc(nm)}</div>`), o = h('div', 'opts');
+    labels.forEach((l, j) => { const b = h('button', 'opt' + (j === sel ? ' on' : ''), esc(l)); b.onclick = () => pick(j); o.appendChild(b); });
+    r.appendChild(o); if (note) r.appendChild(h('div', 'nt', md(note))); return r;
+  };
+  const change = mut => {
+    mut(); const nn = swNodes(cfg, st), d = diff(cur, nn).filter(x => x.t === 'chg');
+    log.innerHTML = d.length ? '바뀐 단어: ' + d.map(x => `<b>${esc(x.s)}</b>`).join(' · ') : '바뀐 단어가 없어요';
+    const sp = Object.assign({}, spec0, {nodes: nn, from: cur, fromSeat: spec0.seat, km: swKm(cfg, st), delay: 0, build: false, say: plain(nn)});
+    cur = nn; draw(); activate(stage, sp);
+  };
+  const draw = () => {
+    wrap.innerHTML = '';
+    wrap.appendChild(row('주어 S 바꾸기', cfg.subjNote, cfg.subj.map(x => x[0]), st.si, j => change(() => { st.si = j; })));
+    (cfg.rows || []).forEach((r, ri) => wrap.appendChild(row(r.nm, r.note, r.opts.map(o => o[0]), st.ri[ri], j => change(() => { st.ri[ri] = j; }))));
+    wrap.appendChild(log);
+  };
+  draw(); root.appendChild(wrap);
+  return {nodes: () => cur, km: () => swKm(cfg, st)};
+}
+
+// ===== 문장이 자란다 — content =====
+// Markup: [S#id{label} text]  roles S V H(조동사) N(not) O C M Q(의문사) K(연결어) G(생략) X(plain); lower-case = inside a clause.
+// km: Korean mirror chunks "text|id id; text|id"   arcs: "a-b weight label; ..."
+// from: step number to grow from (0 = new seed; default = previous step in the same round)
+const ROUNDS = [
+  {c:'S', t:'be동사', s:'나 = 학생', rule:'주어 바로 뒤에 be. will · not · 질문은 모두 그 2번 자리에서 일어난다.'},
+  {c:'V', t:'일반동사와 do', s:'도우미 do의 등장', rule:'2번 자리가 비면 do를 부른다. 주어를 물을 땐 do 없이.'},
+  {c:'H', t:'시간 쌓기', s:'be -ing · have p.p.', rule:'앞 단어가 뒤 단어 모양을 정하는 사슬. 꼬리는 무엇을 → 어디서 → 언제.'},
+  {c:'C', t:'동사 + 동사', s:'can · want to', rule:'태도(can)는 2번 자리, 바라는 내용은 to 뒤로.'},
+  {c:'Q', t:'생각 먼저', s:'I think · Do you know', rule:'판단 · 부정 · 질문 표시는 앞에서 한 번만.'},
+  {c:'O', t:'명사 먼저', s:'who 관계절 · 긴 주어', rule:'명사 먼저, 설명은 뒤. 동사는 멀리 있어도 진짜 주어를 찾는다.'},
+  {c:'N', t:'무대 앞에 세우기', s:'수동태 · It · If · 도치', rule:'주인공 · 판단 · 조건 · 강조를 앞에 세워도 뼈대(주어 + 2번 자리)는 그대로.'},
+  {c:'X', t:'최종 보스', s:'모든 원리를 한 문장에', rule:'판단 먼저 → 명사 먼저 → 진짜 주어 → 꼬리.'},
+];
+
+const UNITS = {U03:'SVC', U04:'SVO', U05:'SVOO', U06:'SVOC', U08:'명사구 주어', U10:'간접의문문 어순', U11:'가주어 it',
+  U15:'to-v 목적어', U17:'명사절 목적어', U19:'전치사의 목적어', U22:'to-v 목적격보어', U27:'현재시제 (조건절)', U28:'미래 표현',
+  U29:'현재완료 · 완료진행', FS06:'현재완료의 이해', U32:'능력 · 허가 조동사', U38:'수동태', U64:'주격 관계대명사',
+  U68:'떨어진 관계사절', U76:'조건 부사절', U94:'도치구문', U96:'생략구문', U100:'부정구문'};
+
+const STEPS = [
+// ---------------------------------------------------------------- ROUND 1
+{r:1, h:'주어 바로 뒤에 동사 — I am',
+ en:'[S#s I] [V#v am] [C#c a student].', ko:'나는 학생이다.', km:'나는|s; 학생|c; 이다.|v',
+ arcs:'s-v 3 늘 한 몸; v-c 1 지금은', seat:'v', sw:'be1', units:['U03'],
+ mind:'나는 / ~이다 / 학생',
+ why:['**am**은 I에게만 붙는 be동사. 주어가 바뀌면 동사가 따라 바뀌어요: I **am** · You **are** · She **is** (주어-동사 일치, subject–verb agreement).',
+      '**a student**는 지금의 모습일 뿐 — 나이가 들면 바뀌어요. 하지만 I ↔ am 짝은 언제나 그대로.',
+      '한국어는 ‘나는 … 이다’처럼 동사가 맨 끝, 영어는 주어 **바로 옆**. 그래서 ‘누가 + 어떻다’가 먼저 나와요.']},
+{r:1, h:'미래를 말하고 싶다 → will이 주어 바로 뒤로',
+ en:'[S#s I] [H#h will] [V#v be] [C#c a student].', ko:'나는 학생이 될 거야.', km:'나는|s; 학생이|c; 될|v; 거야.|h',
+ arcs:'s-h 3 미래; h-v 2 원형으로; v-c 1 =', seat:'h', units:['U28'],
+ mind:'나는 / ~할 거야 / 되다 / 학생',
+ why:['‘미래’라는 메시지가 중요하니까 **will**이 주어 바로 뒤 — **2번 자리**(operator seat)에 앉아요.',
+      'will이 들어오면 am은 원래 모양 **be**로 돌아가요 (조동사 + 동사원형). 시제의 일은 이제 will 담당.',
+      '거울처럼 정확히 뒤집혀요: I(1) will(2) be(3) a student(4) ↔ 나는(1) 학생이(4) 될(3) 거야(2).']},
+{r:1, h:'언제? 시간 정보는 꼬리처럼 맨 뒤에',
+ en:'[S#s I] [H#h will] [V#v be] [C#c a student] [M#t next year].', ko:'나는 내년에 학생이 될 거야.', km:'나는|s; 내년에|t; 학생이|c; 될|v; 거야.|h',
+ arcs:'s-h 3 미래; h-v 2; v-c 1 =; t-h 1 언제', seat:'h',
+ mind:'나는 / ~할 거야 / 되다 / 학생 / 내년에',
+ why:['핵심(I will be a student)이 먼저 다 나오고, **next year** 같은 시간 정보는 맨 뒤에 붙어요.',
+      '한국어는 ‘내년에’가 앞쪽. 영어는 **틀 먼저, 세부는 뒤로**.',
+      '시간을 맨 앞에 둘 수도 있어요 — *Next year, I will be a student.* 이건 ‘시간’을 화제로 꺼내 강조한 것.']},
+{r:1, h:'‘아니다’도 일찍 — not은 2번 자리 바로 뒤',
+ en:'[S#s I] [H#h will] [N#n not] [V#v be] [C#c a student] [M#t next year].', ko:'나는 내년에 학생이 아닐 거야.', km:'나는|s; 내년에|t; 학생이|c; 아닐|n v; 거야.|h',
+ arcs:'s-h 3 미래; h-n 3 부정; v-c 1 =', seat:'h',
+ mind:'나는 / ~ 안 할 거야 / 되다 / 학생 / 내년에',
+ why:['부정(not)은 듣는 사람에게 아주 중요한 정보 → 문장 끝이 아니라 **2번 자리(will) 바로 뒤**.',
+      '한국어는 끝까지 들어야 ‘아닐 거야’를 알지만, 영어는 세 번째 단어에서 이미 Yes/No가 정해져요.',
+      "말할 때는 보통 줄여요: will not → **won't**."]},
+{r:1, h:'묻고 싶다 → 2번 자리(Will)가 주어 앞으로 점프',
+ en:'[H#h Will] [S#s you] [V#v be] [C#c a student] [M#t next year]?', ko:'너는 내년에 학생이 될 거니?', km:'너는|s; 내년에|t; 학생이|c; 될|v; 거니?|h',
+ arcs:'h-s 3 질문+미래; h-v 2; v-c 1 =', seat:'h', units:['U28'],
+ mind:'물어볼게, 미래 일 / 너 / 되다 / 학생 / 내년에',
+ why:['‘질문이에요!’라는 **의도**가 가장 중요 → **Will**이 주어 앞으로 뛰어나와요 (주어-조동사 도치, subject–auxiliary inversion).',
+      '첫 단어만 들어도 ① 질문 ② 미래를 알아요. 한국어는 마지막 ‘-니?’에서야 질문인 걸 알죠.',
+      '점프하는 건 2번 자리 단어 **하나뿐**. 나머지(be a student next year)는 순서 그대로.']},
+{r:1, h:'대답의 뼈대 = 주어 + 2번 자리',
+ en:'[M#y{대답} Yes], [S#s I] [H#h will].', ko:'응, 그럴 거야.', km:'응,|y; (나는)|s; 그럴 거야.|h',
+ arcs:'s-h 3 핵심', seat:'h', units:['U96'],
+ mind:'응 / 나는 / 그럴 거야',
+ why:["짧은 대답에는 **주어 + 2번 자리**만 남아요: *Yes, I will. / No, I won't.*",
+      'be a student next year는 이미 둘 다 아는 정보라 생략. 남는 건 영어 문장의 심장 ‘I + will’.',
+      '2번 자리를 알면 대답이 쉬워요: Are you…? → Yes, I **am**. · Did you…? → Yes, I **did**. · Can you…? → Yes, I **can**.']},
+{r:1, from:5, h:'모르는 조각(What)이 맨 앞으로',
+ en:'[Q#c{의문사 (=C)} What] [H#h will] [S#s you] [V#v be] [M#t next year]?', ko:'너는 내년에 무엇이 될 거니?', km:'너는|s; 내년에|t; 무엇이|c; 될|v; 거니?|h',
+ arcs:'h-s 3 질문; c-v 2 C 자리에서 옴; h-v 2', seat:'h',
+ mind:'무엇? / ~할 거니 / 너 / 되다 / 내년에',
+ why:['알고 싶은 것 = ‘무엇’이 될지 → 그 자리(a student)가 **What**으로 바뀌어 맨 앞으로.',
+      '그 뒤는 Yes/No 질문과 똑같아요: **의문사 + 조동사 + 주어 + 동사** (What + will + you + be).',
+      '의문사가 먼저 나오니 듣는 사람은 첫 단어에서 ‘무엇을 대답해야 하는지’ 알아요.']},
+// ---------------------------------------------------------------- ROUND 2
+{r:2, from:1, h:'누가 → 한다 → 무엇을 : S V O',
+ en:'[S#s I] [V#v study] [O#o English].', ko:'나는 영어를 공부한다.', km:'나는|s; 영어를|o; 공부한다.|v',
+ arcs:'s-v 3 누가 하나; v-o 2 무엇을', seat:'v', units:['U04'],
+ mind:'나는 / 공부한다 / 영어를',
+ why:['행동을 말할 때도 주어 바로 뒤에 동사. 영어 문장의 기본 순서 **S → V → O**.',
+      '주어는 동사의 **모양**을 정하고(study / studies), 목적어는 동사의 **뜻**을 완성해요 (study *what?* → English).',
+      '한국어는 S → O → V. 영어는 ‘한다’를 먼저 말하고, 대상은 그 뒤에.']},
+{r:2, h:'주어가 바뀌면 동사가 반응한다 (-s)',
+ en:'[S#s She] [V#v studies] [O#o English].', ko:'그녀는 영어를 공부한다.', km:'그녀는|s; 영어를|o; 공부한다.|v',
+ arcs:'s-v 3 일치 -s; v-o 1 뜻', seat:'v', sw:'study', swi:2,
+ mind:'그녀는 / 공부한다 / 영어를',
+ why:['주어가 She(3인칭 단수)로 바뀌자 동사 끝에 **-s**. 동사는 늘 주어를 ‘보고’ 있어요 — self-attention처럼.',
+      '목적어를 English → math로 바꿔도 동사는 그대로. **동사의 모양을 바꾸는 건 주어뿐**.',
+      '오른쪽 스위치로 주어와 목적어를 바꿔 보세요. 어떤 단어가 반응하나요?']},
+{r:2, from:8, h:'과거도 2번 자리에서: study → studied',
+ en:'[S#s I] [V#v studied] [O#o English].', ko:'나는 영어를 공부했다.', km:'나는|s; 영어를|o; 공부했다.|v',
+ arcs:'s-v 3 과거; v-o 2', seat:'v',
+ mind:'나는 / 공부했다 / 영어를',
+ why:['도우미(조동사)가 없으면 **동사 자신**이 2번 자리에 앉아 시제(tense)를 품어요: study → studi**ed**.',
+      '한국어 ‘-했다’는 끝에서 과거를 알려 주지만, 영어는 주어 바로 다음 단어에서 이미 과거.',
+      '그런데 여기에 not을 붙이거나 질문을 만들려면? 2번 자리에 ‘도우미’가 필요해요 → 다음 단계.']},
+{r:2, h:'도우미가 없으면 do를 부른다',
+ en:'[S#s I] [H#h{도우미 do} did] [N#n not] [V#v study] [O#o English].', ko:'나는 영어를 공부하지 않았다.', km:'나는|s; 영어를|o; 공부하지|v; 않았다.|h n',
+ arcs:'s-h 3 과거; h-n 3 부정; h-v 2 원형으로; v-o 2', seat:'h',
+ mind:'나는 / 안 했다 / 공부하다 / 영어를',
+ why:['not은 2번 자리 뒤에 붙는데, 지금 2번 자리엔 도우미가 없죠? → **do**를 불러 앉혀요 (do-support).',
+      '과거 표시(-ed)는 **did**가 가져가고, 동사는 원형 **study**로. ✗ I did not studied',
+      "말할 때는 **didn't**. 문장 앞쪽에서 ‘과거 + 부정’을 한 번에 알려 줘요."]},
+{r:2, h:'질문 + 과거, 첫 단어 Did가 다 말해 준다',
+ en:'[H#h{도우미 do} Did] [S#s you] [V#v study] [O#o English]?', ko:'너는 영어를 공부했니?', km:'너는|s; 영어를|o; 공부했니?|v h',
+ arcs:'h-s 3 질문+과거; h-v 2 원형; v-o 2', seat:'h',
+ mind:'물어볼게, 과거 일 / 너 / 공부하다 / 영어를',
+ why:['**Did** 하나로 ① 질문 ② 과거를 먼저 알려요. 말하는 사람의 **의도**가 맨 앞.',
+      'Will you…? 와 똑같은 점프: 2번 자리 단어(did)가 주어 앞으로. 동사는 원형 그대로.',
+      '한국어 ‘-했니?’는 맨 끝 — 아래 거울 선이 가장 길게 엇갈리는 곳을 보세요.']},
+{r:2, h:'알고 싶은 조각 What이 맨 앞',
+ en:'[Q#o{의문사 (=O)} What] [H#h{도우미 do} did] [S#s you] [V#v study]?', ko:'너는 무엇을 공부했니?', km:'너는|s; 무엇을|o; 공부했니?|v h',
+ arcs:'h-s 3 질문; o-v 2 study의 목적어; h-v 2', seat:'h',
+ mind:'무엇? / ~했니 / 너 / 공부하다',
+ why:['알고 싶은 건 ‘무엇을’ → 목적어 자리(English)가 **What**이 되어 맨 앞으로 이동.',
+      '순서: **의문사 → did → 주어 → 동사원형**. study 뒤 목적어 자리는 비어 있어요 (What이 거기서 왔으니까).',
+      '같은 틀: *Where did you study? · When did you study? · How did you study?*']},
+{r:2, from:10, h:'함정! 주어를 물을 땐 do가 필요 없다',
+ en:'[Q#s{의문사 (=S)} Who] [V#v studied] [O#o English]?', ko:'누가 영어를 공부했니?', km:'누가|s; 영어를|o; 공부했니?|v',
+ arcs:'s-v 3 Who = 주어; v-o 2', seat:'v',
+ mind:'누가? / 공부했니 / 영어를',
+ why:['모르는 게 **주어**면 Who가 주어 자리에 그대로 들어가요. 이미 맨 앞이라 점프할 필요가 없죠.',
+      '그래서 did도 부르지 않고 동사는 그대로 **studied**. ✗ Who did study English? (강조할 때만)',
+      '비교: **What did you study?** (목적어를 물음) ↔ **Who studied English?** (주어를 물음)']},
+// ---------------------------------------------------------------- ROUND 3
+{r:3, from:8, h:'지금 하는 중 → am + -ing',
+ en:'[S#s I] [H#h am] [V#v studying] [O#o English].', ko:'나는 영어를 공부하고 있다.', km:'나는|s; 영어를|o; 공부하고|v; 있다.|h',
+ arcs:'s-h 3 일치 am; h-v 2 -ing로; v-o 2', seat:'h', units:['U28'],
+ mind:'나는 / ~하는 중이다 / 공부하다 / 영어를',
+ why:['‘지금 진행 중’이라는 시간 정보가 2번 자리(**am**)로 들어와요. am은 여전히 I에 맞춘 모양.',
+      'am을 보고 다음 동사가 **-ing**로 변해요 — 앞 단어가 뒤 단어의 모양을 정하는 사슬.',
+      '한국어 ‘-고 있다’는 끝에 오지만, 영어는 주어 바로 뒤에서 이미 ‘진행 중’.']},
+{r:3, h:'과거부터 지금까지 → have + p.p.',
+ en:'[S#s I] [H#h have] [V#v studied] [O#o English].', ko:'나는 영어를 공부해 왔다.', km:'나는|s; 영어를|o; 공부해|v; 왔다.|h',
+ arcs:'s-h 3 일치 have; h-v 2 p.p.로; v-o 2', seat:'h', units:['U29','FS06'],
+ mind:'나는 / 지금까지 ~해 왔다 / 공부하다 / 영어를',
+ why:['have는 ‘과거의 일을 지금까지 가지고 있다’는 느낌. 2번 자리에서 **과거~현재를 잇는 시간**을 알려요 (현재완료).',
+      'have 뒤의 동사는 **p.p.(과거분사)**: studied. ✗ I have study',
+      'She라면? → She **has** studied. 2번 자리 단어가 주어와 일치해요.']},
+{r:3, h:'도우미 두 개를 쌓는다: have + been + -ing',
+ en:'[S#s I] [H#h have] [H#b been] [V#v studying] [O#o English].', ko:'나는 영어를 공부해 오고 있다.', km:'나는|s; 영어를|o; 공부해|v; 오고|h; 있다.|b',
+ arcs:'s-h 3 일치; h-b 2 p.p.로; b-v 2 -ing로; v-o 2', seat:'h', units:['U29'],
+ mind:'나는 / 쭉 ~해 왔다 / ~하는 중 / 공부하다 / 영어를',
+ why:['have(과거부터 지금까지) + been studying(진행 중) = **쭉 해 오고 있는 중** (현재완료진행).',
+      '사슬처럼 앞 단어가 뒤 모양을 정해요: have → **been**(p.p.), been → **studying**(-ing).',
+      "주어와 짝을 이루는 건 첫 도우미 **have**뿐. 질문·부정도 have 담당: *Have you been…? · I haven't been…*"]},
+{r:3, h:'얼마나 오래? 기간은 맨 뒤에',
+ en:'[S#s I] [H#h have] [H#b been] [V#v studying] [O#o English] [M#t for three years].', ko:'나는 3년 동안 영어를 공부해 오고 있다.', km:'나는|s; 3년 동안|t; 영어를|o; 공부해|v; 오고|h; 있다.|b',
+ arcs:'s-h 3 일치; h-b 2; b-v 2; v-o 2; t-h 1 기간', seat:'h',
+ mind:'나는 / 쭉 ~해 왔다 / 중 / 공부하다 / 영어를 / 3년 동안',
+ why:['핵심(I have been studying English)이 다 나온 뒤, **for three years**가 꼬리처럼 붙어요.',
+      '**for + 기간**(for three years) · **since + 시작점**(since 2023) — 완료 시제의 단짝.',
+      '한국어는 ‘3년 동안’이 앞쪽 — 거울 선이 크게 엇갈리는 걸 보세요.']},
+{r:3, h:'꼬리 순서: 무엇을 → 어디서 → 언제',
+ en:'[S#s I] [H#h have] [H#b been] [V#v studying] [O#o English] [M#p at work] [M#t for three years].', ko:'나는 3년 동안 회사에서 영어를 공부해 오고 있다.', km:'나는|s; 3년 동안|t; 회사에서|p; 영어를|o; 공부해|v; 오고|h; 있다.|b',
+ arcs:'s-h 3 일치; h-b 2; b-v 2; v-o 2; p-v 1 어디서; t-h 1 언제', seat:'h',
+ mind:'나는 / 쭉 ~해 왔다 / 중 / 공부하다 / 영어를 / 회사에서 / 3년 동안',
+ why:['동사 뒤 꼬리의 기본 순서: **무엇을 → (어떻게) → 어디서 → 언제**. at work(장소) 다음에 for three years(시간).',
+      '한국어는 정반대: ‘3년 동안 → 회사에서 → 영어를 → 공부해 오고 있다’. 주어 뒤를 거울처럼 뒤집으면 영어 순서!',
+      '동사와 가까운 정보(무엇을)부터 붙고, 장소·시간은 점점 멀리.']},
+{r:3, h:'긴 질문도 공식은 같다: 의문사 → 2번 자리 → 주어',
+ en:'[Q#t{의문사 (=기간)} How long] [H#h have] [S#s you] [H#b been] [V#v studying] [O#o English] [M#p at work]?', ko:'너는 회사에서 영어를 얼마나 오래 공부해 오고 있니?', km:'너는|s; 회사에서|p; 영어를|o; 얼마나 오래|t; 공부해|v; 오고|h; 있니?|b',
+ arcs:'h-s 3 질문; t-h 2 기간?; h-b 2; b-v 2; v-o 2', seat:'h', units:['U29'],
+ mind:'얼마나 오래? / ~해 왔니 / 너 / 중 / 공부하다 / 영어를 / 회사에서',
+ why:['알고 싶은 ‘기간’(for three years)이 **How long**이 되어 맨 앞으로.',
+      '점프하는 건 첫 도우미 **have** 하나. been studying English at work는 그대로 따라와요.',
+      '공식: **의문사 + 2번 자리 + 주어 + 나머지**. Round 1의 *What will you be…?*와 같은 모양.']},
+// ---------------------------------------------------------------- ROUND 4
+{r:4, from:8, h:'할 수 있다 → can도 2번 자리',
+ en:'[S#s I] [H#h can] [V#v speak] [O#o English].', ko:'나는 영어를 말할 수 있다.', km:'나는|s; 영어를|o; 말할|v; 수 있다.|h',
+ arcs:'s-h 3 능력; h-v 2 원형; v-o 2', seat:'h', units:['U32'],
+ mind:'나는 / ~할 수 있다 / 말하다 / 영어를',
+ why:['능력·허락·의무 같은 **말하는 사람의 태도**(can, should, must, may)도 2번 자리에 앉아요 (조동사, modal).',
+      'can 뒤는 동사원형: ✗ She can speaks → ✓ She can **speak**.',
+      "can은 주어가 바뀌어도 그대로 (I can · She can). 질문·부정은 똑같이: *Can you…? · I can't…*"]},
+{r:4, h:'원하는 마음 먼저, 할 일은 to 뒤에',
+ en:'[S#s I] [V#w want] [O#tv{목적어 (to-V)} [k#k to] [v#v speak] [o#o English]].', ko:'나는 영어를 말하고 싶다.', km:'나는|s; 영어를|o; 말하고|v k; 싶다.|w',
+ arcs:'s-w 3 일치; w-tv 2 무엇을 원해?; v-o 2', seat:'w', units:['U15'],
+ mind:'나는 / 원한다 / → 말하기를 / 영어를',
+ why:['‘원한다(want)’는 내 마음이 먼저. 원하는 내용은 **to + 동사원형**으로 뒤에 붙어요.',
+      'to는 ‘→ 앞으로 향하는 화살표’. want to speak = 말하는 쪽으로 마음이 향함 (아직 안 한 일).',
+      'want는 일반동사라 주어와 일치: She **wants** to speak English.']},
+{r:4, h:'어떻게? well은 동작 뒤에',
+ en:'[S#s I] [V#w want] [O#tv{목적어 (to-V)} [k#k to] [v#v speak] [o#o English] [m#m well]].', ko:'나는 영어를 잘 말하고 싶다.', km:'나는|s; 영어를|o; 잘|m; 말하고|v k; 싶다.|w',
+ arcs:'s-w 3 일치; w-tv 2; v-o 2; m-v 1 어떻게', seat:'w',
+ mind:'나는 / 원한다 / → 말하기를 / 영어를 / 잘',
+ why:['‘어떻게’(well)는 동작(speak English)이 다 나온 뒤에. ✗ I want to well speak English.',
+      'well은 speak를 꾸미니까 to-덩어리 **안쪽 끝**에 있어요.',
+      '한국어 ‘잘 말하다’는 ‘잘’이 동사 앞. 영어는 동작 먼저, 방법은 뒤.']},
+{r:4, h:'누가 할지 → want와 to 사이에',
+ en:'[S#s I] [V#w want] [O#c my coworkers] [C#tv{목적격보어 OC} [k#k to] [v#v speak] [o#o English] [m#m well]].', ko:'나는 내 동료들이 영어를 잘 말하길 원한다.', km:'나는|s; 내 동료들이|c; 영어를|o; 잘|m; 말하길|v k; 원한다.|w',
+ arcs:'s-w 3 일치; w-c 2 누가?; c-tv 3 말하는 사람; v-o 2', seat:'w', units:['U22','U06'],
+ mind:'나는 / 원한다 / 내 동료들이 / → 말하기를 / 영어를 / 잘',
+ why:['말하는 사람이 내가 아니라 **동료들**이면, 그 사람을 want 바로 뒤에: **want + 사람 + to-V** (SVOC).',
+      'my coworkers ↔ to speak 사이에 ‘누가 말하나’의 관계가 생겨요 (의미상 주어).',
+      '✗ I want that my coworkers speak… — want는 that절 대신 ‘사람 + to-V’를 써요.']},
+
+// ---------------------------------------------------------------- ROUND 5
+{r:5, from:21, h:'씨앗 문장: 동료들은 영어를 잘할 수 있다',
+ en:'[S#s My coworkers] [H#h can] [V#v speak] [O#o English] [M#m well].', ko:'내 동료들은 영어를 잘할 수 있다.', km:'내 동료들은|s; 영어를|o; 잘|m; 할 수 있다.|v h',
+ arcs:'s-h 3 일치; h-v 2; v-o 2; m-v 1', seat:'h',
+ mind:'내 동료들은 / ~할 수 있다 / 말하다 / 영어를 / 잘',
+ why:['주어가 두 단어(My coworkers)여도 바로 뒤에 2번 자리(can), 그다음 동사. 뼈대는 늘 같아요.',
+      '이제 이 문장을 ‘내 생각’ 안에 넣어 볼게요. 무엇이 맨 앞에 올까요?']},
+{r:5, h:'말하는 사람의 판단(I think)이 맨 앞',
+ en:'[S#i I] [V#t think] [O#cl{목적어 (that절)} [G#g that] [s#s my coworkers] [h#h can] [v#v speak] [o#o English] [m#m well]].', ko:'나는 내 동료들이 영어를 잘할 수 있다고 생각한다.', km:'나는|i; 내 동료들이|s; 영어를|o; 잘|m; 할 수 있다고|v h g; 생각한다.|t',
+ arcs:'i-t 3 누가 생각; t-cl 2 무슨 생각?; s-h 3 일치; h-v 2', seat:'t', units:['U17'],
+ mind:'나는 / 생각한다 / (뭐냐면) / 내 동료들이 / ~할 수 있다 / 말하다 / 영어를 / 잘',
+ why:['‘이건 내 생각이야’라는 **태도**가 먼저 → *I think*로 문을 열고, 내용은 뒤에 통째로.',
+      '**that**은 보통 생략. 들을 때 ‘I think’ 다음엔 문장이 하나 더 온다고 예상하세요.',
+      '한국어는 ‘…다고 생각한다’로 끝에서야 내 생각인 걸 알아요. 거울 선이 문장 전체를 가로질러요.']},
+{r:5, h:"부정도 앞으로: I don't think …",
+ en:"[S#i I] [H#d{do + not} don't] [V#t think] [O#cl{목적어 (that절)} [G#g that] [s#s my coworkers] [h#h can] [v#v speak] [o#o English] [m#m well]].", ko:'나는 내 동료들이 영어를 잘 못한다고 생각한다.', km:'나는|i; 내 동료들이|s; 영어를|o; 잘|m; 못|d; 한다고|v h g; 생각한다.|t',
+ arcs:'i-d 3 부정; d-t 2 원형; t-cl 2; s-h 3 일치', seat:'d', units:['U100'],
+ cmp:[['ok',"I don't think they can speak English well.",'자연스럽고 부드러움 — 영어식'],['meh',"I think they can't speak English well.",'틀리진 않지만 더 단정적 — 한국어식']],
+ mind:'나는 / 안 ~한다 / 생각하다 / 내 동료들이 / ~할 수 있다고 / 말하다 / 영어를 / 잘',
+ why:["영어는 ‘아니다’를 되도록 **앞에서** 밝혀요: *I **don't think** they can…* (부정어 전이, negative raising)",
+      "한국어식 *I think they can't…*도 문법은 맞지만, 더 단정적이고 덜 자연스럽게 들려요.",
+      'think는 일반동사 → not을 붙이려면 2번 자리에 **do**를 불러요 (Round 2와 같은 원리).']},
+{r:5, h:'의견을 물을 때: Do you think …?',
+ en:'[H#d{도우미 do} Do] [S#i you] [V#t think] [O#cl{목적어 (that절)} [G#g that] [s#s my coworkers] [h#h can] [v#v speak] [o#o English] [m#m well]]?', ko:'너는 내 동료들이 영어를 잘할 수 있다고 생각하니?', km:'너는|i; 내 동료들이|s; 영어를|o; 잘|m; 할 수 있다고|v h g; 생각하니?|t d',
+ arcs:'d-i 3 질문; d-t 2; t-cl 2; s-h 3 일치', seat:'d', units:['U17'],
+ mind:'물어볼게 / 너 / 생각하다 / 내 동료들이 / ~할 수 있다고 / 말하다 / 영어를 / 잘',
+ why:['질문이라는 의도 + 2번 자리 do → **Do**가 맨 앞. 회의에서 의견을 물을 때 가장 많이 쓰는 틀.',
+      '뒤의 내용(my coworkers can speak…)은 평서문 순서 그대로. 질문 표시는 **앞에서 한 번만**.',
+      '응용: *What do you think? · Do you think we can finish it today?*']},
+{r:5, from:0, h:'직접 질문: What + do + 주어 + 동사',
+ en:'[Q#o{의문사 (=O)} What] [H#d{도우미 do} do] [S#s my coworkers] [V#v want]?', ko:'내 동료들은 무엇을 원할까?', km:'내 동료들은|s; 무엇을|o; 원할까?|v d',
+ arcs:'d-s 3 일치 do; d-v 2 원형; o-v 2 want의 목적어', seat:'d',
+ mind:'무엇? / ~하니 / 내 동료들은 / 원하다',
+ why:['Round 2와 같은 공식: **의문사 → 2번 자리(do) → 주어 → 동사원형**.',
+      'my coworkers가 복수라 **do**. 단수면 does: *What does your boss want?*',
+      '이 질문을 다른 문장 안에 넣으면 어떻게 될까요? → 다음 단계의 함정.']},
+{r:5, h:'함정! 질문 속 질문은 평서문 순서',
+ en:'[H#q{도우미 do} Do] [S#y you] [V#kn know] [O#cl{목적어 (의문사절)} [q#o what] [s#s my coworkers] [v#v want]]?', ko:'너는 내 동료들이 무엇을 원하는지 아니?', km:'너는|y; 내 동료들이|s; 무엇을|o; 원하는지|v; 아니?|kn q',
+ arcs:'q-y 3 질문; kn-cl 2 무엇을 알아?; s-v 3 평서문 순서', seat:'q', units:['U10','U17'],
+ mind:'물어볼게 / 너 / 알다 / 무엇을 / 내 동료들이 / 원하는지',
+ why:['‘묻는다’는 의도는 앞의 **Do you know**가 이미 표시. 그래서 뒤 what절은 do도 도치도 없이 **평서문 순서**: what + 주어 + 동사.',
+      '✗ Do you know what **do** my coworkers want? → ✓ Do you know what my coworkers **want**? (간접의문문)',
+      '회의 영어: *Can you tell me where the meeting room is?* — 의도 표시는 문장 앞에서 **한 번만**.']},
+// ---------------------------------------------------------------- ROUND 6
+{r:6, from:8, h:'새 씨앗: 나는 영어를 가르친다',
+ en:'[S#s I] [V#v teach] [O#o English].', ko:'나는 영어를 가르친다.', km:'나는|s; 영어를|o; 가르친다.|v',
+ arcs:'s-v 3 일치; v-o 2', seat:'v', units:['U04'],
+ mind:'나는 / 가르친다 / 영어를',
+ why:['S V O 뼈대. 이제 ‘누구에게?’와 ‘어떤 사람들인지’를 덧붙여 볼게요.',
+      '주어가 She면? → She **teaches** English. (동사는 여전히 주어를 봐요)']},
+{r:6, h:'전치사는 명사 앞에: to + my coworkers',
+ en:'[S#s I] [V#v teach] [O#o English] [M#p{누구에게 M} to [x#n my coworkers]].', ko:'나는 내 동료들에게 영어를 가르친다.', km:'나는|s; 내 동료들에게|n p; 영어를|o; 가르친다.|v',
+ arcs:'s-v 3 일치; v-o 2; p-v 1 누구에게', seat:'v', units:['U05','U19'],
+ mind:'나는 / 가르친다 / 영어를 / ~에게 / 내 동료들',
+ why:['‘누구에게’는 동작 뒤에 **to + 사람**. 전치사(to)는 명사 **앞**, 한국어 조사 ‘-에게’는 명사 **뒤**.',
+      '영어는 관계(→ 방향)를 먼저 밝히고 대상은 나중에. 이것도 ‘틀 먼저’.',
+      '같은 뜻: *I teach my coworkers English.* (S V IO DO)']},
+{r:6, h:'명사 먼저, ‘어떤 사람인지’는 뒤에 (who)',
+ en:'[S#s I] [V#v teach] [O#o English] [M#p{누구에게 M} to [x#n my coworkers] [m#rc{관계절: 어떤 동료?} [s#w who] [v#wv want] [o#ts to work abroad]]].', ko:'나는 해외에서 일하고 싶어 하는 내 동료들에게 영어를 가르친다.', km:'나는|s; 해외에서 일하고 싶어 하는|rc; 내 동료들에게|n p; 영어를|o; 가르친다.|v',
+ arcs:'s-v 3 일치; v-o 2; w-n 3 who = 동료들; w-wv 2 주어-동사', seat:'v', units:['U64'],
+ mind:'나는 / 가르친다 / 영어를 / ~에게 / 내 동료들 / (그들은) 원한다 / 해외에서 일하기를',
+ why:['영어는 **명사(my coworkers)를 먼저** 말하고, ‘어떤 사람인지’는 who 이하로 뒤에 붙여요 (관계대명사절).',
+      '한국어는 정반대: ‘해외에서 일하고 싶어 하는’ + 동료들. 설명이 명사 **앞**.',
+      'who는 바로 앞 사람을 가리키는 포인터. 관계절 안에서도 who(주어) 바로 뒤에 동사 want.']},
+{r:6, from:0, h:'새 씨앗: 주어 + 동사 + 누구와 + 언제',
+ en:'[S#s [x#n My coworkers]] [V#v study] [M#p with me] [M#t every morning].', ko:'내 동료들은 매일 아침 나와 함께 공부한다.', km:'내 동료들은|n; 매일 아침|t; 나와 함께|p; 공부한다.|v',
+ arcs:'n-v 3 일치; p-v 1 누구와; t-v 1 언제', seat:'v',
+ mind:'내 동료들은 / 공부한다 / 나와 함께 / 매일 아침',
+ why:['주어(My coworkers) 바로 뒤에 동사 study. 꼬리는 **누구와 → 언제**.',
+      '이제 주어 ‘내 동료들’에 설명을 붙여 볼게요. 설명은 어디에 들어갈까요?']},
+{r:6, h:'주어가 길어져도 동사는 진짜 주어를 찾는다',
+ en:'[S#s{주어 (길어진 주어)} [x#n My coworkers] [m#rc{관계절} [s#w who] [v#wv want] [o#ts to work abroad]]] [V#v study] [M#p with me] [M#t every morning].', ko:'해외에서 일하고 싶어 하는 내 동료들은 매일 아침 나와 함께 공부한다.', km:'해외에서 일하고 싶어 하는|rc; 내 동료들은|n; 매일 아침|t; 나와 함께|p; 공부한다.|v',
+ arcs:'n-v 3 진짜 주어; w-n 2 who = 동료들; w-wv 2', seat:'v', units:['U64','U68'],
+ mind:'내 동료들은 / (그들은 해외 근무를 원해) / 공부한다 / 나와 함께 / 매일 아침',
+ why:['설명(who want to work abroad)이 주어와 동사 **사이**에 끼었어요. 그래도 study의 주어는 **My coworkers**.',
+      'self-attention처럼 동사는 멀리 있는 진짜 주어를 찾아가요. 읽기 요령: 관계절을 괄호로 묶고 **진짜 동사**를 찾기.',
+      '한국어는 설명이 앞이라(해외에서 일하고 싶어 하는 동료들은) 주어 덩어리가 통째로 맨 앞에 와요.']},
+{r:6, h:'단수로 바꾸면 -s가 두 번: 동사는 누구를 보나?',
+ en:'[S#s{주어 (길어진 주어)} [x#n My coworker] [m#rc{관계절} [s#w who] [v#wv wants] [o#ts to work abroad]]] [V#v studies] [M#p with me] [M#t every morning].', ko:'해외에서 일하고 싶어 하는 내 동료는 매일 아침 나와 함께 공부한다.', km:'해외에서 일하고 싶어 하는|rc; 내 동료는|n; 매일 아침|t; 나와 함께|p; 공부한다.|v',
+ arcs:'n-v 3 일치 -s; w-n 2 who = 동료; w-wv 3 일치 -s', seat:'v', sw:'long', swi:0,
+ mind:'내 동료는 / (그는 해외 근무를 원해) / 공부한다 / 나와 함께 / 매일 아침',
+ why:['coworker(단수)로 바꾸자 **wants**와 **studies** 두 동사에 모두 -s. 둘 다 ‘동료’를 보고 있다는 증거.',
+      '바로 앞의 abroad 같은 가까운 단어에 속지 않아요. 일치는 **가까운 단어가 아니라 진짜 주어**와 (언어 모델 연구도 이 ‘주어-동사 일치’로 문법 이해를 시험해요).',
+      '오른쪽 스위치로 주어를 바꿔 보세요.']},
+// ---------------------------------------------------------------- ROUND 7
+{r:7, from:0, h:'새 씨앗: 우리는 회의에서 영어를 쓴다',
+ en:'[S#s We] [V#v speak] [O#o English] [M#p in our meetings].', ko:'우리는 회의에서 영어를 쓴다.', km:'우리는|s; 회의에서|p; 영어를|o; 쓴다.|v',
+ arcs:'s-v 3 일치; v-o 2; p-v 1 어디서', seat:'v',
+ mind:'우리는 / 쓴다 / 영어를 / 회의에서',
+ why:['S V O + 장소. 지금 무대 맨 앞(주어 자리)에는 ‘우리(We)’가 서 있어요.',
+      '그런데 이야기의 주인공이 ‘우리’가 아니라 ‘영어’라면? → 다음 단계.']},
+{r:7, h:'주인공을 바꾸면 수동태: English가 맨 앞',
+ en:'[S#o English] [H#h is] [V#v spoken] [M#p in our meetings].', ko:'우리 회의에서는 영어가 쓰인다.', km:'우리 회의에서는|p; 영어가|o; 쓰인다.|v h',
+ arcs:'o-h 3 일치 is; h-v 2 p.p.로; p-v 1', seat:'h', units:['U38'],
+ mind:'영어는 / ~된다 / 쓰이다 / 회의에서',
+ why:['말하고 싶은 주인공(English)을 맨 앞 주어 자리에 → **be + p.p.** (수동태, passive).',
+      '누가 쓰는지(by us)는 중요하지 않아 생략. 영어는 **화제(topic)**를 앞에 세워요.',
+      '2번 자리 **is**는 새 주어 English에 맞춘 단수. 질문: *Is English spoken in your meetings?*']},
+{r:7, from:0, h:'주어가 너무 길면? 동사가 한참 뒤에 나온다',
+ en:'[S#s{주어 (to-V)} [k#k To] [v#v speak] [o#o English] [m#t every day]] [V#be is] [C#c important].', ko:'매일 영어로 말하는 것은 중요하다.', km:'매일|t; 영어로|o; 말하는 것은|v k; 중요하다.|c be',
+ arcs:'s-be 3 너무 멀다; be-c 2', seat:'be', units:['U08'],
+ mind:'매일 영어로 말하기는 / ~이다 / 중요한',
+ why:['문법은 맞지만, 듣는 사람은 **is**가 나올 때까지 한참 기다려야 해요. 주어와 동사가 너무 멀어요.',
+      '영어는 머리가 무거운 문장을 싫어해요 — **긴 덩어리는 뒤로** (end-weight).',
+      '해결책은 다음 단계: 빈 주어 **It**.']},
+{r:7, h:'It으로 자리를 채우고, 판단(important)을 먼저',
+ en:'[S#it{가주어} It] [V#be is] [C#c important] [S#s{진주어} [k#k to] [v#v speak] [o#o English] [m#t every day]].', ko:'매일 영어로 말하는 것은 중요하다.', km:'매일|t; 영어로|o; 말하는 것은|v k; 중요하다.|c be',
+ arcs:'it-be 3 자리 채움; be-c 2 판단; it-s 2 It = 이것', seat:'be', units:['U11'],
+ mind:'그건 / ~이다 / 중요한 / → 영어로 말하기 / 매일',
+ why:['**It**이 주어 자리를 채우니 동사 is가 바로 나와요. S–V가 다시 딱 붙었어요 (가주어 it).',
+      '‘중요하다’라는 **판단이 먼저**, 무엇이 중요한지(to speak English every day)는 뒤에. 원칙 ① + ② 동시에!',
+      '같은 틀: *It is hard to… · It is easy to… · It is necessary to…*']},
+{r:7, from:0, h:'결과 먼저 말하고, 조건은 뒤에 (if)',
+ en:'[S#s You] [H#h will] [V#v get] [C#c better] [M#if{조건 (if절)} [k#k if] [s#s2 you] [v#v2 speak] [o#o English] [m#t every day]].', ko:'매일 영어로 말하면 너는 더 좋아질 거야.', km:'매일|t; 영어로|o; 말하면|v2 k; 너는|s; 더 좋아질|c v; 거야.|h',
+ arcs:'s-h 3 미래; h-v 2; v-c 2; s2-v2 3 일치', seat:'h', units:['U76','U27'],
+ mind:'너는 / ~할 거야 / 되다 / 더 나은 / 만약 / 네가 / 말하면 / 영어로 / 매일',
+ why:['가장 하고 싶은 말 ‘너는 좋아질 거야’를 먼저, 조건(if …)은 뒤에 붙여요.',
+      'if절 안에서는 미래라도 **현재형**: ✗ if you will speak → ✓ if you **speak**.',
+      'if절 안에서도 뼈대는 같아요: you(주어) 바로 뒤에 speak(동사).']},
+{r:7, h:'조건을 먼저: 무엇을 앞에 둘지는 말하는 사람이 정한다',
+ en:'[M#if{조건 (if절)} [k#k If] [s#s2 you] [v#v2 speak] [o#o English] [m#t every day]], [S#s you] [H#h will] [V#v get] [C#c better].', ko:'매일 영어로 말하면 너는 더 좋아질 거야.', km:'매일|t; 영어로|o; 말하면|v2 k; 너는|s; 더 좋아질|c v; 거야.|h',
+ arcs:'s-h 3 미래; h-v 2; v-c 2; if-s 1 조건 → 결과', seat:'h', units:['U76'],
+ mind:'만약 / 네가 / 말하면 / 영어로 / 매일, / 너는 / ~할 거야 / 되다 / 더 나은',
+ why:['조건(매일 말하기)을 강조하고 싶으면 If절을 앞으로 → 뒤에 **콤마(,)**.',
+      '앞으로 나와도 메인 문장(you will get better)의 뼈대는 그대로: 주어 + 2번 자리 + 동사.',
+      '원칙 ②: 듣는 사람에게 먼저 보여 줄 **틀**을 앞에. 조건이 틀이면 If 먼저, 결과가 중요하면 결과 먼저.']},
+{r:7, from:0, h:'새 씨앗: never도 2번 자리 바로 뒤',
+ en:'[S#s I] [H#h have] [N#nv{부정 never} never] [V#v seen] [O#o my coworkers] [C#c so excited].', ko:'나는 내 동료들이 이렇게 신난 걸 본 적이 없다.', km:'나는|s; 내 동료들이|o; 이렇게 신난 걸|c; 본|v; 적이 없다.|h nv',
+ arcs:'s-h 3 일치; h-nv 3 부정; h-v 2 p.p.; o-c 2 = 상태', seat:'h', units:['U06'],
+ mind:'나는 / ~한 적 / 한 번도 없다 / 보다 / 내 동료들이 / 이렇게 신난',
+ why:['**never**(한 번도 ~않다)도 not처럼 2번 자리(have) 바로 뒤.',
+      'see + 사람 + 상태: 동료들이(O) 이렇게 신난 상태(C)인 걸 본 적이 없다.',
+      '이제 ‘한 번도 없었다!’를 강하게 말하고 싶다면? → 다음 단계.']},
+{r:7, h:'강조하고 싶은 말을 맨 앞에 → 질문처럼 도치',
+ en:'[N#nv{강조 부정} Never] [H#h have] [S#s I] [V#v seen] [O#o my coworkers] [C#c so excited].', ko:'나는 내 동료들이 이렇게 신난 걸 한 번도 본 적이 없다.', km:'나는|s; 내 동료들이|o; 이렇게 신난 걸|c; 한 번도 본|v nv; 적이 없다.|h',
+ arcs:'nv-h 3 강조 → 도치; h-s 3; h-v 2; o-c 2', seat:'h', units:['U94'],
+ mind:'한 번도 없었다! / ~한 적 / 나는 / 보다 / 내 동료들이 / 이렇게 신난',
+ why:['‘한 번도 없었다!’를 강조하려고 **Never**를 맨 앞으로 → 2번 자리 **have**가 질문처럼 주어 앞으로 점프 (부정어 도치).',
+      'Round 1~3의 질문 만들기와 **똑같은 동작**! 2번 자리를 알면 고급 문장도 같은 원리.',
+      '격식 있는 말·글에서 써요: *Only then did I understand. · Rarely do we see this.*']},
+// ---------------------------------------------------------------- BOSS
+{r:8, boss:true, h:'최종 보스: 지금까지의 원리가 한 문장에', units:['U17','U64','U29'],
+ mind:'나는 / 안 ~한다 / 생각하다 / 내 동료들이 / (그들은 해 왔다 / 공부를 / 나와 함께 / 1년 동안) / ~할 거라고 / 그만두다 / 이제',
+ why:['① **My coworkers will stop** — 뼈대: 주어 + 2번 자리 + 동사',
+      '② **now** — 시간 꼬리는 맨 뒤',
+      "③ **I don't think** — 판단과 부정은 맨 앞, 내용은 뒤로 통째로",
+      '④ **who have studied with me** — 명사 먼저, 설명은 뒤 · will은 진짜 주어 coworkers와',
+      '⑤ **for a year** — 꼬리 순서: 누구와 → 기간'],
+ seq:[
+  {en:'[S#s [x#n My coworkers]] [H#wl will] [V#st stop].', ko:'내 동료들은 그만둘 것이다.', km:'내 동료들은|n; 그만둘|st; 것이다.|wl',
+   arcs:'n-wl 3 미래; wl-st 2 원형', seat:'wl', note:'뼈대: 주어 + 2번 자리(will) + 동사'},
+  {en:'[S#s [x#n My coworkers]] [H#wl will] [V#st stop] [M#nw now].', ko:'내 동료들은 이제 그만둘 것이다.', km:'내 동료들은|n; 이제|nw; 그만둘|st; 것이다.|wl',
+   arcs:'n-wl 3 미래; wl-st 2 원형; nw-st 1 언제', seat:'wl', note:'꼬리: 시간(now)은 맨 뒤 (Round 1 · 3)'},
+  {en:"[S#i I] [H#d{do + not} don't] [V#th think] [O#cl{목적어 (that절)} [G#g that] [s#s [x#n my coworkers]] [h#wl will] [v#st stop] [m#nw now]].", ko:'나는 내 동료들이 이제 그만둘 거라고 생각하지 않는다.', km:'나는|i; 내 동료들이|n; 이제|nw; 그만둘 거라고|st wl g; 생각하지|th; 않는다.|d',
+   arcs:'i-d 3 판단+부정; d-th 2 원형; n-wl 3 일치', seat:'d', note:"판단과 부정을 맨 앞에: I don't think (Round 5)"},
+  {en:"[S#i I] [H#d{do + not} don't] [V#th think] [O#cl{목적어 (that절)} [G#g that] [s#s [x#n my coworkers] [m#rc{관계절} [s#w who] [h#hv have] [v#sv studied] [m#p with me]]] [h#wl will] [v#st stop] [m#nw now]].", ko:'나는 나와 함께 공부해 온 내 동료들이 이제 그만둘 거라고 생각하지 않는다.', km:'나는|i; 나와 함께|p; 공부해 온|sv hv; 내 동료들이|n; 이제|nw; 그만둘 거라고|st wl g; 생각하지|th; 않는다.|d',
+   arcs:'i-d 3 판단+부정; n-wl 3 진짜 주어; w-n 2 who = 동료들; w-hv 2', seat:'d', note:'명사 먼저, 설명(who…)은 뒤 — will은 멀리 있는 진짜 주어와 연결 (Round 6)'},
+  {en:"[S#i I] [H#d{do + not} don't] [V#th think] [O#cl{목적어 (that절)} [G#g that] [s#s [x#n my coworkers] [m#rc{관계절} [s#w who] [h#hv have] [v#sv studied] [m#p with me] [m#t for a year]]] [h#wl will] [v#st stop] [m#nw now]].", ko:'나는 나와 함께 1년 동안 공부해 온 내 동료들이 이제 와서 그만둘 거라고 생각하지 않는다.', km:'나는|i; 나와 함께|p; 1년 동안|t; 공부해 온|sv hv; 내 동료들이|n; 이제 와서|nw; 그만둘 거라고|st wl g; 생각하지|th; 않는다.|d',
+   arcs:'i-d 3 판단+부정; n-wl 3 진짜 주어; w-n 2 who; hv-sv 2 p.p.; t-hv 1 기간', seat:'d', note:'꼬리 순서: 누구와 → 기간 (Round 3). 완성!'},
+ ]},
+];
+
+// ---------------------------------------------------------------- subject switch frames
+const SUBJ6 = [['I','1s','나는'],['You','2','너는'],['She','3s','그녀는'],['My boss','3s','내 상사는'],['We','pl','우리는'],['They','pl','그들은']];
+const SWITCH = {
+  be1:{tab:'I am a student', base:'[S#s I] [V#v am] [C#c a student].', km:'나는|s; 학생|c; 이다.|v', arcs:'s-v 3 일치; v-c 1 =', seat:'v',
+    subj:SUBJ6, subjNote:'주어가 바뀌면 → am · is · are가 반응', dv:{v:{'1s':'am','2':'are','3s':'is','pl':'are'}},
+    rows:[{nm:'보어 C 바꾸기', note:'보어를 바꿔도 → be동사는 그대로', opts:[
+      ['a student',{c:{_:'a student',pl:'students'}},{c:'학생'}],['an engineer',{c:{_:'an engineer',pl:'engineers'}},{c:'엔지니어'}],
+      ['a manager',{c:{_:'a manager',pl:'managers'}},{c:'매니저'}],['a teacher',{c:{_:'a teacher',pl:'teachers'}},{c:'선생님'}]]}],
+    lesson:'**동사는 주어만 본다.** 보어(a student)를 바꿔도 am은 그대로, 주어를 바꾸면 am → is → are. (보어는 주어와 ‘같은 것’이라 복수 주어면 보어도 복수형이 돼요.)'},
+  study:{tab:'I study English', base:'[S#s I] [V#v study] [O#o English].', km:'나는|s; 영어를|o; 공부한다.|v', arcs:'s-v 3 일치; v-o 1 뜻', seat:'v',
+    subj:SUBJ6, subjNote:'주어가 He · She · 한 사람이면 → 동사에 -s', dv:{v:{_:'study','3s':'studies'}},
+    rows:[{nm:'목적어 O 바꾸기', note:'목적어를 바꿔도 → 동사 모양은 그대로', opts:[
+      ['English',{o:{_:'English'}},{o:'영어를'}],['math',{o:{_:'math'}},{o:'수학을'}],['Chinese',{o:{_:'Chinese'}},{o:'중국어를'}],['design',{o:{_:'design'}},{o:'디자인을'}]]}],
+    lesson:'**주어는 동사의 모양을, 목적어는 동사의 뜻을 정한다.** English → math로 바꿔도 study 그대로, She로 바꾸면 studies.'},
+  will:{tab:'I will be late', base:'[S#s I] [H#h will] [V#v be] [C#c late].', km:'나는|s; 늦을|c v; 거야.|h', arcs:'s-h 3 미래; h-v 2 원형', seat:'h',
+    subj:SUBJ6, subjNote:'주어를 바꿔도 → will은 그대로!', dv:{}, rows:[],
+    lesson:'**조동사(will · can · should)는 주어를 가리지 않아요.** 2번 자리 단어가 모양을 안 바꾸는 경우예요. 대신 뒤의 동사는 늘 원형(be).'},
+  have:{tab:'I have finished the report', base:'[S#s I] [H#h have] [V#v finished] [O#o the report].', km:'나는|s; 보고서를|o; 끝냈다.|v h', arcs:'s-h 3 일치; h-v 2 p.p.', seat:'h',
+    subj:SUBJ6, subjNote:'3인칭 단수면 → have가 has로', dv:{h:{_:'have','3s':'has'}},
+    rows:[{nm:'목적어 O 바꾸기', note:'목적어를 바꿔도 → have · has는 그대로', opts:[
+      ['the report',{o:{_:'the report'}},{o:'보고서를'}],['lunch',{o:{_:'lunch'}},{o:'점심을'}],['the project',{o:{_:'the project'}},{o:'프로젝트를'}]]}],
+    lesson:'**주어와 일치하는 건 2번 자리 단어(have/has)뿐.** 뒤의 finished는 주어가 바뀌어도 그대로.'},
+  dont:{tab:"I don't like coffee", base:"[S#s I] [H#h{도우미 do + not} don't] [V#v like] [O#o coffee].", km:'나는|s; 커피를|o; 좋아하지|v; 않는다.|h', arcs:'s-h 3 일치; h-v 2 원형', seat:'h',
+    subj:SUBJ6, subjNote:"3인칭 단수면 → don't가 doesn't로", dv:{h:{_:"don't",'3s':"doesn't"}},
+    rows:[{nm:'목적어 O 바꾸기', note:'목적어를 바꿔도 → like는 그대로', opts:[
+      ['coffee',{o:{_:'coffee'}},{o:'커피를'}],['meetings',{o:{_:'meetings'}},{o:'회의를'}],['Mondays',{o:{_:'Mondays'}},{o:'월요일을'}]]}],
+    lesson:"**-s는 2번 자리 도우미(does)가 가져가요.** She doesn't like… (✗ She doesn't likes)"},
+  was:{tab:'I was tired', base:'[S#s I] [V#v was] [C#c tired].', km:'나는|s; 피곤했다.|c v', arcs:'s-v 3 일치 + 과거', seat:'v',
+    subj:SUBJ6, subjNote:'과거 be동사도 주어를 본다: was / were', dv:{v:{'1s':'was','3s':'was',_:'were'}}, rows:[],
+    lesson:'**과거형에서도 be동사는 주어와 일치:** I · She **was** / You · We · They **were**.'},
+  long:{tab:'긴 주어 (who …)', sk:'n', base:STEPS[35].en, km:STEPS[35].km, arcs:STEPS[35].arcs, seat:'v',
+    subj:[['My coworker','3s','내 동료는'],['My coworkers','pl','내 동료들은'],['My boss','3s','내 상사는'],['The new interns','pl','새 인턴들은']],
+    subjNote:'주어를 바꾸면 → wants · studies 두 동사가 함께 반응', dv:{wv:{_:'want','3s':'wants'}, v:{_:'study','3s':'studies'}}, rows:[],
+    lesson:'**가까운 단어(abroad)가 아니라 진짜 주어와 일치.** 관계절 안의 동사(wants)도, 문장의 동사(studies)도 주어 하나를 보고 있어요.'},
+};
+
+// ---------------------------------------------------------------- 2번 자리 변신 기계 (seat slide)
+const MACH = [
+  {name:'will 문장', forms:[
+    ['평서문','[S#s You] [H#h will] [V#v be] [C#c a student].','너는 학생이 될 거야.'],
+    ['부정','[S#s You] [H#h will] [N#n not] [V#v be] [C#c a student].','너는 학생이 되지 않을 거야.'],
+    ['질문','[H#h Will] [S#s you] [V#v be] [C#c a student]?','너는 학생이 될 거니?'],
+    ['짧은 대답','[M#y{대답} Yes], [S#s I] [H#h will].','응, 그럴 거야.'],
+    ['의문사 질문','[Q#c{의문사} What] [H#h will] [S#s you] [V#v be]?','너는 무엇이 될 거니?']]},
+  {name:'과거 문장 (do)', forms:[
+    ['평서문','[S#s You] [V#h studied] [O#o English].','너는 영어를 공부했다.'],
+    ['부정','[S#s You] [H#h{도우미 do} did] [N#n not] [V#v study] [O#o English].','너는 영어를 공부하지 않았다.'],
+    ['질문','[H#h{도우미 do} Did] [S#s you] [V#v study] [O#o English]?','너는 영어를 공부했니?'],
+    ['짧은 대답','[M#y{대답} Yes], [S#s I] [H#h{도우미 do} did].','응, 했어.'],
+    ['의문사 질문','[Q#o{의문사} What] [H#h{도우미 do} did] [S#s you] [V#v study]?','너는 무엇을 공부했니?']]},
+];
+const GRID_COLS = ['의도 · 강조','↶ 점프한 2번 자리','① 주어','② 2번 자리','not','동사','목적어 · 보어','꼬리: 어디서 · 언제'];
+const GRID = [
+  ['','',['I','S'],['am','V'],'','',['a student','C'],''],
+  ['','',['I','S'],['will','H'],'',['be','V'],['a student','C'],['next year','M']],
+  ['','',['I','S'],['will','H'],['not','N'],['be','V'],['a student','C'],['next year','M']],
+  ['',['Will','H'],['you','S'],'','',['be','V'],['a student','C'],['next year ?','M']],
+  [['What','Q'],['will','H'],['you','S'],'','',['be','V'],'',['next year ?','M']],
+  ['','',['I','S'],['studied','V'],'','',['English','O'],''],
+  ['','',['I','S'],['did','H'],['not','N'],['study','V'],['English','O'],''],
+  ['',['Did','H'],['you','S'],'','',['study','V'],['English ?','O'],''],
+  ['','',['I','S'],['have','H'],'',['been studying','V'],['English','O'],['at work for three years','M']],
+  [['How long','Q'],['have','H'],['you','S'],'','',['been studying','V'],['English','O'],['at work ?','M']],
+  [['Never','N'],['have','H'],['I','S'],'','',['seen','V'],['my coworkers so excited','O'],''],
+];
+
+// ---------------------------------------------------------------- 원칙 ② rows
+const P2 = [
+  {what:'질문 + 과거', en:['Did','you','study','English?'], ei:0, ko:['너는','영어를','공부했니?'], ki:2},
+  {what:'무엇을 묻나', en:['What','did','you','study?'], ei:0, ko:['너는','무엇을','공부했니?'], ki:2},
+  {what:'부정 + 의견', en:['I',"don't",'think',"it's",'true.'], ei:1, ko:['그게','사실이라고','생각하지','않아.'], ki:3},
+  {what:'판단', en:['It','is','important','to','practice.'], ei:2, ko:['연습하는','것이','중요하다.'], ki:2},
+  {what:'부탁', en:['Could','you','help','me?'], ei:0, ko:['나','좀','도와줄','수','있어?'], ki:4},
+];
+
+// ---------------------------------------------------------------- 의도 먼저 질문 만들기
+const QSETS = [
+  {name:'과거 (did)', st:'[S#s You] [V#v studied] [O#o English] [M#p at work] [M#t yesterday].', ko:'너는 어제 회사에서 영어를 공부했다.', qs:[
+    {l:'예/아니오?', q:'[H#do{도우미 do} Did] [S#s you] [V#v study] [O#o English] [M#p at work] [M#t yesterday]?', ko:'너는 어제 회사에서 영어를 공부했니?',
+     steps:['의도: 예/아니오 질문 → 질문 표시를 맨 앞에','2번 자리에 도우미가 없음(studied) → **did**를 불러 주어 앞에','과거는 did가 가져감: studied → **study**']},
+    {l:'무엇을?', q:'[Q#o What] [H#do{도우미 do} did] [S#s you] [V#v study] [M#p at work] [M#t yesterday]?', ko:'너는 어제 회사에서 무엇을 공부했니?',
+     steps:['알고 싶은 것: 무엇을(English) → **What**이 맨 앞','did를 불러 주어 앞에','동사는 원형 study, English 자리는 비움']},
+    {l:'어디서?', q:'[Q#p Where] [H#do{도우미 do} did] [S#s you] [V#v study] [O#o English] [M#t yesterday]?', ko:'너는 어제 어디서 영어를 공부했니?',
+     steps:['알고 싶은 것: 장소(at work) → **Where**가 맨 앞','did + 주어 + 동사원형','at work 자리는 비움']},
+    {l:'언제?', q:'[Q#t When] [H#do{도우미 do} did] [S#s you] [V#v study] [O#o English] [M#p at work]?', ko:'너는 언제 회사에서 영어를 공부했니?',
+     steps:['알고 싶은 것: 시간(yesterday) → **When**이 맨 앞','did + 주어 + 동사원형','yesterday 자리는 비움']},
+    {l:'누가? (주어)', q:'[Q#s Who] [V#v studied] [O#o English] [M#p at work] [M#t yesterday]?', ko:'누가 어제 회사에서 영어를 공부했니?',
+     steps:['알고 싶은 것: **주어**(you) → Who가 주어 자리에 그대로','이미 맨 앞 → 점프도 did도 필요 없음','동사는 그대로 **studied**']}]},
+  {name:'미래 (will)', st:'[S#s Your team] [H#h will] [V#v meet] [O#o the client] [M#p in Seoul] [M#t next week].', ko:'너희 팀은 다음 주에 서울에서 고객을 만날 거야.', qs:[
+    {l:'예/아니오?', q:'[H#h Will] [S#s your team] [V#v meet] [O#o the client] [M#p in Seoul] [M#t next week]?', ko:'너희 팀은 다음 주에 서울에서 고객을 만날 거니?',
+     steps:['의도: 예/아니오','2번 자리 **will**이 주어 앞으로 점프','나머지는 순서 그대로']},
+    {l:'누구를?', q:'[Q#o Who] [H#h will] [S#s your team] [V#v meet] [M#p in Seoul] [M#t next week]?', ko:'너희 팀은 다음 주에 서울에서 누구를 만날 거니?',
+     steps:['알고 싶은 것: 누구를(the client) → **Who**가 맨 앞 (격식체: Whom)','will이 주어 앞으로','the client 자리는 비움']},
+    {l:'어디서?', q:'[Q#p Where] [H#h will] [S#s your team] [V#v meet] [O#o the client] [M#t next week]?', ko:'너희 팀은 다음 주에 어디서 고객을 만날 거니?',
+     steps:['알고 싶은 것: 장소(in Seoul) → **Where**가 맨 앞','will이 주어 앞으로','in Seoul 자리는 비움']},
+    {l:'언제?', q:'[Q#t When] [H#h will] [S#s your team] [V#v meet] [O#o the client] [M#p in Seoul]?', ko:'너희 팀은 언제 서울에서 고객을 만날 거니?',
+     steps:['알고 싶은 것: 시간(next week) → **When**이 맨 앞','will이 주어 앞으로','next week 자리는 비움']},
+    {l:'누가? (주어)', q:'[Q#s Who] [H#h will] [V#v meet] [O#o the client] [M#p in Seoul] [M#t next week]?', ko:'누가 다음 주에 서울에서 고객을 만날 거니?',
+     steps:['알고 싶은 것: 주어(your team) → **Who**가 주어 자리에','will은 2번 자리 그대로 — 점프 없음','Who + will + meet …']}]},
+  {name:'완료 (has)', st:'[S#s She] [H#h has] [V#v worked] [M#p here] [M#t for five years].', ko:'그녀는 5년 동안 여기서 일해 왔다.', qs:[
+    {l:'예/아니오?', q:'[H#h Has] [S#s she] [V#v worked] [M#p here] [M#t for five years]?', ko:'그녀는 5년 동안 여기서 일해 왔니?',
+     steps:['의도: 예/아니오','2번 자리 **has**가 주어 앞으로','worked(p.p.)는 그대로']},
+    {l:'얼마나 오래?', q:'[Q#t How long] [H#h has] [S#s she] [V#v worked] [M#p here]?', ko:'그녀는 여기서 얼마나 오래 일해 왔니?',
+     steps:['알고 싶은 것: 기간(for five years) → **How long**','has가 주어 앞으로','for five years 자리는 비움']},
+    {l:'어디서?', q:'[Q#p Where] [H#h has] [S#s she] [V#v worked] [M#t for five years]?', ko:'그녀는 5년 동안 어디서 일해 왔니?',
+     steps:['알고 싶은 것: 장소(here) → **Where**','has가 주어 앞으로','here 자리는 비움']},
+    {l:'누가? (주어)', q:'[Q#s Who] [H#h has] [V#v worked] [M#p here] [M#t for five years]?', ko:'누가 5년 동안 여기서 일해 왔니?',
+     steps:['알고 싶은 것: 주어(she) → **Who**','Who는 3인칭 단수 취급 → **has** 그대로','점프 없음']}]},
+  {name:'현재 (does)', st:"[S#s The meeting] [V#v starts] [M#t at three o'clock].", ko:'회의는 3시에 시작한다.', qs:[
+    {l:'예/아니오?', q:"[H#do{도우미 do} Does] [S#s the meeting] [V#v start] [M#t at three o'clock]?", ko:'회의는 3시에 시작하니?',
+     steps:['의도: 예/아니오','2번 자리가 비어 있음 → do를 부르는데 주어가 3인칭 단수 → **does**','-s는 does가 가져감: starts → **start**']},
+    {l:'몇 시에?', q:'[Q#t What time] [H#do{도우미 do} does] [S#s the meeting] [V#v start]?', ko:'회의는 몇 시에 시작하니?',
+     steps:['알고 싶은 것: 시각 → **What time**이 맨 앞','does + 주어 + 동사원형',"at three o'clock 자리는 비움"]},
+    {l:'무엇이? (주어)', q:"[Q#s What] [V#v starts] [M#t at three o'clock]?", ko:'무엇이 3시에 시작하니?',
+     steps:['알고 싶은 것: 주어(the meeting) → **What**이 주어 자리','do 필요 없음','동사는 그대로 **starts**']}]},
+  {name:'조동사 (can)', st:'[S#s He] [H#h can] [V#v speak] [O#o three languages].', ko:'그는 3개 국어를 할 수 있다.', qs:[
+    {l:'예/아니오?', q:'[H#h Can] [S#s he] [V#v speak] [O#o three languages]?', ko:'그는 3개 국어를 할 수 있니?',
+     steps:['의도: 예/아니오','2번 자리 **can**이 주어 앞으로','speak 원형 그대로']},
+    {l:'몇 개?', q:'[Q#o How many languages] [H#h can] [S#s he] [V#v speak]?', ko:'그는 몇 개 언어를 할 수 있니?',
+     steps:['알고 싶은 것: 개수 → **How many languages** (명사까지 통째로 앞으로)','can이 주어 앞으로','three languages 자리는 비움']},
+    {l:'누가? (주어)', q:'[Q#s Who] [H#h can] [V#v speak] [O#o three languages]?', ko:'누가 3개 국어를 할 수 있니?',
+     steps:['알고 싶은 것: 주어(he) → **Who**','can은 그대로 2번 자리','점프 없음']}]},
+];
+
+// ===== slides part 1: intro, map, steps =====
+function head(el, kick, title, sub) { el.appendChild(h('div', 'g-head', `<div class="kick">${kick}</div><h2>${title}</h2>${sub ? `<p>${sub}</p>` : ''}`)); }
+const finalEn = st => st.boss ? st.seq[st.seq.length - 1].en : st.en;
+const stepText = i => plain(parse(finalEn(STEPS[i])));
+function fromIdx(i) { const st = STEPS[i]; if (st.from === 0) return -1; if (st.from) return st.from - 1; return i > 0 && STEPS[i - 1].r === st.r ? i - 1 : -1; }
+function ulinks(units) { return (units || []).map(u => `<a class="ulink" href="grammar_map_101.html#${u}" target="_blank" rel="noopener" title="영어 구문 지도 101에서 열기">📘 ${u} · ${esc(UNITS[u] || '')}</a>`).join(''); }
+function mindHTML(m) { return `<h3>영어 순서로 생각하기</h3><div class="mind">${m.split('/').map(x => `<span>${esc(x.trim())}</span>`).join('<i>→</i>')}</div>`; }
+
+// ---------------------------------------------------------------- cover
+function buildCover(el) {
+  el.classList.add('cover');
+  el.appendChild(h('div', 'cv-top', `<div class="kick">동료와 함께하는 영어 문법 · 어순 편</div><h1>문장이 자란다</h1>
+    <p>“I am a student.” 한 문장에서 시작해 한 조각씩 붙여 가며, 영어 어순을 45계단 올라갑니다.</p>`));
+  const stg = h('div', 'stg card cv-stage'); el.appendChild(stg); stg.appendChild(stageCtl());
+  const stage = new Stage(stg, {max: 50});
+  el.appendChild(h('div', 'cv-pr', `
+    <div class="card" style="--rc:var(--S)"><b>① 주어 ↔ 동사는 한 몸</b><span>동사는 주어를 보고 모양을 바꿔요 — I <b>am</b> · She <b>is</b>. self-attention처럼 동사는 늘 주어를 ‘봐요’.</span></div>
+    <div class="card" style="--rc:var(--Q)"><b>② 의도 · 틀이 먼저</b><span>Do · Did · What · I don't think… 첫 단어에서 말하는 사람의 의도가 보여요.</span></div>
+    <div class="card" style="--rc:var(--H)"><b>＋ 제안: 2번 자리</b><span>주어 바로 뒤 한 칸이 시제 · 부정 · 질문 · 짧은 대답을 모두 조종해요.</span></div>`));
+  el.appendChild(h('div', 'cv-foot', '<kbd>←</kbd> <kbd>→</kbd> 이동 · <kbd>M</kbd> 지도 · <kbd>A</kbd> 곡선 · <kbd>K</kbd> 한국어 거울 · <kbd>R</kbd> 변신 다시 보기 · <kbd>F</kbd> 전체 화면'));
+  const chain = [0, 1, 2, 3, 4, 6]; let k = 0;
+  const next = () => {
+    const i = chain[k % chain.length], pi = chain[(k + chain.length - 1) % chain.length], st = STEPS[i], to = parse(st.en);
+    activate(stage, {nodes: to, from: k ? parse(STEPS[pi].en) : null, fromSeat: STEPS[pi].seat, arcs: st.arcs, km: st.km, seat: st.seat, build: !k, delay: 0, say: plain(to)});
+    k++; if (!NOANIM) later(next, 4200);
+  };
+  next();
+}
+
+// ---------------------------------------------------------------- mirror
+function buildMirror(el) {
+  head(el, '들어가기', '한국어와 영어는 거울이다', '주어(①)는 같은 자리, 그 뒤는 거꾸로. 번호와 선을 따라가 보세요.');
+  [{en: '[S#a{①} I] [V#b{②} study] [O#c{③} English].', km: '① 나는|a; ③ 영어를|c; ② 공부한다.|b'},
+   {en: '[S#a{①} I] [H#b{②} will] [V#c{③} be] [C#d{④} a student] [M#e{⑤} next year].', km: '① 나는|a; ⑤ 내년에|e; ④ 학생이|d; ③ 될|c; ② 거야.|b'}]
+    .forEach(x => { const stg = h('div', 'stg card mir'); el.appendChild(stg); new Stage(stg, {atop: 24, kgap: 50, max: 44}).play({nodes: parse(x.en), km: x.km}); });
+  el.appendChild(h('div', 'card note', `영어 <b>① → ② → ③ → ④ → ⑤</b> · 한국어 <b>① → ⑤ → ④ → ③ → ②</b>. 영어는 핵심(동사)을 먼저 말하고 꾸밈을 뒤에 붙이는 <b>head-initial</b> 언어,
+    한국어는 핵심을 맨 끝에 두는 <b>head-final</b> 언어예요.<br>그래서 한국어 문장을 다 만든 뒤 번역하면 끝에서부터 거꾸로 뒤져야 해요. 이 자료는 처음부터 <b>영어 순서로 생각하는</b> 연습을 합니다.`));
+}
+
+// ---------------------------------------------------------------- principle ①
+function buildP1(el) {
+  head(el, '원칙 ①', '주어와 동사는 한 몸 — self-attention으로 보면', '각 단어가 다른 단어를 얼마나 ‘보는지’(attention)를 그려 보면, am은 I를 가장 많이 봐요. 표의 줄을 눌러 보세요.');
+  const row = h('div', 'row2'); row.style.gridTemplateColumns = '620px 1fr'; el.appendChild(row);
+  const L = h('div', 'card p1l'); row.appendChild(L);
+  const stg = h('div', 'stg mini'); L.appendChild(stg);
+  const stage = new Stage(stg, {atop: 96, max: 50});
+  const W = ['I', 'am', 'a', 'student'], ids = ['w0', 'w1', 'w2', 'w3'];
+  const nodes = parse('[S#w0 I] [V#w1 am] [M#w2{관사} a] [C#w3 student].');
+  const M = [[.20, .55, .05, .20], [.60, .10, .05, .25], [.05, .10, .15, .70], [.25, .30, .30, .15]];
+  const tb = h('table', 'hm');
+  tb.innerHTML = `<tr><th></th>${W.map(w => `<th>${w}</th>`).join('')}</tr>` +
+    M.map((r, i) => `<tr data-r="${i}"><th class="rq">${W[i]} →</th>${r.map(v => `<td style="--p:${Math.round(v * 85)}%">${Math.round(v * 100)}</td>`).join('')}</tr>`).join('');
+  L.appendChild(tb);
+  L.appendChild(h('div', 'hmcap', '줄 = 지금 보고 있는 단어 · 칸 = 그 단어가 다른 단어에 주는 관심(%) — 설명을 위한 가상의 값'));
+  const pick = r => {
+    $$('tr', tb).forEach(t => t.classList.toggle('on', t.dataset.r === String(r)));
+    activate(stage, {nodes, seat: 'w1', say: 'I am a student.',
+      arcs: M[r].map((v, c) => c === r ? null : [ids[r], ids[c], v >= .45 ? 3 : v >= .2 ? 2 : 1, Math.round(v * 100) + '%']).filter(Boolean)});
+  };
+  tb.addEventListener('click', e => { const t = e.target.closest('tr[data-r]'); if (t) pick(+t.dataset.r); });
+  pick(1);
+  row.appendChild(h('div', 'ev', `
+    <div class="card"><b class="t">1. 일치 — 동사는 주어를 보고 모양을 바꾼다</b>I <b>am</b> · You <b>are</b> · She <b>is</b> · She stud<b>ies</b>. 보어·목적어를 바꿔도 동사는 그대로예요.</div>
+    <div class="card"><b class="t">2. 시제와 조동사는 주어 바로 뒤</b>I <b>will</b> be · I <b>did</b> not · I <b>have</b> been — 시간과 태도를 주어 바로 뒤에서 먼저 밝혀요.</div>
+    <div class="card"><b class="t">3. 짧은 대답 = 주어 + 2번 자리</b>Are you…? → Yes, I <b>am</b>. · Did she…? → No, she <b>didn't</b>. 목적어가 없어도 대답이 돼요.</div>
+    <div class="card"><b class="t">4. 한국어와 비교하면</b>나는(①) 학생(③) 이다(②) — 한국어 동사는 주어에서 <b>가장 먼</b> 끝에 있어요. 그래서 영어로 말할 때는 ‘주어 다음 바로 동사’를 의식해서 연습해요.</div>
+    <small>※ 위 숫자는 설명용 그림이에요. 실제 BERT 연구에서도 ‘목적어 → 동사’, ‘한정사 → 명사’처럼 문법 관계를 따라가는 attention head가 관찰됐어요 (Clark et al., 2019). 자세한 이야기는 마지막의 ‘솔직한 메모’에.</small>`));
+}
+
+// ---------------------------------------------------------------- principle ②
+function buildP2(el) {
+  head(el, '원칙 ②', '중요한 것(말하는 사람의 의도)이 먼저', '영어는 첫 단어에서 의도를 밝히고, 한국어는 끝까지 들어야 알아요. 테두리 칸 = 의도가 드러나는 단어.');
+  const t = h('div', 'card p2t'); el.appendChild(t);
+  let html = '<div class="hd">의도</div><div class="hd">English — 몇 번째 단어에서 알까?</div><div class="hd">한국어</div>';
+  P2.forEach(r => {
+    const chips = (ws, at) => ws.map((w, j) => `<span class="${j === at ? 'it' : j < at ? 'wait' : ''}">${esc(w)}</span>`).join('') + `<em>${at + 1} / ${ws.length}번째</em>`;
+    html += `<div class="wh">${esc(r.what)}</div><div class="cw">${chips(r.en, r.ei)}</div><div class="cw">${chips(r.ko, r.ki)}</div>`;
+  });
+  t.innerHTML = html;
+  el.appendChild(h('div', 'card note', `그래서 영어는 <b>첫 단어부터 집중</b>해서 듣고, 말할 때도 <b>의도부터</b> 꺼내면 돼요: <i>Do you…? · Could you…? · I don't think…</i><br>
+    정확히는 <b>‘틀(질문 · 부정 · 판단) 먼저, 무거운 내용은 뒤로’</b> — 긴 설명이나 새 정보는 오히려 문장 끝으로 가요 (end-weight). 이 자료의 Round 5~7에서 같이 봅니다.`));
+  const c = h('div', 'cards'); c.style.gridTemplateColumns = '1fr 1fr 1fr'; el.appendChild(c);
+  c.innerHTML = `<div class="card"><h4>🎧 들을 때</h4>첫 단어(Do · Did · Can · Will · What)에서 <b>질문 종류</b>를, 2번 자리에서 <b>시제</b>를 잡아요. 첫 단어를 놓치면 문장 전체를 놓쳐요.</div>
+    <div class="card"><h4>🗣 말할 때</h4>의도를 먼저 꺼내고 내용은 천천히: <i>Could you… · I don't think… · Do you know…</i> — 첫 두 단어가 나오면 나머지는 생각하면서 이어 가도 돼요.</div>
+    <div class="card"><h4>🎯 첫 단어 게임</h4>진행자가 첫 두 단어만 말하면(<i>Did you… / I don't… / It is…</i>) 듣는 사람이 질문인지 · 부정인지 · 판단인지 맞히고 문장을 완성해요.</div>`;
+}
+
+// ---------------------------------------------------------------- 2번 자리 (operator seat)
+function buildSeat(el) {
+  head(el, '제안 — 더 쉬운 방법', '2번 자리 하나로 부정 · 질문 · 대답을 다 만든다', '주어 바로 뒤 한 칸(operator)을 ‘조종석’으로 보세요. 버튼을 눌러 변신시켜 보세요.');
+  const top = h('div', 'mach'); el.appendChild(top);
+  const mc = h('div', 'card machc'); top.appendChild(mc);
+  const bar = h('div', 'machb'); mc.appendChild(bar);
+  const stg = h('div', 'stg'); mc.appendChild(stg);
+  const stage = new Stage(stg, {atop: 62, max: 40});
+  const ko = h('div', 'machko'); mc.appendChild(ko);
+  top.appendChild(h('div', 'card rules', `<b>2번 자리의 세 가지 동작</b><ol>
+    <li><b>넣기</b> — will · can · have · be · do가 주어 바로 뒤에</li>
+    <li><b>not 붙이기</b> — 2번 자리 바로 뒤에 not</li>
+    <li><b>점프</b> — 질문 · 강조면 2번 자리가 주어 앞으로</li></ol>
+    ☆ 2번 자리가 비어 있으면(studied) <b>do를 부른다</b> — did가 과거를 가져가고 동사는 원형으로.`));
+  let mi = 0, fi = 0, cur = null;
+  const set = (m, f) => {
+    const F = MACH[m].forms[f], nn = parse(F[1]);
+    activate(stage, {nodes: nn, from: cur, fromSeat: 'h', arcs: 'auto', seat: 'h', delay: 0, say: plain(nn)});
+    cur = nn; mi = m; fi = f; ko.textContent = F[2]; draw();
+  };
+  const draw = () => {
+    bar.innerHTML = '';
+    MACH.forEach((M, m) => { const b = h('button', 'tab' + (m === mi ? ' on' : ''), esc(M.name)); b.onclick = () => { cur = null; set(m, 0); }; bar.appendChild(b); });
+    bar.appendChild(h('span', '', '&nbsp;→&nbsp;'));
+    MACH[mi].forms.forEach((F, f) => { const b = h('button', 'btn sm' + (f === fi ? ' on' : ''), esc(F[0])); b.onclick = () => set(mi, f); bar.appendChild(b); });
+  };
+  set(0, 0);
+  const gc = h('div', 'card gridc'); el.appendChild(gc);
+  const seatCols = [1, 3];
+  gc.innerHTML = `<table class="grid"><tr>${GRID_COLS.map((c, j) => `<th class="${seatCols.includes(j) ? 'seatc' : ''}">${c}</th>`).join('')}</tr>` +
+    GRID.map(r => `<tr>${r.map((c, j) => `<td class="${seatCols.includes(j) ? 'seatc' : ''}">${c ? `<span class="r-${c[1]}">${esc(c[0])}</span>` : ''}</td>`).join('')}</tr>`).join('') + '</table>';
+}
+
+// ---------------------------------------------------------------- map
+function buildMap(el) {
+  head(el, '전체 지도', '문장 계단 45 — 눌러서 어디든 이동', 'Round 1의 한 문장이 Round 7의 긴 문장까지 자라요. 각 계단은 이전 문장에 한 조각을 붙이거나 옮긴 것.');
+  const wrap = h('div', 'stairs'); el.appendChild(wrap);
+  ROUNDS.forEach((R, ri) => {
+    const col = h('div', 'stair'); col.style.setProperty('--rc', `var(--${R.c})`); col.style.marginTop = ((7 - ri) * 17) + 'px';
+    col.appendChild(h('div', 'sh', `${ri < 7 ? 'R' + (ri + 1) : '★'} ${esc(R.t)}<small>${esc(R.s)}</small>`));
+    STEPS.forEach((s, j) => { if (s.r !== ri + 1) return; const b = h('button', 'sx', `<i>${j + 1}</i><span>${esc(stepText(j))}</span>`); b.dataset.go = 's' + (j + 1); col.appendChild(b); });
+    wrap.appendChild(col);
+  });
+  const lg = [['S', '주어 S'], ['V', '동사 V'], ['H', '조동사 Aux'], ['N', '부정 not'], ['O', '목적어 O'], ['C', '보어 C'], ['M', '수식어 M'], ['Q', '의문사 Wh'], ['K', '연결어']];
+  el.appendChild(h('div', 'legend', lg.map(([r, t]) => `<span class="lg" style="--rc:var(--${r})"><i></i>${t}</span>`).join('') +
+    '<span class="lg"><b style="background:var(--ink);color:var(--bg);border-radius:50%;width:18px;height:18px;display:inline-grid;place-items:center;font-size:11px">2</b>2번 자리</span>' +
+    '<span>· 위 곡선 = attention · 아래 선 = 한국어 거울</span>'));
+  el.appendChild(h('div', 'links', '<button class="btn" data-go="switch">🔁 연습 ① 주어 스위치</button><button class="btn" data-go="ask">❓ 연습 ② 의도 먼저 질문 만들기</button><button class="btn" data-go="drill">🧩 연습 ③ 문장 키우기 드릴</button><button class="btn" data-go="summary">📌 한 장 요약</button><button class="btn" data-go="honest">🧠 솔직한 메모</button>'));
+}
+
+// ---------------------------------------------------------------- step slides
+function stepHeader(i) {
+  const st = STEPS[i], R = ROUNDS[st.r - 1], hd = h('div', 's-head');
+  hd.innerHTML = `<div class="hl"><div><span class="rpill">${st.r < 8 ? 'ROUND ' + st.r : '★ BOSS'} · ${esc(R.t)}</span><span class="sno">STEP ${i + 1} / ${STEPS.length}</span></div><h2>${md(st.h)}</h2></div>`;
+  const dots = h('div', 'rdots');
+  STEPS.forEach((s, j) => { if (s.r !== st.r) return; const b = h('button', j === i ? 'cur' : j < i ? 'done' : '', String(j + 1)); b.title = stepText(j); b.dataset.go = 's' + (j + 1); dots.appendChild(b); });
+  hd.appendChild(dots);
+  return hd;
+}
+function prevLine(from, to, label) {
+  const pv = h('div', 'prev');
+  pv.innerHTML = from ? `<span>이전 문장 ${label} ▸</span><span class="pv">${esc(plain(from))}</span><span class="dch">${diffChips(from, to)}</span>`
+    : '<span class="seed">🌱 새 씨앗 문장</span><span>— 여기서부터 다시 한 조각씩 키워요</span>';
+  return pv;
+}
+function sideFoot(i, st) {
+  return h('div', 'ulinks', ulinks(st.units));
+}
+function buildStep(el, i) {
+  const st = STEPS[i]; if (st.boss) return buildBoss(el, i);
+  const R = ROUNDS[st.r - 1];
+  el.classList.add('step'); el.style.setProperty('--rc', `var(--${R.c})`);
+  el.appendChild(stepHeader(i));
+  const fi = fromIdx(i), to = parse(st.en), from = fi >= 0 ? parse(STEPS[fi].en) : null;
+  el.appendChild(prevLine(from, to, from ? `<span class="sl" data-go="s${fi + 1}">(Step ${fi + 1})</span>` : ''));
+  const stg = h('div', 'stg card'); el.appendChild(stg); stg.appendChild(stageCtl(i));
+  const stage = new Stage(stg);
+  const spec = {nodes: to, from, fromSeat: fi >= 0 ? STEPS[fi].seat : null, arcs: st.arcs, km: st.km, seat: st.seat, build: !from, say: plain(to)};
+  const bot = h('div', 's-bot'); el.appendChild(bot);
+  bot.appendChild(h('div', 'pane card why', `<h3>왜 이 자리?</h3><ul>${st.why.map(w => `<li>${md(w)}</li>`).join('')}</ul>`));
+  bot.appendChild(h('div', 'pane card mid', mindHTML(st.mind) + `<h3 class="mt">한국어 뜻</h3><div class="kos">${esc(st.ko)}</div>`));
+  const side = h('div', 'pane card side'); bot.appendChild(side);
+  if (st.sw) switchWidget(side, SWITCH[st.sw], stage, spec, st.swi || 0);
+  else if (st.cmp) side.appendChild(h('div', 'sw', '<h3>비교</h3>' + st.cmp.map(([k, s, n]) => `<div class="cmpc ${k}"><b>${k === 'ok' ? '✓' : '△'} ${esc(s)}</b><small>${esc(n)}</small></div>`).join('')));
+  else {
+    const sb = findBlk(to, st.seat);
+    side.appendChild(h('div', 'seatbox', `<h3>2번 자리</h3>지금 2번 자리 단어: <span class="w">${esc(sb ? plain([sb]) : '-')}</span>`));
+    side.appendChild(h('div', 'rrule', `<b>Round ${st.r} 규칙</b><br>${esc(R.rule)}`));
+  }
+  side.appendChild(h('div', 'sp'));
+  side.appendChild(sideFoot(i, st));
+  activate(stage, spec);
+}
+function buildBoss(el, i) {
+  const st = STEPS[i], R = ROUNDS[st.r - 1];
+  el.classList.add('step'); el.style.setProperty('--rc', `var(--${R.c})`);
+  el.appendChild(stepHeader(i));
+  const pvBox = h('div', ''); el.appendChild(pvBox);
+  const stg = h('div', 'stg card'); el.appendChild(stg); stg.appendChild(stageCtl(i));
+  const stage = new Stage(stg, {max: 40});
+  const bot = h('div', 's-bot'); el.appendChild(bot);
+  const why = h('div', 'pane card why'); bot.appendChild(why);
+  const mid = h('div', 'pane card mid'); bot.appendChild(mid);
+  const side = h('div', 'pane card side'); bot.appendChild(side);
+  const nav = h('div', 'sw'); side.appendChild(nav); side.appendChild(h('div', 'sp')); side.appendChild(sideFoot(i, st));
+  let L = NOANIM ? st.seq.length - 1 : 0;
+  const show = (l, anim) => {
+    L = Math.max(0, Math.min(st.seq.length - 1, l));
+    const S = st.seq[L], to = parse(S.en), from = L > 0 && anim ? parse(st.seq[L - 1].en) : null;
+    pvBox.replaceChildren(prevLine(L > 0 ? parse(st.seq[L - 1].en) : null, to, `(층 ${L})`));
+    why.innerHTML = `<h3>체크리스트 — 층 ${L + 1} / ${st.seq.length}</h3><ul>${st.why.map((w, j) => `<li class="${j === L ? 'lit' : j > L ? 'dim' : ''}">${md(w)}</li>`).join('')}</ul>`;
+    mid.innerHTML = `<h3>이번 층</h3><div class="kos"><b>${esc(S.note)}</b></div><h3 class="mt">한국어 뜻</h3><div class="kos">${esc(S.ko)}</div>`;
+    nav.innerHTML = `<h3>층 쌓기</h3><div class="opts">${st.seq.map((_, j) => `<button class="opt${j === L ? ' on' : ''}" data-l="${j}">${j + 1}</button>`).join('')}</div>
+      <div style="display:flex;gap:6px;margin-top:6px"><button class="btn sm" data-l="${L - 1}">◀ 이전 층</button><button class="btn sm pri" data-l="${L + 1}">다음 층 ▶ <kbd>N</kbd></button></div>`;
+    activate(stage, {nodes: to, from, fromSeat: L > 0 ? st.seq[L - 1].seat : null, arcs: S.arcs, km: S.km, seat: S.seat, build: !from && anim, delay: 250, say: plain(to)});
+  };
+  nav.addEventListener('click', e => { const b = e.target.closest('[data-l]'); if (b) show(+b.dataset.l, true); });
+  SLIDEKEYS = e => { if (e.key === 'n' || e.key === 'N') { show(L + 1, true); return true; } return false; };
+  show(L, true);
+}
+
+// ===== slides part 2: practice, wrap-up, navigation =====
+function buildSwitch(el) {
+  head(el, '연습 ①', '주어 스위치 — 어떤 단어가 주어를 ‘보고’ 있을까?', '주어를 바꾸면 반응하는 단어(주황 깜빡임)와, 목적어·보어를 바꿔도 그대로인 단어를 비교해 보세요.');
+  const FR = ['be1', 'study', 'will', 'have', 'dont', 'was', 'long'];
+  const tabs = h('div', 'tabs'); el.appendChild(tabs);
+  const stg = h('div', 'stg card'); stg.style.flexBasis = '270px'; el.appendChild(stg); stg.appendChild(stageCtl());
+  const body = h('div', 'swp'); el.appendChild(body);
+  const left = h('div', 'pane card'), right = h('div', 'pane card'); body.append(left, right);
+  let fi = 0;
+  const load = () => {
+    tabs.innerHTML = ''; FR.forEach((f, j) => { const b = h('button', 'tab' + (j === fi ? ' on' : ''), esc(SWITCH[f].tab)); b.onclick = () => { fi = j; load(); }; tabs.appendChild(b); });
+    $$('.stage-in', stg).forEach(x => x.remove());
+    const cfg = SWITCH[FR[fi]], stage = new Stage(stg, {atop: 92}), st0 = {si: 0, ri: (cfg.rows || []).map(() => 0)};
+    const nodes = swNodes(cfg, st0);
+    const spec = {nodes, arcs: cfg.arcs, km: swKm(cfg, st0), seat: cfg.seat, say: plain(nodes)};
+    left.innerHTML = '<h3>바꿔 보기</h3>'; switchWidget(left, cfg, stage, spec, 0);
+    right.innerHTML = `<h3>오늘의 발견</h3><div>${md(cfg.lesson)}</div><h3 class="mt">이렇게 말해 보세요</h3><div class="kos">주어를 바꿀 때마다 문장 전체를 소리 내어 읽기 → 반응하는 단어를 <b>먼저</b> 예측해 보기.</div>`;
+    activate(stage, spec);
+  };
+  load();
+}
+
+function buildAsk(el) {
+  head(el, '연습 ②', '의도 먼저! 질문 만들기', '평서문을 보고 ‘무엇을 묻고 싶은지’ 고르세요. 의문사와 2번 자리가 어떻게 움직이는지 봅니다.');
+  const tabs = h('div', 'tabs'); el.appendChild(tabs);
+  const stg = h('div', 'stg card ask-stg'); el.appendChild(stg); stg.appendChild(stageCtl());
+  const stage = new Stage(stg, {atop: 86, max: 44});
+  const ctl = h('div', 'ask-ctl'); el.appendChild(ctl);
+  const bot = h('div', 'ask-bot'); el.appendChild(bot);
+  const lp = h('div', 'pane card'), rp = h('div', 'pane card'); bot.append(lp, rp);
+  let si = 0, qi = null, speak = false, pending = null, cur = null;
+  const setNodes = (nn, k) => { activate(stage, {nodes: nn, from: cur, fromSeat: cur ? autoSeat(cur) : null, arcs: 'auto', seat: autoSeat(nn), delay: 0, say: plain(nn)}); cur = nn; };
+  const drawTabs = () => {
+    tabs.innerHTML = ''; QSETS.forEach((S, j) => { const b = h('button', 'tab' + (j === si ? ' on' : ''), esc(S.name)); b.onclick = () => { si = j; qi = null; pending = null; cur = null; draw(); setNodes(parse(QSETS[si].st)); }; tabs.appendChild(b); });
+  };
+  const draw = () => {
+    drawTabs();
+    const S = QSETS[si];
+    ctl.innerHTML = '<span class="lbl">무엇을 묻고 싶나요?</span>';
+    S.qs.forEach((q, j) => { const b = h('button', 'btn sm' + (j === qi ? ' on' : ''), esc(q.l)); b.onclick = () => choose(j); ctl.appendChild(b); });
+    const back = h('button', 'btn sm', '↺ 평서문으로'); back.onclick = () => { qi = null; pending = null; draw(); setNodes(parse(S.st)); }; ctl.appendChild(back);
+    ctl.appendChild(h('span', 'sp'));
+    const lab = h('label', '', `<input type="checkbox" ${speak ? 'checked' : ''}> 🗣 먼저 말해 보기 (정답은 나중에)`);
+    lab.querySelector('input').onchange = e => { speak = e.target.checked; }; ctl.appendChild(lab);
+    if (pending != null) {
+      lp.innerHTML = `<div class="prompt">${esc(S.qs[pending].ko)}<small>머릿속으로(또는 소리 내어) 영어 질문을 먼저 만들어 보세요. 첫 단어는 무엇일까요?</small></div>`;
+      const b = h('button', 'btn pri', '정답 보기 ▶ <kbd>Enter</kbd>'); b.onclick = reveal; lp.appendChild(h('div', '', '')).appendChild(b); lp.lastChild.style.textAlign = 'center';
+      rp.innerHTML = `<h3>평서문</h3><div class="kos">${esc(plain(parse(S.st)))}<br><small>${esc(S.ko)}</small></div>`;
+    } else if (qi == null) {
+      lp.innerHTML = `<h3>순서</h3><ol class="qsteps"><li><b class="n">1</b><span>알고 싶은 것을 정한다 → 의문사(What · Where · When · Who …)가 <b>맨 앞</b></span></li><li><b class="n">2</b><span>2번 자리(will · did · has · can)가 <b>주어 앞</b>으로 점프 — 비어 있으면 do를 부른다</span></li><li><b class="n">3</b><span>물어본 자리는 비우고, 동사는 원형 (단, 주어를 물으면 점프 없음)</span></li></ol>`;
+      rp.innerHTML = `<h3>평서문</h3><div class="kos">${esc(plain(parse(S.st)))}<br><small>${esc(S.ko)}</small></div>`;
+    } else {
+      const q = S.qs[qi];
+      lp.innerHTML = `<h3>무슨 일이 일어났나</h3><ol class="qsteps">${q.steps.map((s, j) => `<li style="animation-delay:${0.5 + j * 0.5}s"><b class="n">${j + 1}</b><span>${md(s)}</span></li>`).join('')}</ol>`;
+      rp.innerHTML = `<h3>질문</h3><div class="kos"><b>${esc(plain(parse(q.q)))}</b><br><small>${esc(q.ko)}</small></div><h3 class="mt">평서문</h3><div class="kos">${esc(plain(parse(S.st)))}<br><small>${esc(S.ko)}</small></div>`;
+    }
+  };
+  const choose = j => { if (speak) { pending = j; qi = null; draw(); } else { qi = j; pending = null; draw(); setNodes(parse(QSETS[si].qs[j].q)); } };
+  const reveal = () => { if (pending == null) return; qi = pending; pending = null; draw(); setNodes(parse(QSETS[si].qs[qi].q)); };
+  SLIDEKEYS = e => { if (e.key === 'Enter' && pending != null) { reveal(); return true; } return false; };
+  draw(); setNodes(parse(QSETS[si].st));
+}
+
+const DR = {i: 0, rnd: false, score: 0, tried: 0};
+function buildDrill(el) {
+  head(el, '연습 ③', '문장 키우기 드릴', '한국어 뜻을 보고 영어 블록을 순서대로 누르세요. <b style="color:var(--good)">NEW</b> = 이전 문장에 새로 붙은 조각. 어디에 들어갈까요?');
+  const top = h('div', 'dr-top'), prevC = h('div', 'card dr-prev'), ko = h('div', 'card dr-ko'), zone = h('div', 'dzone'), pool = h('div', 'pool'), ctl = h('div', 'dr-ctl'), fb = h('div', 'dr-fb');
+  el.append(top, prevC, ko, zone, pool, ctl, fb);
+  let ans, chips, placed, done, punct;
+  const load = () => {
+    const st = STEPS[DR.i], to = parse(finalEn(st)), fi = fromIdx(DR.i);
+    const prevNodes = st.boss ? parse(st.seq[st.seq.length - 2].en) : fi >= 0 ? parse(STEPS[fi].en) : null;
+    const A = prevNodes ? keyed(prevNodes) : new Map();
+    chips = chipsOf(to).map((c, j) => Object.assign(c, {id: j, nw: !!prevNodes && !!c.k && !A.has(c.k)}));
+    ans = chips.map(c => c.text); punct = (plain(to).match(/[.?!]$/) || [''])[0];
+    let sh = chips.slice();
+    for (let t = 0; t < 8; t++) { sh = sh.map(c => [Math.random(), c]).sort((a, b) => a[0] - b[0]).map(x => x[1]); if (sh.length < 2 || sh.some((c, j) => c.text !== ans[j])) break; }
+    chips = sh; placed = []; done = false; fb.textContent = ''; fb.className = 'dr-fb';
+    top.innerHTML = `<span class="rpill" style="--rc:var(--${ROUNDS[st.r - 1].c})">${st.r < 8 ? 'ROUND ' + st.r : '★ BOSS'}</span><b style="color:var(--ink)">Step ${DR.i + 1}</b>` +
+      '<span class="sp"></span>' +
+      `<span>맞힌 문제 <b style="color:var(--ink)">${DR.score}</b> / ${DR.tried}</span>` +
+      '<button class="btn sm" data-d="prev">◀</button><button class="btn sm" data-d="next">▶</button>' +
+      `<button class="btn sm${DR.rnd ? ' on' : ''}" data-d="rnd">🔀 무작위</button><button class="btn sm" data-go="s${DR.i + 1}">이 Step 보기</button>`;
+    prevC.innerHTML = prevNodes ? '<small>이전 문장 — 여기에 무엇이 붙거나 움직일까요?</small>' : '<small>🌱 새 씨앗 문장 — 처음부터 쌓아요</small>';
+    if (prevNodes) { const s = sentEl(prevNodes); s.style.fontSize = '24px'; prevC.appendChild(s); }
+    ko.innerHTML = `${esc(st.boss ? st.seq[st.seq.length - 1].ko : st.ko)}<small>위 뜻이 되도록 아래 블록을 순서대로 누르세요 · <kbd>Enter</kbd> 확인 · <kbd>Backspace</kbd> 되돌리기</small>`;
+    draw();
+  };
+  const chipEl = (c, where, j) => { const b = h('button', 'chip', esc(c.text) + (c.nw ? '<span class="nw">NEW</span>' : '')); b.style.setProperty('--rc', `var(--${c.R})`); b.dataset.w = where; b.dataset.j = j; return b; };
+  const draw = (marks) => {
+    zone.innerHTML = ''; pool.innerHTML = '';
+    if (!placed.length) zone.appendChild(h('span', 'ph', '여기에 문장이 만들어져요'));
+    placed.forEach((c, j) => { const b = chipEl(c, 'z', j); if (marks) b.classList.add(marks[j] ? 'ok' : 'bad'); zone.appendChild(b); });
+    if (placed.length) zone.appendChild(h('span', 'punct', esc(punct)));
+    chips.forEach((c, j) => { if (!placed.includes(c)) pool.appendChild(chipEl(c, 'p', j)); });
+    ctl.innerHTML = '<button class="btn" data-d="undo">↶ 되돌리기</button><button class="btn pri" data-d="check">확인 ✓</button><button class="btn" data-d="show">정답 보기</button><button class="btn" data-d="next">다음 문제 ▶</button><button class="btn" data-d="say">🔊</button>';
+  };
+  const check = () => {
+    if (placed.length < ans.length) { fb.className = 'dr-fb bad'; fb.textContent = `블록이 ${ans.length - placed.length}개 남았어요.`; return; }
+    const marks = placed.map((c, j) => c.text === ans[j]); const ok = marks.every(Boolean);
+    if (!done) { DR.tried++; if (ok) DR.score++; done = true; }
+    draw(marks); fb.className = 'dr-fb ' + (ok ? 'ok' : 'bad');
+    fb.textContent = ok ? '정답! 🎉 ' + plain(parse(finalEn(STEPS[DR.i]))) : '빨간 블록의 자리를 다시 생각해 보세요. 힌트: 주어 바로 뒤 = 2번 자리';
+  };
+  const go = d => { DR.i = DR.rnd ? Math.floor(Math.random() * STEPS.length) : (DR.i + d + STEPS.length) % STEPS.length; load(); };
+  el.addEventListener('click', e => {
+    const c = e.target.closest('.chip');
+    if (c) { const j = +c.dataset.j; if (c.dataset.w === 'p') placed.push(chips[j]); else placed.splice(j, 1); draw(); return; }
+    const b = e.target.closest('[data-d]'); if (!b) return;
+    const a = b.dataset.d;
+    if (a === 'undo') { placed.pop(); draw(); }
+    else if (a === 'check') check();
+    else if (a === 'show') { placed = ans.map((t, j) => chips.filter(c => c.text === t)[ans.slice(0, j).filter(x => x === t).length]); done = true; draw(placed.map(() => true)); fb.className = 'dr-fb'; fb.textContent = '정답을 보고 소리 내어 한 번 읽어 보세요.'; }
+    else if (a === 'next') go(1);
+    else if (a === 'prev') go(-1);
+    else if (a === 'rnd') { DR.rnd = !DR.rnd; load(); }
+    else if (a === 'say') say(plain(parse(finalEn(STEPS[DR.i]))));
+  });
+  SLIDEKEYS = e => {
+    if (e.key === 'Enter') { check(); return true; }
+    if (e.key === 'Backspace') { placed.pop(); draw(); return true; }
+    return false;
+  };
+  load();
+}
+
+function buildSummary(el) {
+  head(el, '정리', '한 장 요약 — 영어 문장이 자라는 규칙', '왼쪽 세 줄이면 충분해요. 오른쪽 Round를 누르면 그 계단으로 이동합니다.');
+  const row = h('div', 'row2'); row.style.gridTemplateColumns = '1fr 1.15fr'; el.appendChild(row);
+  row.appendChild(h('div', 'cards', `
+    <div class="card" style="border-top:4px solid var(--S)"><h4>① 주어 ↔ 동사는 한 몸</h4>동사의 <b>모양</b>(일치 · 시제)은 주어가 정하고, 목적어는 동사의 <b>뜻</b>을 완성해요. 주어가 길어져도 동사는 진짜 주어를 찾아가요.</div>
+    <div class="card" style="border-top:4px solid var(--Q)"><h4>② 틀 · 의도 먼저, 무거운 내용은 뒤로</h4>질문 · 부정 · 판단 · 화제는 앞(Do · I don't think · It is important). 긴 설명 · 조건 · 시간 · 장소는 뒤.</div>
+    <div class="card" style="border-top:4px solid var(--H)"><h4>③ 2번 자리</h4>주어 바로 뒤 한 칸 — <b>넣기</b>(will · can · have · be) · <b>not 붙이기</b> · <b>점프</b>(질문 · 도치) · 비어 있으면 <b>do</b>를 부른다.</div>`));
+  const r = h('div', 'sumr'); row.appendChild(r);
+  ROUNDS.forEach((R, ri) => {
+    const first = STEPS.findIndex(s => s.r === ri + 1);
+    const b = h('button', '', `<b>${ri < 7 ? 'Round ' + (ri + 1) : '★ Boss'} · ${esc(R.t)}</b><span>${esc(R.rule)}</span>`);
+    b.style.setProperty('--rc', `var(--${R.c})`); b.dataset.go = 's' + (first + 1); r.appendChild(b);
+  });
+}
+
+function buildHonest(el) {
+  head(el, '솔직한 메모', '이 비유가 맞는 곳과 조심할 곳', '동료들이 “정말 그래요?”라고 물을 때를 위한 페이지.');
+  const c = h('div', 'cards'); c.style.gridTemplateColumns = '1fr 1fr'; el.appendChild(c);
+  c.innerHTML = `
+    <div class="card" style="border-top:4px solid var(--good)"><h4>✔ 맞는 부분 — 주어 ↔ 동사의 끈은 진짜 있어요</h4><ul>
+      <li>일치: I <b>am</b> / She <b>is</b> / They <b>are</b> — 동사(정확히는 2번 자리 단어)가 주어를 보고 모양을 바꿔요.</li>
+      <li>시제 · 부정 · 질문 · 짧은 대답이 모두 ‘주어 + 2번 자리’에서 일어나요.</li></ul></div>
+    <div class="card" style="border-top:4px solid var(--rev)"><h4>⚠ 조심 — 뜻으로는 동사 + 목적어도 끈끈해요</h4><ul>
+      <li>언어학에서는 V + O를 한 덩어리(동사구, VP)로 봐요: <i>make a decision, take a break</i>. 관용구도 대부분 V + O (<i>kick the bucket</i>).</li>
+      <li>그래서 정확한 말: <b>주어는 동사의 ‘모양’을, 목적어는 동사의 ‘뜻’을 완성한다.</b></li></ul></div>
+    <div class="card" style="border-top:4px solid var(--rev)"><h4>⚠ 조심 — ‘중요한 것 먼저’ = ‘틀 먼저’</h4><ul>
+      <li>질문 · 부정 · 판단 같은 <b>틀</b>은 앞에 오지만, 길고 새로운 정보는 오히려 <b>뒤로</b> 가요 (end-weight · end-focus): <i>It is important <b>to practice every day</b>.</i></li>
+      <li>한국어가 ‘중요한 걸 뒤에 둔다’기보다, 한국어는 핵심(서술어)이 끝에 오는 <b>head-final</b>, 영어는 핵심이 앞에 오는 <b>head-initial</b> 언어 — 그래서 거울처럼 뒤집혀요.</li></ul></div>
+    <div class="card" style="border-top:4px solid var(--H)"><h4>🧠 Self-attention과 실제 연구</h4><ul>
+      <li>BERT의 attention head 중에는 ‘목적어 → 동사’, ‘한정사 → 명사’처럼 문법 관계를 따라가는 head가 있어요 (Clark et al., 2019).</li>
+      <li>주어-동사 일치(<i>The keys to the cabinet <b>are</b> …</i>)는 언어 모델의 문법 능력을 시험하는 대표 과제예요 (Linzen et al., 2016; Goldberg, 2019).</li>
+      <li>이 자료의 곡선 두께는 <b>설명용 그림</b>이에요. 실제 모델의 attention 값이 아니고, attention 하나가 곧 ‘문법’도 아니에요.</li></ul></div>`;
+  el.appendChild(h('div', 'refs', 'Clark, Khandelwal, Levy & Manning (2019) What Does BERT Look At? An Analysis of BERT’s Attention · Linzen, Dupoux & Goldberg (2016) Assessing the Ability of LSTMs to Learn Syntax-Sensitive Dependencies · Goldberg (2019) Assessing BERT’s Syntactic Abilities'));
+}
+
+function buildMethods(el) {
+  head(el, '수업 운영 제안', '동료 스터디에서 이렇게 써 보세요', '한 번에 Round 1~2개씩, 15분 설명 + 15분 게임이 적당해요.');
+  const c = h('div', 'cards'); c.style.gridTemplateColumns = '1fr 1fr 1fr'; el.appendChild(c);
+  c.innerHTML = `
+    <div class="card"><h4>🔁 문장 키우기 릴레이 (5분)</h4>한 사람이 <i>I am a student.</i> → 다음 사람이 한 조각 추가·변형. 틀리면 다른 사람이 ‘몇 번 자리’가 틀렸는지 짚어 주기.</div>
+    <div class="card"><h4>⏱ 2번 자리 5초 변신</h4>진행자가 문장을 말하고 “부정!” “질문!” “짧은 대답!” “What!”을 외치면 5초 안에 바꾸기. 정답은 <a data-go="seat" href="#seat">변신 기계</a>로 확인.</div>
+    <div class="card"><h4>🗣 주어 + 동사 먼저 내뱉기</h4>말을 시작할 때 <i>I think… / I want to… / We need to…</i>처럼 S + V부터 말하고, 나머지는 생각하면서 덧붙이기. 한국어 문장을 다 만들고 번역하지 않기.</div>
+    <div class="card"><h4>🪞 거울 읽기</h4>내 한국어 문장을 ‘주어 뒤부터 거꾸로’ 읽기: 나는 / 3년 동안 / 회사에서 / 영어를 / 공부해 / 왔다 → I / have / studied / English / at work / for three years.</div>
+    <div class="card"><h4>💬 회의 틀 문장 6개</h4><i>Do you think…? · I don't think… · It is important to… · What do you think? · Can you tell me what…? · If we…, we will…</i></div>
+    <div class="card"><h4>✉️ 메일 첫 문장 = 의도</h4><i>I'm writing to ask… · Could you…? · I wanted to let you know…</i> 영어 메일도 의도부터. 세부는 둘째 문단으로.</div>`;
+  el.appendChild(h('div', 'links', '<span style="font-size:13.5px;color:var(--muted);align-self:center">더 깊이 — 같은 폴더의 영어 구문 지도 101:</span>' + ulinks(['U03', 'U17', 'U29', 'U64', 'U94'])));
+}
+
+// ---------------------------------------------------------------- slide list
+const SL = [];
+const add = (id, title, build) => SL.push({id, title, build});
+add('cover', '문장이 자란다', buildCover);
+add('mirror', '한국어와 영어는 거울', buildMirror);
+add('p1', '원칙 ① 주어 ↔ 동사는 한 몸', buildP1);
+add('p2', '원칙 ② 의도 · 틀이 먼저', buildP2);
+add('seat', '제안: 2번 자리', buildSeat);
+add('map', '문장 계단 지도', buildMap);
+STEPS.forEach((st, i) => add('s' + (i + 1), `Step ${i + 1} · ${stepText(i)}`, el => buildStep(el, i)));
+add('switch', '연습 ① 주어 스위치', buildSwitch);
+add('ask', '연습 ② 의도 먼저 질문 만들기', buildAsk);
+add('drill', '연습 ③ 문장 키우기 드릴', buildDrill);
+add('summary', '한 장 요약', buildSummary);
+add('honest', '솔직한 메모', buildHonest);
+add('methods', '수업에서 이렇게', buildMethods);
+const IDX = Object.fromEntries(SL.map((s, i) => [s.id, i]));
+
+// ---------------------------------------------------------------- navigation
+const canvas = $('#canvas');
+const store = {get(k, d) { try { const v = localStorage.getItem('grow.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('grow.' + k, JSON.stringify(v)); } catch (e) { /* private mode */ } }};
+const PREF = Object.assign({arcs: true, mirror: true, labels: true}, store.get('prefs', {}));
+let cur = 0;
+function applyPrefs() {
+  document.body.classList.toggle('no-arcs', !PREF.arcs); document.body.classList.toggle('no-mirror', !PREF.mirror); document.body.classList.toggle('nolab', !PREF.labels);
+  $('#nArc').classList.toggle('off', !PREF.arcs); $('#nKo').classList.toggle('off', !PREF.mirror); $('#nLab').classList.toggle('off', !PREF.labels);
+  store.set('prefs', PREF);
+}
+function toggle(k) { PREF[k] = !PREF[k]; applyPrefs(); if (k === 'labels' && ACTIVE) ACTIVE.stage.overlays(); }
+function fitCanvas() { SCALE = Math.min(innerWidth / 1280, (innerHeight - 46) / 720); canvas.style.transform = `translate(-50%,-50%) scale(${SCALE})`; }
+function show(i, noHash) {
+  i = Math.max(0, Math.min(SL.length - 1, i));
+  clearTimers(); SLIDEKEYS = null; ACTIVE = null;
+  try { if ('speechSynthesis' in window) speechSynthesis.cancel(); } catch (e) { /* ignore */ }
+  cur = i; canvas.innerHTML = '';
+  const el = h('div', 'slide'); canvas.appendChild(el);
+  CTX = SL[i].id;
+  try { SL[i].build(el); } catch (e) { warn('build error: ' + e.message); el.appendChild(h('pre', '', esc(e.stack || e.message))); }
+  $('#nCnt').textContent = `${i + 1} / ${SL.length}`; $('#nTtl').textContent = SL[i].title;
+  $('#bar').style.width = ((i + 1) / SL.length * 100) + '%';
+  if (!noHash && !SELFTEST) { try { history.replaceState(null, '', '#' + SL[i].id); } catch (e) { location.hash = SL[i].id; } }
+  store.set('last', SL[i].id);
+}
+function go(id) { if (IDX[id] != null) show(IDX[id]); }
+canvas.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'); if (g) { e.preventDefault(); go(g.dataset.go); return; }
+  const d = e.target.closest('[data-drill]'); if (d) { DR.i = +d.dataset.drill; go('drill'); return; }
+  const a = e.target.closest('[data-a]'); if (!a) return;
+  if (a.dataset.a === 'replay') replay(); else if (a.dataset.a === 'say' && ACTIVE) say(ACTIVE.spec.say);
+});
+$('#nPrev').onclick = () => show(cur - 1); $('#nNext').onclick = () => show(cur + 1); $('#nMap').onclick = () => go('map');
+$('#nArc').onclick = () => toggle('arcs'); $('#nKo').onclick = () => toggle('mirror'); $('#nLab').onclick = () => toggle('labels');
+function cycleTheme() { const r = document.documentElement, t = r.dataset.theme; r.dataset.theme = t === 'dark' ? 'light' : t === 'light' ? '' : 'dark'; if (!r.dataset.theme) delete r.dataset.theme; store.set('theme', r.dataset.theme || ''); }
+$('#nTheme').onclick = cycleTheme;
+function full() { try { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); } catch (e) { /* not allowed */ } }
+$('#nFull').onclick = full;
+$('#nGo').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return; const v = e.target.value.trim(); e.target.value = ''; e.target.blur();
+  if (/^\d+$/.test(v) && +v >= 1 && +v <= STEPS.length) go('s' + v); else if (IDX[v] != null) go(v);
+});
+document.addEventListener('keydown', e => {
+  if (e.target.closest('input,textarea') || e.ctrlKey || e.metaKey || e.altKey) return;
+  if (SLIDEKEYS && SLIDEKEYS(e)) { e.preventDefault(); return; }
+  const k = e.key;
+  if (k === 'ArrowRight' || k === 'PageDown' || k === ' ') { e.preventDefault(); show(cur + 1); }
+  else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); show(cur - 1); }
+  else if (k === 'Home') show(0); else if (k === 'End') show(SL.length - 1);
+  else if (k === 'r' || k === 'R') replay();
+  else if (k === 'a' || k === 'A') toggle('arcs'); else if (k === 'k' || k === 'K') toggle('mirror'); else if (k === 'l' || k === 'L') toggle('labels');
+  else if (k === 'm' || k === 'M') go('map'); else if (k === 't' || k === 'T') cycleTheme(); else if (k === 'f' || k === 'F') full();
+  else if ((k === 'd' || k === 'D') && /^s\d+$/.test(SL[cur].id)) { DR.i = +SL[cur].id.slice(1) - 1; go('drill'); }
+});
+addEventListener('resize', () => { fitCanvas(); if (ACTIVE && !NOANIM) ACTIVE.stage.overlays(); });
+addEventListener('hashchange', () => { const id = location.hash.slice(1); if (IDX[id] != null && IDX[id] !== cur) show(IDX[id], true); });
+
+// ---------------------------------------------------------------- self-test (?selftest): data checks + render every slide
+function dataChecks() {
+  const norm = s => s.replace(/[\s.,?!]/g, '');
+  STEPS.forEach((st, i) => {
+    CTX = 's' + (i + 1);
+    const layers = st.boss ? st.seq : [st];
+    layers.forEach((L, j) => {
+      let ns; try { ns = parse(L.en); } catch (e) { warn(e.message); return; }
+      const ids = new Set(); (function rec(xs) { xs.forEach(n => { if (n.t === 'blk') { if (n.id) { if (ids.has(n.id)) warn('duplicate id ' + n.id); ids.add(n.id); } rec(n.kids); } }); })(ns);
+      if (L.seat && !ids.has(L.seat)) warn('seat id missing ' + L.seat);
+      parseArcs(L.arcs || '').forEach(([a, b]) => { if (!ids.has(a) || !ids.has(b)) warn(`arc id missing ${a}-${b}`); });
+      const km = parseKm(L.km || '');
+      km.forEach(([, k]) => k.forEach(x => { if (!ids.has(x)) warn('km id missing ' + x); }));
+      const kj = km.filter(c => !c[0].startsWith('(')).map(c => c[0].replace(/^[①-⑳]\s*/, '')).join('');
+      if (norm(kj) !== norm(L.ko)) warn(`km/ko mismatch${st.boss ? ' layer ' + (j + 1) : ''}: "${kj}" vs "${L.ko}"`);
+    });
+    const fi = fromIdx(i); if (st.from && (fi < 0 || fi >= i)) warn('bad from ' + st.from);
+    (st.units || []).forEach(u => { if (!UNITS[u]) warn('unknown unit ' + u); });
+  });
+  QSETS.forEach((S, a) => { CTX = 'ask' + a; try { parse(S.st); S.qs.forEach(q => parse(q.q)); } catch (e) { warn(e.message); } });
+  CTX = '';
+}
+function selftest() {
+  dataChecks();
+  const report = [];
+  SL.forEach((s, i) => {
+    show(i, true);
+    const el = canvas.firstChild;
+    if (el.scrollHeight > el.clientHeight + 2) warn(`slide overflow ${el.scrollHeight - el.clientHeight}px`);
+    $$('.pane, .card', el).forEach(p => { if (p.scrollHeight > p.clientHeight + 2) warn(`overflow in .${p.className.replace(/ /g, '.')} by ${p.scrollHeight - p.clientHeight}px`); });
+    $$('.host', el).forEach(hs => { const st = hs.querySelector('.sent'); if (st && st.offsetWidth > hs.clientWidth + 2) warn('sentence wider than stage'); });
+    report.push(s.id);
+  });
+  const out = $('#stout'); out.hidden = false;
+  out.textContent = `SELFTEST ${WARN.length ? 'WARN ' + WARN.length : 'OK'} — ${SL.length} slides\n` + WARN.join('\n');
+  document.title = WARN.length ? 'SELFTEST WARN ' + WARN.length : 'SELFTEST OK';
+}
+
+// ---------------------------------------------------------------- start
+(function init() {
+  const th = store.get('theme', ''); if (th) document.documentElement.dataset.theme = th;
+  fitCanvas(); applyPrefs();
+  if (SELFTEST) { selftest(); return; }
+  const h0 = location.hash.slice(1), last = store.get('last', 'cover');
+  show(IDX[h0] != null ? IDX[h0] : IDX[last] != null ? IDX[last] : 0, IDX[h0] == null);
+})();
+
+</script>
+</body>
+</html>

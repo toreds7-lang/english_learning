@@ -1,0 +1,405 @@
+<!-- ================= 17 · SPELLING ================= -->
+<section class="slide a-pr" data-label="철자: 왜 소리와 다른가">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">2부 · 철자</span><span class="en">Spelling</span></p>
+      <h2>철자는 '발음 기호'가 아니라 <span class="hl">역사와 뜻의 기록</span></h2>
+      <p class="sub">영어 철자가 소리와 어긋나는 7가지 이유</p>
+      <ol class="points">
+        <li><b>글자가 모자라다</b>: 26자로 약 44소리 → th, sh, ch, ng 같은 두 글자 조합. <span class="lay N">처음부터</span></li>
+        <li><b>노르만 서기의 프랑스식 표기</b>: queen, what, ship, house, son. <span class="lay F">1100~1300</span></li>
+        <li><b>인쇄공</b>: ghost의 h, the를 ye로. <span class="lay P">1476~</span></li>
+        <li><b>대모음추이 도중에 고정</b>: 모음 글자의 값이 다른 언어와 달라졌다 (name, time). <span class="lay P">1400~1700</span></li>
+        <li><b>소리는 사라지고 글자는 남았다</b>: knight, castle, walk, Wednesday. <span class="lay G">1400~1700</span></li>
+        <li><b>르네상스 학자의 어원 철자</b>: debt, receipt, island, salmon. <span class="lay L">1500~1600</span></li>
+        <li><b>빌린 단어는 원래 철자 그대로</b>: chef, ballet, yacht, psychology, rhythm. <span class="lay N">지금도</span></li>
+      </ol>
+      <aside class="box note"><h3>같은 소리, 다른 철자: /iː/ 하나에 8가지</h3><p class="w">me · see · sea · field · receive · key · machine · people</p></aside>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>그래도 좋은 점: 철자는 '뜻'을 지킨다</h3>
+        <table class="t">
+          <thead><tr><th>소리는 달라도</th><th>철자는 같은 뿌리</th></tr></thead>
+          <tbody>
+            <tr><td class="w">si<span class="sil">g</span>n</td><td class="w">si<b>g</b>nature <small class="muted">(g 소리가 살아남)</small></td></tr>
+            <tr><td class="w">bom<span class="sil">b</span></td><td class="w">bom<b>b</b>ard</td></tr>
+            <tr><td class="w">mus<span class="sil">c</span>le</td><td class="w">mus<b>c</b>ular</td></tr>
+            <tr><td class="w">n<b>a</b>tion <small class="ipa">/eɪ/</small></td><td class="w">n<b>a</b>tional <small class="ipa">/æ/</small></td></tr>
+            <tr><td class="w">h<b>ea</b>l <small class="ipa">/iː/</small></td><td class="w">h<b>ea</b>lth <small class="ipa">/ɛ/</small></td></tr>
+            <tr><td>walk<b>ed</b> /t/ · play<b>ed</b> /d/ · want<b>ed</b> /ɪd/</td><td>과거형: 소리 3개, 철자 <b>-ed</b> 하나</td></tr>
+          </tbody>
+        </table>
+        <p class="cap">한국어 <b>닭이 [달기]</b>와 같은 원리(형태 음소적 표기)입니다. 소리를 버리고 <b>뜻의 모양</b>을 지켰기 때문에, 영어 철자는 '읽기'보다 '이해'에 유리합니다.</p>
+      </div>
+      <div class="panel">
+        <h3>규칙은 '확률'이다</h3>
+        <p class="small" style="margin:0">미국 초등 교재의 파닉스 규칙 45개를 실제 단어에 대 보니, <b>75% 이상 맞는 규칙은 18개뿐</b>이었습니다 <span class="cite">(Clymer, 1963)</span>. 그래서 규칙은 <b>'자주 맞는 경향 + 예외 가족'</b>으로 외워야 합니다. 예외도 대부분 위 7가지 이유 중 하나로 설명됩니다.</p>
+        <p class="cap"><button type="button" class="go" data-go="18">실습 ② 철자 탐정 →</button> <button type="button" class="go" data-go="21">실습 ③ 소리 드릴 →</button></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 18 · TOOL: DETECTIVE ================= -->
+<section class="slide a-pr" data-label="실습 ② 철자 탐정">
+  <div class="split wide-l">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">실습 ②</span><span class="en">Spelling detective</span></p>
+      <h2>철자 탐정: 이상한 글자는 누가, 언제, 왜?</h2>
+      <p class="sub">단어를 고르고, <b>반짝이는 글자</b>를 누르세요. 범인(원인)과 외우는 요령이 나옵니다.</p>
+      <div class="det-words" id="detWords"></div>
+      <div class="det-big" id="detBig" aria-live="polite"></div>
+      <div class="row" style="justify-content:center;margin-bottom:.5rem"><button type="button" class="say" id="detSay">지금 발음 듣기</button><span class="ipa" id="detIpa"></span><span class="small muted" id="detKo"></span></div>
+      <div class="det-card" id="detCard" aria-live="polite"><p class="muted">반짝이는 글자를 누르면 여기에 사건 기록이 나옵니다.</p></div>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>범인 목록</h3>
+        <div class="causes" id="detCauses"></div>
+        <p class="scoreline" id="detScore" style="margin:.6rem 0 0"></p>
+        <p class="cap">범인은 대부분 한두 명입니다. <b>노르만 서기, 인쇄공, 르네상스 학자, 사라진 소리, 대모음추이</b>. 범인을 알면 같은 범인이 만든 다른 단어도 함께 풀립니다.</p>
+      </div>
+      <div class="panel">
+        <h3>탐정의 메모: 묵음은 '뜻의 고리'</h3>
+        <p class="small" style="margin:0">debt의 b는 <b>debit</b>, sign의 g는 <b>signature</b>, muscle의 c는 <b>muscular</b>와 이어 줍니다. 묵음 글자를 '쓸데없는 글자'가 아니라 <b>친척 단어로 가는 힌트</b>로 외우면 철자와 어휘가 함께 늡니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 19 · PRONUNCIATION ================= -->
+<section class="slide a-pn" data-label="발음: 한국인이 어려운 4가지">
+  <div class="full">
+    <p class="kicker"><span class="tag">2부 · 발음</span><span class="en">Pronunciation</span></p>
+    <h2>한국인에게 영어 발음이 어려운 4가지 이유, 그리고 그 역사</h2>
+    <div class="cards two" style="margin-top:.6rem">
+      <div class="card top"><span class="ic">① 모음이 너무 많다</span>
+        <p>모음 <b>글자</b>는 a e i o u 5개, 모음 <b>소리</b>는 약 20개 (영국 표준 발음: 단모음 12 + 이중모음 8). 서울말 단모음은 실제로 약 7개 (ㅐ/ㅔ 구별이 거의 없음). 그래서 <span class="w">ship/sheep, full/fool, bed/bad</span>가 같게 들린다.</p>
+        <p class="ex"><b>역사</b>: 대모음추이로 긴 모음이 이중모음이 되어 a = /eɪ/, i = /aɪ/, o = /oʊ/.</p></div>
+      <div class="card top"><span class="ic">② 자음이 몰려 있다</span>
+        <p><span class="w">strengths</span>는 <b>1음절</b> (자음 3 + 모음 1 + 자음 4). 한국어 음절은 '자음 + 모음 + 받침 1개'라서 '으'를 넣어 늘린다: strike 1음절 → 스트라이크 <b>5음절</b>, Christmas 2음절 → 크리스마스 <b>5음절</b>.</p>
+        <div class="says"><button type="button" class="say" data-say="pr-strike">strike</button><button type="button" class="say" data-say="pr-strengths">strengths</button><button type="button" class="say" data-say="pr-Christmas">Christmas</button></div>
+        <p class="ex"><b>역사</b>: 게르만어는 원래 자음 덩어리를 좋아했고, 중세에 끝 모음 -e가 사라지며 자음이 더 몰렸다.</p></div>
+      <div class="card top"><span class="ic">③ 리듬: 강세 박자</span>
+        <p>영어는 <b>강세 음절만 길고 세게</b>, 나머지는 짧고 약하게 /ə/(schwa)로. 한국어는 음절마다 비슷한 길이. 그래서 <b>모음 글자가 달라도 약하면 모두 /ə/</b>:</p>
+        <div class="says"><button type="button" class="say" data-say="schwa-about"><span class="w"><u>a</u>bout</span></button><button type="button" class="say" data-say="schwa-taken"><span class="w">tak<u>e</u>n</span></button><button type="button" class="say" data-say="schwa-pencil"><span class="w">penc<u>i</u>l</span></button><button type="button" class="say" data-say="schwa-lemon"><span class="w">lem<u>o</u>n</span></button><button type="button" class="say" data-say="schwa-circus"><span class="w">circ<u>u</u>s</span></button></div>
+        <p class="ex"><b>역사</b>: 게르만어의 '첫 음절 강세'가 끝 음절을 약하게 만들었고, 그 결과 문법 어미까지 사라졌다.</p></div>
+      <div class="card top"><span class="ic">④ 한국어에 없는 소리</span>
+        <p>f/v, θ/ð (th), z, r/l 구별, /ʃ/ vs /s/ (she / see). 받침도 영어는 소리를 <b>터뜨리거나 이어 주는데</b> 한국어는 닫는다 (book을 '북'으로).</p>
+        <p class="ex"><b>역사</b>: th 소리는 고대 영어부터 있던 영어의 '대표 소리'. 라틴 알파벳에 글자가 없어서 þ·ð를 만들어 썼다가 th로 바뀌었다.</p></div>
+    </div>
+    <aside class="box key" style="margin-top:.6rem"><p><b>결론</b>: 발음이 어려운 건 귀나 입이 나빠서가 아니라 <b>두 언어의 소리 체계가 다르기</b> 때문입니다. 다음 슬라이드의 '강세'가 그중 가장 효과가 큰 열쇠입니다. 소리 하나하나의 연습은 <a class="xlink" href="../pronunciation_deck/rachel_pronunciation_rules.html" data-xlink>발음 덱 (Rachel's English) ↗</a>에서.</p></aside>
+  </div>
+</section>
+
+<!-- ================= 20 · STRESS ================= -->
+<section class="slide a-pn" data-label="강세가 모음을 정한다">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">2부 · 발음 · 강세</span><span class="en">Stress decides the vowel</span></p>
+      <h2>강세가 모음을 정한다: <span class="hl">철자보다 강세를 먼저</span></h2>
+      <p class="lead">같은 o라도 강세를 받으면 또렷한 /oʊ/ /ɑː/, 못 받으면 /ə/. 그래서 <b>강세 위치를 모르면 철자를 알아도 못 읽고, 소리를 들어도 못 씁니다.</b></p>
+      <h3>영어에는 강세 규칙이 두 벌 있다 (역사 때문)</h3>
+      <ul class="bul">
+        <li><span class="lay G">게르만 단어</span> 어근의 <b>첫 음절</b>: WAter, MOther, HAPpy. 단 be-, for-, a-, under- 같은 접두사에는 강세가 없다: beGIN, forGET, aBOUT, underSTAND.</li>
+        <li><span class="lay L">라틴·그리스어 단어</span> <b>접미사가 강세를 정한다</b>: -tion, -sion, -ic → 바로 앞 (eduCAtion, ecoNOMic). -ity, -graphy, -logy, -cracy → 그 앞 음절 (possiBILity, phoTOgraphy, psyCHOlogy, deMOcracy).</li>
+        <li><span class="lay F">프랑스어 쌍</span> 2음절 명사는 앞, 동사는 뒤: REcord / reCORD, PREsent / preSENT. 늦게 들어온 프랑스어는 끝에: hoTEL, poLICE, caREER.</li>
+      </ul>
+      <aside class="box bridge"><h3>공부 팁</h3><p>단어장에 <b>강세를 대문자로</b> 적으세요: phoTOgrapher, eCONomy. 강세 모음 하나만 정확하면 나머지는 /ə/로 약하게. 이것만으로도 알아듣기 쉬운 영어가 됩니다.</p></aside>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>photograph 가족: 같은 철자, 다른 모음</h3>
+        <table class="t">
+          <thead><tr><th>단어</th><th>강세</th><th>소리</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="w"><b class="hl">PHO</b>·to·graph</td><td>첫째</td><td class="ipa">/ˈfoʊtəɡræf/</td><td><button type="button" class="say" data-say="w-photograph">듣기</button></td></tr>
+            <tr><td class="w">pho·<b class="hl">TO</b>·gra·pher</td><td>둘째</td><td class="ipa">/fəˈtɑːɡrəfər/</td><td><button type="button" class="say" data-say="w-photographer">듣기</button></td></tr>
+            <tr><td class="w">pho·to·<b class="hl">GRAPH</b>·ic</td><td>셋째</td><td class="ipa">/ˌfoʊtəˈɡræfɪk/</td><td><button type="button" class="say" data-say="w-photographic">듣기</button></td></tr>
+          </tbody>
+        </table>
+        <p class="cap">첫 o는 /oʊ/ → /ə/ → /oʊ/, 둘째 o는 /ə/ → /ɑː/ → /ə/. <b>철자는 그대로, 강세가 옮겨 가며 모음이 바뀝니다.</b></p>
+      </div>
+      <div class="panel">
+        <h3>명사·동사 쌍</h3>
+        <div class="says">
+          <button type="button" class="say" data-say="w-record (명사)"><b class="w">REcord</b><small>명사</small></button>
+          <button type="button" class="say" data-say="w-record (동사)"><b class="w">reCORD</b><small>동사</small></button>
+          <button type="button" class="say" data-say="w-present (명사)"><b class="w">PREsent</b><small>명사</small></button>
+          <button type="button" class="say" data-say="w-present (동사)"><b class="w">preSENT</b><small>동사</small></button>
+        </div>
+        <p class="cap"><button type="button" class="go" data-go="21">실습 ③ 강세 맞히기 →</button></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 21 · TOOL: DRILL ================= -->
+<section class="slide a-pn" data-label="실습 ③ 철자→소리 드릴">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">실습 ③</span><span class="en">Spelling-to-sound drill</span></p>
+      <h2>철자 → 소리 드릴: 패턴과 강세</h2>
+      <div class="row" style="margin:.4rem 0 .45rem">
+        <div class="seg" id="drMode" role="group" aria-label="드릴 종류"><button type="button" class="on" data-m="sound">소리 맞히기</button><button type="button" data-m="stress">강세 맞히기</button></div>
+      </div>
+      <div class="seg" id="drSets" role="group" aria-label="세트"></div>
+      <div class="panel" style="margin-top:.55rem;max-width:none">
+        <p class="small muted" id="drAsk" style="margin:0"></p>
+        <div class="drill-word" id="drWord"></div>
+        <div id="drChoices"></div>
+        <p class="fb" id="drFb" aria-live="polite">답을 고르면 소리와 이유가 나옵니다.</p>
+        <div class="row" style="margin-top:.5rem;justify-content:space-between">
+          <span class="scoreline" id="drScore"></span>
+          <span class="row"><button type="button" class="say" id="drSay">듣기</button><button type="button" class="pbtn" id="drNext">다음 →</button></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3 id="drRuleTitle">이 세트의 규칙</h3>
+        <p class="small" id="drRule" style="margin:0"></p>
+        <p class="cap">규칙은 답을 확인한 뒤에 읽어도 좋습니다. 먼저 감으로 고르고, 틀린 것을 규칙으로 정리하는 편이 오래 남습니다.</p>
+      </div>
+      <div class="panel">
+        <h3>이 세트의 단어</h3>
+        <div class="says" id="drList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 22 · VOCABULARY ================= -->
+<section class="slide a-vo" data-label="어휘: 3층 건물">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">2부 · 어휘</span><span class="en">Vocabulary</span></p>
+      <h2>영어 어휘는 3층 건물: <span class="hl">고유어 · 한자어</span>와 닮았다</h2>
+      <div class="mirror" style="margin:.5rem 0 .6rem">
+        <div>층</div><div>한국어</div><div>영어</div><div>느낌</div>
+        <div class="rl">일상</div><div>고유어: 이, 달, 해, 묻다</div><div><span class="lay G">게르만</span> tooth, moon, sun, ask</div><div>짧고 쉽고 친근</div>
+        <div class="rl">격식</div><div>한자어: 치아, 질문, 구매</div><div><span class="lay F">프랑스어</span> question, purchase, royal</div><div>공식·법·정부</div>
+        <div class="rl">학술</div><div>한자 전문어: 치과, 음력, 심문</div><div><span class="lay L">라틴·그리스어</span> dental, lunar, interrogate</div><div>학문·과학·전문</div>
+        <div class="rl">외래</div><div>외래어: 샴푸, 컴퓨터</div><div>전 세계: shampoo, tycoon, kimchi</div><div>문화 교류</div>
+      </div>
+      <aside class="box key"><p><b>사전과 실제는 다르다</b>: 사전에는 라틴·프랑스어가 절반이 넘지만, 실제로 가장 많이 쓰는 40단어 중 <b>38개가 고대 영어, 2개가 바이킹</b>입니다. 회화는 짧은 게르만 단어 + 구동사(<span class="w">find out, come up with</span>), 보고서·논문은 라틴·프랑스어(<span class="w">discover, devise</span>).</p></aside>
+      <aside class="box bridge"><h3>공부 팁</h3><p>한국 사람은 이미 '한 뜻, 여러 층'에 익숙합니다 (이 / 치아 / 치과). 새 단어를 외울 때 <b>같은 뜻의 다른 층 단어</b>를 한 쌍으로 묶으세요: ask ↔ inquire, buy ↔ purchase, help ↔ assist.</p></aside>
+      <p class="small"><button type="button" class="go" data-go="23">실습 ④ 어휘 층 맞히기 →</button></p>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>영어 단어는 어디서 왔나 (사전 약 8만 단어 기준)</h3>
+        <div class="vbars" id="vbars" role="list"></div>
+        <p class="cap">Finkenstaedt &amp; Wolff (1973). Gill의 원그래프(4:19)도 같은 계열의 수치입니다. 프랑스어도 라틴어에서 왔기 때문에 두 층의 경계는 겹칩니다.</p>
+      </div>
+      <div class="panel">
+        <h3>그런데 가장 많이 쓰는 40단어는?</h3>
+        <div class="top40" id="top40"></div>
+        <p class="cap">점선 = 바이킹(노르드어). 라틴·프랑스어 출신은 0개. (Oxford English Corpus 빈도 상위 40)</p>
+      </div>
+      <div class="chapters">
+        <button type="button" data-v="gill" data-t="4:37" data-q="Latin, the Latin words that came from… partly from the Roman invasion, we have 29% of the words in the English language have come from a Latin origin."><i class="vk">G</i><b>4:37</b>라틴어 29%</button>
+        <button type="button" data-v="gill" data-t="8:50" data-q="Looking at our pie chart again, we've got Germanic 26%, so just over a quarter of the words in the English language today come from a Germanic source."><i class="vk">G</i><b>8:50</b>게르만어 26%</button>
+        <button type="button" data-v="gill" data-t="9:31" data-q="Let's just see a few examples of the Germanic words. They're often quite short words and words we use every day, like “above”, “again”, “and”, “apple”, “bad” and “good”."><i class="vk">G</i><b>9:31</b>짧은 일상어</button>
+        <button type="button" data-v="gill" data-t="11:27" data-q="Looking at Greek, it's actually quite small, just 6%. But they're … words that are used in a sort of academic life, and the word “academic” itself is one of them."><i class="vk">G</i><b>11:27</b>그리스어 6%</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 23 · TOOL: LAYER GAME ================= -->
+<section class="slide a-vo" data-label="실습 ④ 어휘 층 맞히기">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">실습 ④</span><span class="en">Word-layer game</span></p>
+      <h2>어휘 층 맞히기: 이 단어는 몇 층에서 왔을까?</h2>
+      <p class="sub">한 판에 12단어. 단어를 보고 층을 고르세요. 답과 함께 같은 뜻의 '다른 층 단어'가 나옵니다.</p>
+      <div class="panel" style="max-width:none">
+        <p class="small muted" id="lgCount" style="margin:0"></p>
+        <div class="lg-word" id="lgWord"></div>
+        <div class="buckets" id="lgBuckets">
+          <button type="button" class="bucket G" data-b="G"><b>게르만</b><span>고대 영어 · 바이킹</span></button>
+          <button type="button" class="bucket F" data-b="F"><b>프랑스어</b><span>노르만 정복 이후</span></button>
+          <button type="button" class="bucket L" data-b="L"><b>라틴 · 그리스어</b><span>르네상스 · 학술</span></button>
+        </div>
+        <p class="fb" id="lgFb" aria-live="polite">층을 고르면 출처와 '가족'이 나옵니다.</p>
+        <div class="row" style="margin-top:.5rem;justify-content:space-between">
+          <span class="scoreline" id="lgScore"></span>
+          <span class="row"><button type="button" class="pbtn" id="lgNext">다음 →</button><button type="button" class="pbtn" id="lgNew">새 판</button></span>
+        </div>
+      </div>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>단서: 이런 모양이면 이 층</h3>
+        <div class="clues">
+          <div class="G"><b>게르만</b>1~2음절, 몸·가족·자연·기본 동사, 불규칙 (feet, went), kn, wr, gh, th, sk (sky, skin)</div>
+          <div class="F"><b>프랑스어</b>-tion, -ment, -age, -ance, -ty, -ure, qu, ou, 끝 강세 (police), 법·음식·패션</div>
+          <div class="L"><b>라틴 · 그리스어</b>3음절 이상, -ate, -ous, -al, inter-, trans-, ex-, ph, ch(=k), ps, y, -ology</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>정직한 메모</h3>
+        <p class="small" style="margin:0">프랑스어도 라틴어에서 왔기 때문에 경계가 겹칩니다. 여기서는 <b>언제, 어떤 경로로 영어에 들어왔나</b>(어원 사전 기준)로 나눴습니다. 그리스어 단어는 대부분 라틴어나 프랑스어를 거쳐 들어왔지만 '학술층'으로 묶었습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 24 · GRAMMAR ================= -->
+<section class="slide a-gr" data-label="문법: 조사에서 자리로">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">2부 · 문법</span><span class="en">Grammar</span></p>
+      <h2>문법: 조사(어미)가 사라지고 <span class="hl">'자리'가 문법</span>이 됐다</h2>
+      <div class="flow" style="margin:.5rem 0 .6rem">
+        <div><b>고대 영어</b>어미로 역할 표시, 어순 자유<em>450–1100</em></div>
+        <div><b>어미가 닳음</b>끝 모음이 /ə/로 약해져 구별 불가<em>900–1300</em></div>
+        <div><b>중세 영어</b>SVO 고정, of·to·by가 격을 대신<em>1100–1500</em></div>
+        <div><b>초기 근대</b>do 조동사: Do you…? I don't…<em>1500–1700</em></div>
+        <div><b>현대</b>구동사·진행형·수동태 증가<em>1700–</em></div>
+      </div>
+      <p class="lead">한국어는 <b>조사 언어</b>(고대 영어와 비슷), 현대 영어는 <b>자리 언어</b>입니다. 영어 문장에서는 조사를 찾지 말고 <b>자리</b>를 보세요.</p>
+      <table class="t" style="margin-bottom:.6rem">
+        <thead><tr><th>한국어 조사</th><th>현대 영어에서는</th><th>예</th></tr></thead>
+        <tbody>
+          <tr><td>은/는/이/가</td><td><b>동사 앞</b> 자리</td><td class="w"><u>The manager</u> approved it.</td></tr>
+          <tr><td>을/를</td><td><b>동사 바로 뒤</b> 자리</td><td class="w">approved <u>the plan</u></td></tr>
+          <tr><td>의 · 에게 · 에 의해 · 로</td><td><b>전치사</b> of · to · by · with</td><td class="w">the plan <u>of the team</u></td></tr>
+          <tr><td>-니? · -지 않다</td><td><b>2번 자리</b>(조동사)를 앞으로 · not</td><td class="w"><u>Did</u> he approve? He <u>didn't</u>.</td></tr>
+        </tbody>
+      </table>
+      <p class="small">2번 자리 연습: <a class="xlink" href="../grammar_deck/grow_a_sentence.html" data-xlink>문장이 자란다 ↗</a></p>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>불규칙 = 고대 영어의 화석</h3>
+        <p class="small" style="margin:0 0 .35rem">가장 많이 쓰는 동사 대부분이 불규칙입니다. <b>너무 자주 써서</b> 규칙(-ed)으로 바뀌지 않고 살아남았습니다.</p>
+        <p class="w" style="margin:0;line-height:1.75"><span class="lay G">be–was–been</span> <span class="lay G">have–had</span> <span class="lay G">do–did–done</span> <span class="lay G">say–said</span> <span class="lay G">go–went–gone</span> <span class="lay G">get–got</span> <span class="lay G">make–made</span> <span class="lay G">know–knew</span> <span class="lay G">think–thought</span> <span class="lay G">take–took</span> <span class="lay G">see–saw</span> <span class="lay G">come–came</span> <span class="lay G">give–gave</span></p>
+        <p class="cap">반대로 드물게 쓰던 불규칙은 규칙으로 바뀌었습니다 (help–holp → helped). <b>공부법</b>: 표로 외우지 말고 <b>소리 덩어리</b>로 반복 ("I went, I've gone").</p>
+      </div>
+      <div class="player small" data-v="rob"></div>
+      <div class="chapters">
+        <button type="button" data-v="nab" data-t="5:08" data-q="The complex inflectional system of Old English began to simplify. Many grammatical gender distinctions and case endings were lost, leading to a more fixed word order and the increased use of prepositions and auxiliary verbs to convey meaning."><i class="vk">N</i><b>5:08</b>어미 소멸 → 어순</button>
+        <button type="button" data-v="rob" data-t="18:55" data-q="We start to use “do” in a host of really weird ways. We start putting it into questions like “Do you not love me?”"><i class="vk">R</i><b>18:55</b>do의 등장</button>
+        <button type="button" data-v="rob" data-t="20:20" data-q="I mean like the fact we use the passive voice way more than English speakers of old did."><i class="vk">R</i><b>20:20</b>수동태 증가</button>
+        <button type="button" data-v="rob" data-t="20:44" data-q="Phrasal verbs are also a huge feature of modern English, and are a nightmare for adult learners of the language… And there isn't always a logic to them."><i class="vk">R</i><b>20:44</b>구동사</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 25 · BETTER METHODS ================= -->
+<section class="slide a-in" data-label="역사가 알려 주는 공부법 8가지">
+  <div class="full">
+    <p class="kicker"><span class="tag">더 좋은 방법</span><span class="en">8 methods the history suggests</span></p>
+    <h2>역사가 알려 주는 효과적인 공부법 8가지</h2>
+    <div class="cards" style="margin-top:.6rem">
+      <div class="card top"><span class="ic">1 · 소리 먼저</span><span class="t">새 단어는 반드시 듣고 시작<span class="en">Sound first</span></span>
+        <p>철자는 대모음추이 이전의 기록이라 소리의 '힌트'일 뿐. 로마자처럼 읽어 보고 외우면 틀린 소리가 굳는다.</p><p class="ex">사전 음성 2~3번 → 따라 말하기 → 그다음 철자</p></div>
+      <div class="card top"><span class="ic">2 · 강세 = 철자의 일부</span><span class="t">강세를 대문자로 적기<span class="en">Stress is spelling</span></span>
+        <p>강세가 모음을 정한다. 강세 모음 하나만 또렷하게, 나머지는 /ə/.</p><p class="ex">phoTOgrapher · eCONomy · deVELop</p></div>
+      <div class="card top"><span class="ic">3 · 규칙은 확률</span><span class="t">패턴 + 예외 가족<span class="en">Patterns, not laws</span></span>
+        <p>45개 파닉스 규칙 중 75% 넘게 맞는 건 18개. 예외는 '가족'으로 묶는다.</p><p class="ex">have · give · love · live: v 뒤의 e는 장식</p></div>
+      <div class="card top"><span class="ic">4 · 출신으로 예측</span><span class="t">출신을 알면 소리가 보인다<span class="en">Origin predicts sound</span></span>
+        <p>ch, ph, ps, y → 그리스어 (k, f) / -tion, qu, ou → 프랑스어 / kn, gh, wr → 게르만 옛 소리.</p><p class="ex">chorus /k/ · chef /ʃ/ · church /tʃ/</p></div>
+      <div class="card top"><span class="ic">5 · 묵음은 고리</span><span class="t">묵음을 친척 단어로 외우기<span class="en">Silent letters as hooks</span></span>
+        <p>철자는 뜻을 지킨다. 묵음 글자는 친척 단어로 가는 다리.</p><p class="ex">sign→signature · debt→debit · muscle→muscular</p></div>
+      <div class="card top"><span class="ic">6 · 어근 = 영어의 한자</span><span class="t">라틴 어근 20개로 수백 단어<span class="en">Roots like hanja</span></span>
+        <p>한자 '견(見)'을 알면 견학·의견이 보이듯, spect(보다)를 알면 inspect·respect·prospect가 보인다.</p><p class="ex">spect 보다 · port 나르다 · dict 말하다 · struct 세우다</p></div>
+      <div class="card top"><span class="ic">7 · 말은 게르만으로</span><span class="t">회화는 짧은 단어 + 구동사<span class="en">Speak Germanic</span></span>
+        <p>원어민의 일상 대화는 짧은 게르만 단어가 대부분. 어려운 라틴어보다 쉬운 조합이 자연스럽다.</p><p class="ex">investigate → look into · discover → find out</p></div>
+      <div class="card top"><span class="ic">8 · 받아쓰기 + 섀도잉</span><span class="t">소리와 철자를 묶는 연습<span class="en">Dictation &amp; shadowing</span></span>
+        <p>받아쓰기는 소리→철자 패턴을, 섀도잉은 강세·리듬을 몸에 남긴다. 하루 5문장이면 충분.</p><p class="ex">듣기 덱 · 발음 덱의 섀도잉 문장 활용</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 26 · ROUTINE + PLAN ================= -->
+<section class="slide a-gr" data-label="단어 루틴 + 4주 계획">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">실천</span><span class="en">A 5-step word routine and a 4-week plan</span></p>
+      <h2>단어 하나를 제대로 배우는 5단계</h2>
+      <div class="steps5">
+        <div><b>① 듣기</b>사전 음성 2~3번, 따라 말하기</div>
+        <div><b>② 강세</b>대문자로 표시: phoTOgrapher</div>
+        <div><b>③ 철자 패턴</b>규칙인가? 어느 예외 가족인가?</div>
+        <div><b>④ 출신·친척</b>사전의 Origin(어원), 같은 어근 1~2개</div>
+        <div><b>⑤ 내 문장</b>업무 문장 1개를 소리 내어</div>
+      </div>
+      <h3>4주 계획 (하루 15분)</h3>
+      <div class="weeks">
+        <div class="wk"><span class="n">1주<small>소리 지도</small></span><span class="what"><b>대모음추이 7모음 + schwa</b><span>타임머신 5분, 강세 드릴 1세트. 단어장에 강세 표시 시작.</span></span></div>
+        <div class="wk"><span class="n">2주<small>철자 패턴</small></span><span class="what"><b>소리 맞히기 6세트 + 받아쓰기</b><span>하루 5문장 받아쓰기. 틀린 철자는 '범인'을 적어 둔다.</span></span></div>
+        <div class="wk"><span class="n">3주<small>어휘 층</small></span><span class="what"><b>하루 3쌍 + 라틴 어근 5개</b><span>ask ↔ inquire, buy ↔ purchase … / spect, port, dict, struct, scrib.</span></span></div>
+        <div class="wk"><span class="n">4주<small>문법 자리</small></span><span class="what"><b>2번 자리 + 업무 구동사 20개</b><span>set up, follow up, find out, come up with, run into … 소리 덩어리로.</span></span></div>
+      </div>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>오늘의 체크 (이 브라우저에 저장)</h3>
+        <div class="checklist" id="todayCheck">
+          <label><input type="checkbox" data-k="listen"><span>새 단어를 철자보다 <b>소리로 먼저</b> 익혔다</span></label>
+          <label><input type="checkbox" data-k="stress"><span>단어장에 <b>강세</b>를 대문자로 표시했다</span></label>
+          <label><input type="checkbox" data-k="family"><span>묵음·이상한 철자의 <b>친척 단어</b>를 하나 찾았다</span></label>
+          <label><input type="checkbox" data-k="layer"><span>같은 뜻의 <b>다른 층 단어</b>를 한 쌍 묶었다</span></label>
+          <label><input type="checkbox" data-k="dict"><span><b>받아쓰기</b> 또는 섀도잉 5문장을 했다</span></label>
+        </div>
+        <p class="score" id="checkScore"></p>
+        <button type="button" class="pbtn" id="checkClear">처음부터</button>
+      </div>
+      <div class="panel">
+        <h3>함께 보면 좋은 덱 (같은 폴더)</h3>
+        <ul class="bul" style="margin:0">
+          <li><a class="xlink" href="../pronunciation_deck/rachel_pronunciation_rules.html" data-xlink>발음 규칙 22 (Rachel's English) ↗</a></li>
+          <li><a class="xlink" href="../grammar_deck/grow_a_sentence.html" data-xlink>문장이 자란다 (어순·2번 자리) ↗</a></li>
+          <li><a class="xlink" href="../reading_deck/read_like_bert.html" data-xlink>BERT처럼 영어책 읽기 ↗</a></li>
+          <li><a class="xlink" href="../listening_deck/improve_english_listening.html" data-xlink>영어 듣기 향상 ↗</a></li>
+        </ul>
+        <p class="cap filewarn-x" id="xlinkNote"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 27 · SUMMARY + SOURCES ================= -->
+<section class="slide a-in" data-label="한 장 요약 · 출처">
+  <div class="split">
+    <div class="col-text">
+      <p class="kicker"><span class="tag">한 장 요약</span><span class="en">Summary</span></p>
+      <h2>영어가 어려운 이유 = 역사, 그래서 이렇게 배운다</h2>
+      <div class="sumtab" style="margin-top:.5rem">
+        <div>영역</div><div>왜 어렵나 (역사)</div><div>그래서 이렇게</div>
+        <div class="t">철자</div><div>서기·인쇄공·학자의 손길, 대모음추이 도중 고정</div><div>범인을 알고, 묵음은 친척 단어로</div>
+        <div class="t">발음</div><div>긴 모음의 이동, 사라진 소리, 강세 박자</div><div>소리 먼저, 강세를 철자처럼</div>
+        <div class="t">어휘</div><div>게르만·프랑스·라틴/그리스 3층</div><div>층별로 쌍을 묶고, 어근 = 한자</div>
+        <div class="t">문법</div><div>어미 소멸 → 어순·전치사·do, 불규칙 화석</div><div>조사 대신 자리, 불규칙은 소리 덩어리</div>
+      </div>
+      <aside class="box key"><p><b>한 줄 요약</b>: 영어 철자는 600년 전 소리의 사진이다. <b>사진을 소리로 착각하지 말고, 소리를 먼저 배운 뒤 사진(철자)으로 확인하자.</b></p></aside>
+      <aside class="box trap"><h3>정직한 메모</h3>
+        <p>옛 발음은 학자들의 <b>재구성</b>이고, AI 음성은 그 근사치입니다. '고기 = 프랑스어'는 단순화한 설명입니다. 어휘 비율은 사전 기준(사용 빈도 아님)입니다. Fortress of Lugh 영상은 언어보다 <b>사람들의 기원(유전자)</b>을 다루며 일부는 제작자의 해석이라, 언어와 관련된 부분만 인용했습니다. "인쇄공이 줄 길이를 맞추려고 글자를 더했다"는 흔한 설은 근거가 약해 뺐습니다.</p></aside>
+    </div>
+    <div class="col-media">
+      <div class="panel">
+        <h3>출처 · 더 읽기</h3>
+        <ol class="refs">
+          <li>RobWords, <i>The entire history of English in 22 minutes</i> (2025)</li>
+          <li>English with Nab, <i>The history of the English language</i> (2024)</li>
+          <li>engVid Gill, <i>Discover the History of English</i> (2016)</li>
+          <li>Fortress of Lugh, <i>Origins of the English</i> (2023)</li>
+          <li>Baugh &amp; Cable, <i>A History of the English Language</i> (Routledge)</li>
+          <li>David Crystal, <i>The Stories of English</i> (2004)</li>
+          <li>Seymour, Aro &amp; Erskine (2003), <i>Foundation literacy acquisition in European orthographies</i>, Br. J. Psychology 94</li>
+          <li>Clymer (1963), <i>The utility of phonic generalizations in the primary grades</i>, The Reading Teacher 16</li>
+          <li>Finkenstaedt &amp; Wolff (1973), <i>Ordered Profusion</i> (어휘 출신 비율)</li>
+          <li>Gretzinger et al. (2022), <i>The Anglo-Saxon migration and the formation of the early English gene pool</i>, Nature 610</li>
+          <li>훈민정음 해례본 (1446) · 한글 맞춤법 (1988)</li>
+          <li>Online Etymology Dictionary (단어별 어원)</li>
+        </ol>
+      </div>
+      <p class="src">끝까지 들어 주셔서 감사합니다. <kbd>Home</kbd> 처음으로 · <button type="button" class="go" data-go="4">1,500년 지도 다시 보기</button></p>
+    </div>
+  </div>
+</section>
